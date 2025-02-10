@@ -1,3 +1,4 @@
+"""Script to extract weather information from open-meteo."""
 from datetime import datetime, timedelta
 
 import openmeteo_requests
@@ -35,7 +36,8 @@ def make_requests(today: str, tomorrow: str, lat: float, long: float, openmeteo)
     return responses
 
 
-def get_dataframe(hourly):
+def get_dataframe(today: str, tomorrow: str, hourly):
+    """Returns dataframe of weather."""
     hourly_temperature_2m = hourly.Variables(0).ValuesAsNumpy()
     hourly_precipitation_probability = hourly.Variables(1).ValuesAsNumpy()
     hourly_cloud_cover = hourly.Variables(2).ValuesAsNumpy()
@@ -54,16 +56,30 @@ def get_dataframe(hourly):
     hourly_data["visibility"] = hourly_visibility
 
     hourly_dataframe = pd.DataFrame(data=hourly_data)
+    return hourly_dataframe[
+        hourly_dataframe['date'].isin(
+            [
+                f'{today} 18:00:00+00:00',
+                f'{today} 21:00:00+00:00',
+                f'{tomorrow} 00:00:00+00:00',
+                f'{tomorrow} 03:00:00+00:00'
+            ]
+        )
+    ]
+
+
+def get_weather_for_location(today: str, tomorrow: str, lat: float, long: float, openmeteo):
+    """Returns dataframe of weather at the given location."""
+    responses = make_requests(today, tomorrow, lat, long, openmeteo)
+    response = responses[0]
+    hourly = response.Hourly()
+    hourly_dataframe = get_dataframe(today, tomorrow, hourly)
     return hourly_dataframe
 
 
 if __name__ == "__main__":
     openmeteo = get_openmeteo()
-    today, tomorrow = get_dates()
-    responses = make_requests(today, tomorrow, 51.8892, 0.9042, openmeteo)
-
-    response = responses[0]
-
-    hourly = response.Hourly()
-    hourly_dataframe = get_dataframe(hourly)
-    print(hourly_dataframe)
+    today_str, tomorrow_str = get_dates()
+    df = get_weather_for_location(
+        today_str, tomorrow_str, 51.8892, 0.9042, openmeteo)
+    print(df)
