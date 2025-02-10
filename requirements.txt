@@ -6,3 +6,4 @@ pandas
 pylint
 python-dotenv
 pytest
+beautifulsoup4
