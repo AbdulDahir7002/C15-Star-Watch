@@ -4,3 +4,5 @@ retry-requests
 numpy
 pandas
 pylint
+python-dotenv
+pytest
