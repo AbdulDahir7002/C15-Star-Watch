@@ -26,4 +26,9 @@ jobs:
             python -m pip install --upgrade pip 
             pip install pylint  
         - name: Run pylint
-          run: pylint --fail-under=8 **/*.py
+          run: |
+            if ls **/*.py 1> /dev/null 2>&1; then
+              flake8 .
+            else
+              echo "No Python files found, skipping linting."
+            fi
