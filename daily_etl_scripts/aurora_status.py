@@ -6,8 +6,6 @@ import requests
 import psycopg2
 from dotenv import load_dotenv
 
-COUNTRIES = ["England", "Northern Ireland", "Scotland", "Wales"]
-
 
 # DB connect
 def get_connection():
