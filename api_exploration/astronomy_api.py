@@ -5,9 +5,11 @@ import requests
 from dotenv import load_dotenv
 
 
-def get_body_locations(header: str, lat: float, long: float) -> None:
+def get_body_locations(header: str, lat: float, long: float, from_date: str, to_date: str, time: str) -> None:
     """returns the locations of celestial bodies"""
-    response = requests.get(f"https://api.astronomyapi.com/api/v2/bodies/positions?latitude={lat}&longitude={long}&elevation=24.7&from_date=2025-02-10&to_date=2025-02-10&time=10:31:00""",
+    response = requests.get(f"""https://api.astronomyapi.com/
+                            api/v2/bodies/positions?latitude={lat}&longitude={long}&
+                            elevation=24.7&from_date={from_date}&to_date={to_date}&time={time}""",
                             headers={'Authorization': header}, timeout=10)
     return response.json()
 
