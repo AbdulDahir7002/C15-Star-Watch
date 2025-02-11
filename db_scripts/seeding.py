@@ -43,10 +43,15 @@ def get_correct_location(results: list) -> tuple:
     """Returns the first city from the results in the UK, none otherwise."""
     for result in results:
         if result.get('country') == "United Kingdom":
+            if result['name'] == 'Londonderry':
+                result['country'] = "Northern Ireland"
+            else:
+                result['country'] = result['admin1']
             return (result['name'],
                     result['latitude'],
                     result['longitude'],
-                    result['elevation'])
+                    result['elevation'],
+                    result['country'])
     return None
 
 
@@ -104,7 +109,7 @@ def get_meteor_showers():
 
 if __name__ == "__main__":
     load_dotenv()
-    connection = get_connection()
+    # connection = get_connection()
     locations_tuple = get_locations(CITIES)
     showers_tuple = get_meteor_showers()
     print(locations_tuple)

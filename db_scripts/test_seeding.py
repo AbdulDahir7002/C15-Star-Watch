@@ -12,10 +12,10 @@ class TestGetCorrectLocation(unittest.TestCase):
     def test_get_correct_location(self):
         test_results = [
             {"country": "United Kingdom", "latitude": 1,
-                "longitude": 1, "elevation": 1, "name": "testville"},
-            {"country": "United States", "latitude": 0, "longitude": 0, "elevation": 0, "name": "test city"}]
+                "longitude": 1, "elevation": 1, "name": "testville", "admin1": "England"},
+            {"country": "United States", "latitude": 0, "longitude": 0, "elevation": 0, "name": "test city", "admin1": "America"}]
         self.assertEqual(get_correct_location(
-            test_results), ("testville", 1, 1, 1))
+            test_results), ("testville", 1, 1, 1, 'England'))
 
     def test_get_correct_location_no_uk(self):
         test_results = [{"country": "United States", "latitude": 0,
