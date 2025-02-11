@@ -7,11 +7,9 @@ from dotenv import load_dotenv
 
 def get_body_locations(header: str, lat: float, long: float) -> None:
     """returns the locations of celestial bodies"""
-    response = requests.get(f"""https://api.astronomyapi.com/
-                            api/v2/bodies/positions?latitude={lat}&longitude={long}&
-                            elevation=24.7&from_date=2025-02-10&to_date=2025-02-10&time=10:31:00""",
+    response = requests.get(f"https://api.astronomyapi.com/api/v2/bodies/positions?latitude={lat}&longitude={long}&elevation=24.7&from_date=2025-02-10&to_date=2025-02-10&time=10:31:00""",
                             headers={'Authorization': header}, timeout=10)
-    print(response.json())
+    return response.json()
 
 
 def get_star_chart_url(header: str, lat: float, long: float) -> None:
@@ -36,7 +34,7 @@ def get_star_chart_url(header: str, lat: float, long: float) -> None:
         headers={'Authorization': header},
         json=body
     )
-    print(response.json())
+    return response.json()
 
 
 def get_moon_phase(header: str, lat: float, long: float) -> None:
@@ -66,12 +64,12 @@ def get_moon_phase(header: str, lat: float, long: float) -> None:
         headers={'Authorization': header},
         json=body
     )
-    print(response.json())
+    return response.json()
 
 
 if __name__ == "__main__":
     load_dotenv()
-    auth_string = environ["BASIC_AUTH_KEY"]
+    auth_string = environ["ASTRONOMY_BASIC_AUTH_KEY"]
     print(auth_string)
     HEADER = f'Basic {auth_string}'
     get_body_locations(HEADER, 51.54, -0.08)
