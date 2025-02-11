@@ -1,8 +1,9 @@
 # pylint: skip-file
 import unittest
 from unittest.mock import patch, MagicMock
+from datetime import datetime
 
-from seeding import get_correct_location, get_locations
+from seeding import get_correct_location, get_locations, get_date_objects
 
 CITIES = ["London"]
 
@@ -57,6 +58,15 @@ class TestGetLocations(unittest.TestCase):
         mock_requests.return_value = mock_response
         mock_location.return_value = None
         self.assertEqual(get_locations(CITIES), [])
+
+
+class TestGetDateObjects(unittest.TestCase):
+    def test_get_date_objects(self):
+        start_date = "October 2nd 2025"
+        end_date = "October 3rd, 2025"
+        start_object, end_object = get_date_objects(start_date, end_date)
+        self.assertEqual(start_object, datetime(2025, 10, 2))
+        self.assertEqual(end_object, datetime(2025, 10, 3))
 
 
 if __name__ == "__main__":
