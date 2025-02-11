@@ -12,7 +12,7 @@ def get_body_locations(header: str, lat: float, long: float) -> None:
     return response.json()
 
 
-def get_star_chart_url(header: str, lat: float, long: float) -> None:
+def post_star_chart_url(header: str, lat: float, long: float) -> None:
     """returns the url of a star chart for specific coordinates"""
     body = {
         "style": "default",
@@ -38,7 +38,7 @@ def get_star_chart_url(header: str, lat: float, long: float) -> None:
     return response.json()
 
 
-def get_moon_phase(header: str, lat: float, long: float) -> None:
+def post_moon_phase(header: str, lat: float, long: float) -> None:
     """returns the url of a star chart for specific coordinates"""
     body = {
         "format": "png",
@@ -75,5 +75,5 @@ if __name__ == "__main__":
     print(auth_string)
     HEADER = f'Basic {auth_string}'
     get_body_locations(HEADER, 51.54, -0.08)
-    print(get_star_chart_url(HEADER, 33.775867,  -84.39733))
-    print(get_moon_phase(HEADER, 33.775867, -84.39733))
+    print(post_star_chart_url(HEADER, 33.775867,  -84.39733))
+    print(post_moon_phase(HEADER, 33.775867, -84.39733))

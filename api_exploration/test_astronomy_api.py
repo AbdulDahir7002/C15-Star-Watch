@@ -3,7 +3,7 @@ import unittest
 from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock
 
-from astronomy_api import get_body_locations, get_moon_phase, get_star_chart_url
+from astronomy_api import get_body_locations, post_moon_phase, post_star_chart_url
 
 SAMPLE_POSITIONS = {
     'data': {
@@ -37,7 +37,7 @@ SAMPLE_STAR_CHART = {
 
 
 class TestAstronomyAPI(unittest.TestCase):
-    @patch('requests.get')
+    @patch('astronomy_api.requests.get')
     def test_get_body_locations(self, mock_get):
         mock_response = MagicMock()
         mock_response.json.return_value = SAMPLE_POSITIONS
@@ -46,22 +46,22 @@ class TestAstronomyAPI(unittest.TestCase):
         result = get_body_locations(HEADER, 51.54, -0.08)
         self.assertEqual(SAMPLE_POSITIONS, result)
 
-    @patch('requests.get')
-    def test_get_moon_phase(self, mock_get):
+    @patch('astronomy_api.requests.post')
+    def test_post_moon_phase(self, mock_get):
         mock_response = MagicMock()
         mock_response.json.return_value = SAMPLE_MOON_PHASE
         mock_get.return_value = mock_response
         HEADER = 'Basic'
-        result = get_body_locations(HEADER, 51.54, -0.08)
+        result = post_moon_phase(HEADER, 51.54, -0.08)
         self.assertEqual(SAMPLE_MOON_PHASE, result)
 
-    @patch('requests.get')
+    @patch('astronomy_api.requests.post')
     def test_get_star_chart_url(self, mock_get):
         mock_response = MagicMock()
         mock_response.json.return_value = SAMPLE_STAR_CHART
         mock_get.return_value = mock_response
         HEADER = 'Basic'
-        result = get_body_locations(HEADER, 51.54, -0.08)
+        result = post_star_chart_url(HEADER, 51.54, -0.08)
         self.assertEqual(SAMPLE_STAR_CHART, result)
 
 

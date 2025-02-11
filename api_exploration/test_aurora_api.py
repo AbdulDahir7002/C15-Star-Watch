@@ -28,7 +28,7 @@ class TestAuroraAPI(unittest.TestCase):
         result = get_current_aurora_data()
         self.assertEqual(result, SAMPLE_AURORA_OUTPUT)
         mock_get.assert_called_once_with(
-            "https://aurorawatch-api.lancs.ac.uk/0.2/status/current-status.xml")
+            "https://aurorawatch-api.lancs.ac.uk/0.2/status/current-status.xml", timeout=10)
 
 
 if __name__ == "__main__":
