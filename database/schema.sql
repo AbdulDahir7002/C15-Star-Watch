@@ -22,37 +22,43 @@ CREATE TABLE aurora_status (
     aurora_status_desc TEXT NOT NULL
 );
 
+CREATE TABLE country (
+    country_id SMALLINT PRIMARY KEY NOT NULL,
+    country_name VARCHAR NOT NULL
+);
+
+CREATE TABLE city (
+    city_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    city_name VARCHAR NOT NULL,
+    country_id SMALLINT NOT NULL,
+    latitude FLOAT NOT NULL,
+    longitude FLOAT NOT NULL,
+    elevation SMALLINT NOT NULL,
+    FOREIGN KEY (country_id) REFERENCES country(country_id)
+);
 
 CREATE TABLE weather_status (
     weather_status_id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    location_id SMALLINT NOT NULL,
+    city_id SMALLINT NOT NULL,
     temperature FLOAT NOT NULL,
     coverage FLOAT NOT NULL,
     visibility FLOAT NOT NULL,
-    status_at TIMESTAMP NOT NULL
-);
-
-CREATE TABLE location (
-    location_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    location_name VARCHAR NOT NULL,
-    latitude FLOAT NOT NULL,
-    longitude FLOAT NOT NULL,
-    elevation SMALLINT NOT NULL
+    status_at TIMESTAMP NOT NULL,
+    FOREIGN KEY (city_id) REFERENCES city(city_id)
 );
 
 CREATE TABLE subscriber (
     subscriber_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    subscriber_name VARCHAR NOT NULL,
+    subscriber_name VARCHAR,
     subscriber_email VARCHAR,
     subscriber_phone VARCHAR,
-    location_id SMALLINT NOT NULL,
-    FOREIGN KEY (location_id) REFERENCES location(location_id),
-    CONSTRAINT email_or_phone CHECK (subscriber_email IS NOT NULL OR subscriber_phone IS NOT NULL)
+    city_id SMALLINT NOT NULL,
+    FOREIGN KEY (city_id) REFERENCES city(city_id)
 );
 
 CREATE TABLE stargazing_status (
     stargazing_status_id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    location_id SMALLINT NOT NULL,
+    city_id SMALLINT NOT NULL,
     moon_phase_id SMALLINT NOT NULL,
     aurora_status_id SMALLINT NOT NULL,
     sunrise TIMESTAMP NOT NULL,
@@ -60,7 +66,8 @@ CREATE TABLE stargazing_status (
     status_date DATE NOT NULL,
     star_chart_url VARCHAR NOT NULL,
     meteor_shower_id SMALLINT NOT NULL,
-    FOREIGN KEY (location_id) REFERENCES location(location_id),
+    moon_phase_url VARCHAR,
+    FOREIGN KEY (city_id) REFERENCES city(city_id),
     FOREIGN KEY (moon_phase_id) REFERENCES moon_phase(moon_phase_id),
     FOREIGN KEY (aurora_status_id) REFERENCES aurora_status(aurora_status_id),
     FOREIGN KEY (meteor_shower_id) REFERENCES meteor_shower(meteor_shower_id)
