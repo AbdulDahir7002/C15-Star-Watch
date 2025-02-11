@@ -95,9 +95,9 @@ def get_meteor_showers():
     soup = BeautifulSoup(html_content, "html.parser")
 
     showers_list = []
-    showers = soup.find_all(class_='shower media')
+    showers_divs = soup.find_all(class_='shower media')
 
-    for shower in showers:
+    for shower in showers_divs:
         media_body = shower.find("div", class_="media-body")
         header = media_body.find('h3')
         timings = media_body.find('span').get_text(strip=True)
@@ -115,6 +115,7 @@ def get_meteor_showers():
 
 
 def insert_countries(connection) -> None:
+    """Inserts countries England, Scotland, Wales and Northern Ireland into the database."""
     curs = connection.cursor()
     query = """
             INSERT INTO country (country_id, country_name)
@@ -126,6 +127,7 @@ def insert_countries(connection) -> None:
 
 
 def insert_cities(locations_list, connection) -> None:
+    """Inserts cities into the database."""
     curs = connection.cursor()
     query = """
             INSERT INTO city (city_name, country_id, latitude, longitude, elevation)
@@ -137,6 +139,7 @@ def insert_cities(locations_list, connection) -> None:
 
 
 def insert_meteor_showers(showers_list, connection) -> None:
+    """Inserts meteor showers in the database."""
     curs = connection.cursor()
     query = """
             INSERT INTO meteor_shower (meteor_shower_name, shower_start, shower_end)
@@ -148,6 +151,7 @@ def insert_meteor_showers(showers_list, connection) -> None:
 
 
 def clear_tables(connection):
+    """Empties city, country and meteor shower."""
     curs = connection.cursor()
     query = """
             DELETE FROM city;
@@ -161,13 +165,11 @@ def clear_tables(connection):
 
 if __name__ == "__main__":
     load_dotenv()
-    connection = get_connection()
-    locations_list = get_locations(CITIES)
-    showers_list = get_meteor_showers()
-    print(locations_list)
-    print(showers_list)
-    clear_tables(connection)
-    insert_countries(connection)
-    insert_cities(locations_list, connection)
-    insert_meteor_showers(showers_list, connection)
-    connection.close()
+    conn = get_connection()
+    locations = get_locations(CITIES)
+    showers = get_meteor_showers()
+    clear_tables(conn)
+    insert_countries(conn)
+    insert_cities(locations, conn)
+    insert_meteor_showers(showers, conn)
+    conn.close()
