@@ -71,7 +71,7 @@ def get_meteor_showers():
         header = media_body.find('h3')
         timings = media_body.find('span').get_text(strip=True)
 
-        if timings.endswith("2025"):
+        if timings.endswith(str(datetime.today().year)):
             dates = timings.split()
             startdate = f"{dates[2]} {dates[3]} {dates[-1]}"
             enddate = f"{dates[5]} {dates[6]} {dates[-1]}"
@@ -86,3 +86,5 @@ def get_meteor_showers():
 if __name__ == "__main__":
     locations_tuple = get_locations()
     showers_tuple = get_meteor_showers()
+    print(locations_tuple)
+    print(showers_tuple)
