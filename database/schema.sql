@@ -67,7 +67,7 @@ CREATE TABLE stargazing_status (
     star_chart_url VARCHAR NOT NULL,
     meteor_shower_id SMALLINT NOT NULL,
     moon_phase_url VARCHAR,
-    picture_of_day VARCHAR,
+    nasa_apod_url VARCHAR,
     FOREIGN KEY (city_id) REFERENCES city(city_id),
     FOREIGN KEY (moon_phase_id) REFERENCES moon_phase(moon_phase_id),
     FOREIGN KEY (aurora_status_id) REFERENCES aurora_status(aurora_status_id),
