@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock
 import pandas as pd
 
-from weather_extract import get_dates, convert_df_to_list, get_locations, clear_weather_table
+from weather_extract import get_dates, convert_df_to_list, get_locations, clear_weather_table, insert_into_db
 
 
 class TestGetDates(unittest.TestCase):
@@ -54,6 +54,20 @@ class TestClearWeatherTable(unittest.TestCase):
         mock_conn.cursor.assert_called_once()
         mock_cursor.execute.assert_called_once_with(
             "DELETE FROM weather_status;")
+        mock_conn.commit.assert_called_once()
+        mock_cursor.close.assert_called_once()
+
+
+class TestInsertIntoDb(unittest.TestCase):
+    @patch('weather_extract.execute_values')
+    def test_insert_into_db(self, mock_execute_values):
+        mock_conn = MagicMock()
+        mock_cursor = MagicMock()
+
+        mock_conn.cursor.return_value = mock_cursor
+        df = pd.DataFrame({'id': [1, 2], 'name': ['Alice', 'Bob']})
+        insert_into_db(df, mock_conn)
+        mock_conn.cursor.assert_called_once()
         mock_conn.commit.assert_called_once()
         mock_cursor.close.assert_called_once()
 
