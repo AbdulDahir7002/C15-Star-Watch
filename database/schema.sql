@@ -33,7 +33,7 @@ CREATE TABLE city (
     country_id SMALLINT NOT NULL,
     latitude FLOAT NOT NULL,
     longitude FLOAT NOT NULL,
-    elevation SMALLINT NOT NULL,
+    elevation FLOAT NOT NULL,
     FOREIGN KEY (country_id) REFERENCES country(country_id)
 );
 
