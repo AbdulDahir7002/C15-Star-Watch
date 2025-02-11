@@ -43,7 +43,8 @@ class TestAstronomyAPI(unittest.TestCase):
         mock_response.json.return_value = SAMPLE_POSITIONS
         mock_get.return_value = mock_response
         HEADER = 'Basic'
-        result = get_body_locations(HEADER, 51.54, -0.08)
+        result = get_body_locations(HEADER, 51.54, -0.08, 21.7, "2025-02-11",
+                                    "2025-02-11", "22:00:00")
         self.assertEqual(SAMPLE_POSITIONS, result)
 
     @patch('astronomy_api.requests.post')
@@ -52,7 +53,7 @@ class TestAstronomyAPI(unittest.TestCase):
         mock_response.json.return_value = SAMPLE_MOON_PHASE
         mock_get.return_value = mock_response
         HEADER = 'Basic'
-        result = post_moon_phase(HEADER, 51.54, -0.08)
+        result = post_moon_phase(HEADER, 33.775867, -84.39733, "2020-02-11")
         self.assertEqual(SAMPLE_MOON_PHASE, result)
 
     @patch('astronomy_api.requests.post')
@@ -61,7 +62,8 @@ class TestAstronomyAPI(unittest.TestCase):
         mock_response.json.return_value = SAMPLE_STAR_CHART
         mock_get.return_value = mock_response
         HEADER = 'Basic'
-        result = post_star_chart_url(HEADER, 51.54, -0.08)
+        result = post_star_chart_url(
+            HEADER, 33.775867,  -84.39733, "2020-02-11")
         self.assertEqual(SAMPLE_STAR_CHART, result)
 
 
