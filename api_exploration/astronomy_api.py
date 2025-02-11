@@ -71,7 +71,7 @@ def get_moon_phase(header: str, lat: float, long: float) -> None:
 
 if __name__ == "__main__":
     load_dotenv()
-    auth_string = environ["BASIC_AUTH_KEY"]
+    auth_string = environ["ASTRONOMY_BASIC_AUTH_KEY"]
     print(auth_string)
     HEADER = f'Basic {auth_string}'
     get_body_locations(HEADER, 51.54, -0.08)
