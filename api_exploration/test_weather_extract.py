@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock
 import pandas as pd
 
-from weather_extract import get_dates, convert_df_to_list, get_locations, clear_weather_table, insert_into_db
+from weather_extract import get_dates, convert_df_to_list, get_locations, clear_weather_table, insert_into_db, get_weather_for_location
 
 
 class TestGetDates(unittest.TestCase):
@@ -70,6 +70,27 @@ class TestInsertIntoDb(unittest.TestCase):
         mock_conn.cursor.assert_called_once()
         mock_conn.commit.assert_called_once()
         mock_cursor.close.assert_called_once()
+
+
+class TestGetWeatherForLocation(unittest.TestCase):
+    @patch("weather_extract.get_dataframe")
+    @patch("weather_extract.make_requests")
+    def test_get_weather_for_location(self, mock_make_requests, mock_get_dataframe):
+        openmeteo = MagicMock()
+        mock_response = MagicMock()
+        mock_hourly = MagicMock()
+        mock_response.Hourly.return_value = mock_hourly
+        mock_make_requests.return_value = [mock_response]
+
+        sample_df = pd.DataFrame({"temperature_2m": [10, 12, 14]})
+        mock_get_dataframe.return_value = sample_df
+
+        result_df = get_weather_for_location(
+            "2025-02-10", "2025-02-17", 51.5, -0.12, openmeteo)
+        mock_make_requests.assert_called_once_with(
+            "2025-02-10", "2025-02-17", 51.5, -0.12, openmeteo)
+        mock_get_dataframe.assert_called_once_with(mock_hourly)
+        self.assertTrue(result_df.equals(sample_df))
 
 
 if __name__ == "__main__":
