@@ -19,7 +19,7 @@ def get_star_chart_url(header: str, lat: float, long: float) -> None:
         "observer": {
             "latitude": lat,
             "longitude": long,
-            "date": "2019-12-20"
+            "date": "2025-10-20"
         },
         "view": {
             "type": "constellation",
@@ -73,5 +73,5 @@ if __name__ == "__main__":
     print(auth_string)
     HEADER = f'Basic {auth_string}'
     get_body_locations(HEADER, 51.54, -0.08)
-    get_star_chart_url(HEADER, 33.775867,  -84.39733)
-    get_moon_phase(HEADER, 33.775867, -84.39733)
+    print(get_star_chart_url(HEADER, 33.775867,  -84.39733))
+    print(get_moon_phase(HEADER, 33.775867, -84.39733))
