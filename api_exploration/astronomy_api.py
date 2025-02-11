@@ -1,7 +1,7 @@
 """Extracts simple astronomic data from the AstronomyAPI"""
-import base64
-import requests
 from os import environ
+import requests
+
 from dotenv import load_dotenv
 
 
@@ -32,7 +32,8 @@ def get_star_chart_url(header: str, lat: float, long: float) -> None:
     response = requests.post(
         "https://api.astronomyapi.com/api/v2/studio/star-chart",
         headers={'Authorization': header},
-        json=body
+        json=body,
+        timeout=10
     )
     return response.json()
 
@@ -62,7 +63,8 @@ def get_moon_phase(header: str, lat: float, long: float) -> None:
     response = requests.post(
         "https://api.astronomyapi.com/api/v2/studio/moon-phase",
         headers={'Authorization': header},
-        json=body
+        json=body,
+        timeout=10
     )
     return response.json()
 

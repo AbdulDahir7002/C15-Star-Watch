@@ -1,12 +1,13 @@
 """Script for interacting with aurora_api"""
-import requests
 from xml.etree import ElementTree as ET
+
+import requests
 
 
 def get_current_aurora_data():
     """Fetch current aurora status and last update"""
     response = requests.get(
-        "https://aurorawatch-api.lancs.ac.uk/0.2/status/current-status.xml")
+        "https://aurorawatch-api.lancs.ac.uk/0.2/status/current-status.xml", timeout=10)
     root = ET.fromstring(response.text)
     last_update = root[0][0].text
     current_status = root[1].attrib["status_id"]
