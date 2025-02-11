@@ -116,9 +116,15 @@ def clear_weather_table(connection) -> None:
     curs.close()
 
 
+def convert_df_to_list(df: pd.DataFrame):
+    """Converts a dataframe to a list of tuples."""
+    tuple_list = [tuple(row) for row in df.itertuples(index=False)]
+    return tuple_list
+
+
 def insert_into_db(all_weather_df: pd.DataFrame, connection) -> None:
     """Inserts the weather into the database."""
-    tuple_list = [tuple(row) for row in all_weather_df.itertuples(index=False)]
+    tuple_list = convert_df_to_list(all_weather_df)
     curs = connection.cursor()
     query = """
             INSERT INTO weather_status (status_at, temperature, coverage, visibility, city_id)
