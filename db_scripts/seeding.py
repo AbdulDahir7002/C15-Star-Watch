@@ -1,9 +1,13 @@
 """Module to generate data for the database."""
 from datetime import datetime
 import re
+from os import environ as ENV
 
 import requests
 from bs4 import BeautifulSoup
+import psycopg2
+from dotenv import load_dotenv
+
 
 CITIES = [
     "Aberdeen", "Armagh", "Bangor", "Bath", "Belfast", "Birmingham", "Bradford",
@@ -22,6 +26,19 @@ CITIES = [
 ]
 
 
+def get_connection():
+    """Returns psycopg2 connection object."""
+    connection = psycopg2.connect(
+        server=ENV["DB_HOST"],
+        port=ENV["DB_PORT"],
+        user=ENV["DB_USERNAME"],
+        password=ENV["DB_PASSWORD"],
+        database=ENV["DB_NAME"],
+        as_dict=False
+    )
+    return connection
+
+
 def get_correct_location(results: list) -> tuple:
     """Returns the first city from the results in the UK, none otherwise."""
     for result in results:
@@ -33,7 +50,7 @@ def get_correct_location(results: list) -> tuple:
     return None
 
 
-def get_locations():
+def get_locations(CITIES: list[str]):
     """Returns list of tuples with location information."""
     locations_list = []
 
@@ -42,7 +59,9 @@ def get_locations():
         response = requests.get(url, timeout=5)
         if response.status_code == 200:
             results = response.json()['results']
-            locations_list.append(get_correct_location(results))
+            location = get_correct_location(results)
+            if location:
+                locations_list.append(location)
 
     return locations_list
 
@@ -84,7 +103,9 @@ def get_meteor_showers():
 
 
 if __name__ == "__main__":
-    locations_tuple = get_locations()
+    load_dotenv()
+    connection = get_connection()
+    locations_tuple = get_locations(CITIES)
     showers_tuple = get_meteor_showers()
     print(locations_tuple)
     print(showers_tuple)
