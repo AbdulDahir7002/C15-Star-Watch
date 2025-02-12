@@ -12,10 +12,6 @@ CREATE TABLE meteor_shower (
     shower_peak DATE NOT NULL
 );
 
-CREATE TABLE moon_phase (
-    moon_phase_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    moon_phase_name VARCHAR(50) UNIQUE NOT NULL
-);
 
 CREATE TABLE country (
     country_id SMALLINT PRIMARY KEY NOT NULL,
@@ -53,6 +49,13 @@ CREATE TABLE weather_status (
     UNIQUE (city_id, status_at)
 );
 
+CREATE TABLE nasa_apod (
+    nasa_apod_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    nasa_apod_url VARCHAR(100),
+    nasa_apod_title VARCHAR(50),
+    nasa_apod_media_type VARCHAR(10)
+);
+
 CREATE TABLE stargazing_status (
     stargazing_status_id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     city_id SMALLINT NOT NULL,
@@ -62,10 +65,10 @@ CREATE TABLE stargazing_status (
     status_date DATE NOT NULL,
     star_chart_url VARCHAR(100) NOT NULL,
     moon_phase_url VARCHAR(100) NOT NULL,
-    nasa_apod_url VARCHAR(100) NOT NULL,
+    nasa_apod_id SMALLINT NOT NULL,
     FOREIGN KEY (city_id) REFERENCES city(city_id),
-    FOREIGN KEY (moon_phase_id) REFERENCES moon_phase(moon_phase_id),
-    UNIQUE(city_id, moon_phase_id, sunrise, sunset, status_date, star_chart_url, moon_phase_url, nasa_apod_url)
+    FOREIGN KEY (nasa_apod_id) REFERENCES nasa_apod(nasa_apod_id),
+    UNIQUE(city_id, moon_phase_id, sunrise, sunset, status_date, star_chart_url, moon_phase_url, nasa_apod_id)
 );
 
 CREATE TABLE meteor_shower_assignment (
