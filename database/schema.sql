@@ -50,19 +50,6 @@ CREATE TABLE weather_status (
     FOREIGN KEY (city_id) REFERENCES city(city_id)
 );
 
-CREATE TABLE subscriber (
-    subscriber_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    subscriber_email VARCHAR,
-    subscriber_phone VARCHAR
-);
-
-CREATE TABLE subscriber_city_assignment (
-    subscriber_city_assignment_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    subscriber_id INT NOT NULL,
-    city_id SMALLINT NOT NULL,
-    FOREIGN KEY (subscriber_id) REFERENCES subscriber(subscriber_id),
-    FOREIGN KEY (city_id) REFERENCES city(city_id)
-);
 
 CREATE TABLE stargazing_status (
     stargazing_status_id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
