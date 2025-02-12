@@ -12,10 +12,6 @@ CREATE TABLE meteor_shower (
     shower_peak DATE NOT NULL
 );
 
-CREATE TABLE moon_phase (
-    moon_phase_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    moon_phase_name VARCHAR(50) UNIQUE NOT NULL
-);
 
 CREATE TABLE country (
     country_id SMALLINT PRIMARY KEY NOT NULL,
