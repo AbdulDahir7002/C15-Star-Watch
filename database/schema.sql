@@ -6,24 +6,25 @@ CREATE DATABASE starwatch;
 
 CREATE TABLE meteor_shower (
     meteor_shower_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    meteor_shower_name VARCHAR NOT NULL,
+    meteor_shower_name VARCHAR(50) NOT NULL,
     shower_start DATE NOT NULL,
-    shower_end DATE NOT NULL
+    shower_end DATE NOT NULL,
+    shower_peak DATE NOT NULL
 );
 
 CREATE TABLE moon_phase (
     moon_phase_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    moon_phase_name VARCHAR NOT NULL
+    moon_phase_name VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE country (
     country_id SMALLINT PRIMARY KEY NOT NULL,
-    country_name VARCHAR NOT NULL
+    country_name VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE aurora_status (
     aurora_status_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    aurora_hourly_status_at TIMESTAMP NOT NULL,
+    aurora_status_at TIMESTAMP NOT NULL,
     camera_visibility BOOLEAN NOT NULL,
     naked_eye_visibility BOOLEAN NOT NULL,
     country_id SMALLINT NOT NULL,
@@ -32,7 +33,7 @@ CREATE TABLE aurora_status (
 
 CREATE TABLE city (
     city_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    city_name VARCHAR NOT NULL,
+    city_name VARCHAR(50) NOT NULL,
     country_id SMALLINT NOT NULL,
     latitude FLOAT NOT NULL,
     longitude FLOAT NOT NULL,
@@ -50,7 +51,6 @@ CREATE TABLE weather_status (
     FOREIGN KEY (city_id) REFERENCES city(city_id)
 );
 
-
 CREATE TABLE stargazing_status (
     stargazing_status_id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     city_id SMALLINT NOT NULL,
@@ -58,9 +58,9 @@ CREATE TABLE stargazing_status (
     sunrise TIMESTAMP NOT NULL,
     sunset TIMESTAMP NOT NULL,
     status_date DATE NOT NULL,
-    star_chart_url VARCHAR NOT NULL,
-    moon_phase_url VARCHAR,
-    nasa_apod_url VARCHAR,
+    star_chart_url VARCHAR(100) NOT NULL,
+    moon_phase_url VARCHAR(100) NOT NULL,
+    nasa_apod_url VARCHAR(100) NOT NULL,
     FOREIGN KEY (city_id) REFERENCES city(city_id),
     FOREIGN KEY (moon_phase_id) REFERENCES moon_phase(moon_phase_id)
 );
