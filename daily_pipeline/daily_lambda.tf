@@ -7,7 +7,7 @@ provider "aws" {
 # ECR
 
 data "aws_ecr_repository" "lambda-image-repo" {
-  name = "c15-c15-star-daily-pipeline-etl-etl"
+  name = "c15-star-daily-pipeline-etl"
 }
 
 data "aws_ecr_image" "lambda-image-version" {
