@@ -31,7 +31,7 @@ def query_db(conn, query: str, params: tuple) -> list[tuple]:
 def insert_db(conn, query: str, params: tuple) -> tuple:
     with conn.cursor() as cursor:
         cursor.execute(query, params)
-        cursor.commit()
+    conn.commit()
 
 # Extract
 
@@ -102,7 +102,7 @@ def get_status_per_country(status: dict, countries: dict) -> list[tuple]:
 # Load
 
 
-def insert_values_to_db(country_status: list):
+def insert_values_to_db(conn, country_status: list):
     """Insert the current aurora status into aurora_status table"""
     query = """
             INSERT INTO aurora_status (
@@ -114,7 +114,7 @@ def insert_values_to_db(country_status: list):
                 (%s, %s, %s, %s)
             """
     for row in country_status:
-        insert_db(query, row)
+        insert_db(conn, query, row)
 
 
 if __name__ == "__main__":
@@ -126,5 +126,5 @@ if __name__ == "__main__":
     print(status_dict, country_list)
     country_status_list = get_status_per_country(status_dict, country_list)
     print(country_status_list)
-    insert_values_to_db(country_status_list)
+    insert_values_to_db(conn, country_status_list)
     conn.close()
