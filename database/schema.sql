@@ -67,7 +67,7 @@ CREATE TABLE stargazing_status (
     nasa_apod_id SMALLINT NOT NULL,
     FOREIGN KEY (city_id) REFERENCES city(city_id),
     FOREIGN KEY (nasa_apod_id) REFERENCES nasa_apod(nasa_apod_id),
-    UNIQUE(city_id, moon_phase_id, sunrise, sunset, status_date, star_chart_url, moon_phase_url, nasa_apod_id)
+    UNIQUE(city_id, sunrise, sunset, status_date, star_chart_url, moon_phase_url, nasa_apod_id)
 );
 
 CREATE TABLE meteor_shower_assignment (
