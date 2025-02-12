@@ -87,6 +87,27 @@ def get_date_objects(startdate: str, enddate: str) -> tuple:
     return start_object, end_object
 
 
+def convert_peak_night_to_datetime(peak_night: str) -> datetime:
+    """Converts the peak_night string from Nov16-17 to 2025-11-16."""
+    peak_night = peak_night.split(",")[0].split("-")[0]
+    months = {
+        'Jan': 1,
+        'Feb': 2,
+        'Mar': 3,
+        'Apr': 4,
+        'May': 5,
+        'Jun': 6,
+        'Jul': 7,
+        'Aug': 8,
+        'Sep': 9,
+        'Oct': 10,
+        'Nov': 11,
+        'Dec': 12
+    }
+    year = datetime.today().year
+    return datetime(year, months.get(peak_night[:3]), int(peak_night[3:]))
+
+
 def get_meteor_showers():
     """Returns list of tuples of meteor shower information."""
     url = "https://www.imo.net/resources/calendar/"
@@ -99,6 +120,11 @@ def get_meteor_showers():
 
     for shower in showers_divs:
         media_body = shower.find("div", class_="media-body")
+        left_body = shower.find("div", class_="media-left")
+
+        peak = left_body.find("strong").get_text(strip=True)
+        peak_night = convert_peak_night_to_datetime(peak)
+
         header = media_body.find('h3')
         timings = media_body.find('span').get_text(strip=True)
 
@@ -109,7 +135,7 @@ def get_meteor_showers():
             start_object, end_object = get_date_objects(startdate, enddate)
 
             showers_list.append((header.get_text(strip=True), start_object.strftime(
-                "%Y-%m-%d"), end_object.strftime("%Y-%m-%d")))
+                "%Y-%m-%d"), end_object.strftime("%Y-%m-%d"), peak_night))
 
     return showers_list
 
@@ -142,7 +168,7 @@ def insert_meteor_showers(showers_list, connection) -> None:
     """Inserts meteor showers in the database."""
     curs = connection.cursor()
     query = """
-            INSERT INTO meteor_shower (meteor_shower_name, shower_start, shower_end)
+            INSERT INTO meteor_shower (meteor_shower_name, shower_start, shower_end, shower_peak)
             VALUES %s
             """
     execute_values(curs, query, showers_list)
