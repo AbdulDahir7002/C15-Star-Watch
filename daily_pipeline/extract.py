@@ -5,7 +5,7 @@ import requests
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
-from datetime import date
+from datetime import datetime, date, timedelta
 
 
 def get_connection():
@@ -44,13 +44,12 @@ def post_location_get_starchart(header: str, lat: float, long: float, date: str)
     response = requests.post(
         "https://api.astronomyapi.com/api/v2/studio/star-chart",
         headers={'Authorization': header},
-        json=body,
-        timeout=10
+        json=body
     )
-    return response.json()
+    return response.json()['data']['imageUrl']
 
 
-def post_moon_phase(header: str, lat: float, long: float, date: str) -> None:
+def post_location_get_moonphase(header: str, lat: float, long: float, date: str) -> None:
     """returns the url of a star chart for specific coordinates"""
     body = {
         "format": "png",
@@ -75,10 +74,9 @@ def post_moon_phase(header: str, lat: float, long: float, date: str) -> None:
     response = requests.post(
         "https://api.astronomyapi.com/api/v2/studio/moon-phase",
         headers={'Authorization': header},
-        json=body,
-        timeout=10
+        json=body
     )
-    return response.json()
+    return response.json()['data']['imageUrl']
 
 
 if __name__ == "__main__":
@@ -86,10 +84,21 @@ if __name__ == "__main__":
     conn = get_connection()
     cities = get_locations(conn)
     HEADER = f'Basic {ENV["ASTRONOMY_BASIC_AUTH_KEY"]}'
-    # print(explore(HEADER, 51.54, -0.08, 21.7, "2025-02-11",
-    #               "2025-02-11", "22:00:00"))
-    useful_cities = [{"longitude": city.get(
+
+    useful_cities = [{"city_id": city.get("city_id"), "longitude": city.get(
         "longitude"), "latitude": city.get("latitude")} for city in cities]
-    for city in cities:
-        print(post_location_get_starchart(HEADER, city.get(
-            "latitude"), city.get("longitude"), date.today()))
+
+    next_week = [datetime.strftime(
+        date.today()+timedelta(days=n), "%Y-%m-%d") for n in range(8)]
+
+    # print(useful_cities)
+    resultant_data = []
+    for city in useful_cities:
+        for day in next_week:
+            resultant_data.append((city.get("city_id"), day, post_location_get_starchart(HEADER, city.get(
+                "latitude"), city.get("longitude"), day), post_location_get_moonphase(HEADER, city.get(
+                    "latitude"), city.get("longitude"), day)))
+
+            print(f"done for {day}")
+        print(f"done for {city}")
+        print(resultant_data)
