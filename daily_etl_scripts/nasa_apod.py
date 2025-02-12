@@ -55,4 +55,5 @@ if __name__ == "__main__":
     apod_data = get_picture_of_day()
     if check_valid_apod(apod_data):
         print(apod_data)
-    print("Invalid data.")
+    else:
+        print("Invalid data.")
