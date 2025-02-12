@@ -1,14 +1,15 @@
 """Extracts simple astronomic data from the AstronomyAPI"""
 from os import environ as ENV
+from datetime import datetime, date, timedelta
 
 import requests
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
-from datetime import datetime, date, timedelta
 
 
 def get_connection():
+    """Gets a connection to the database"""
     connection = psycopg2.connect(host=ENV["DB_HOST"],
                                   user=ENV["DB_USERNAME"],
                                   dbname=ENV["DB_NAME"],
@@ -18,20 +19,23 @@ def get_connection():
     return connection
 
 
-def get_locations(conn):
-    cursor = conn.cursor()
+def get_locations(connection):
+    """Retrieves the cities we need to extract data for"""
+    cursor = connection.cursor()
     cursor.execute("""SELECT * FROM city""")
+    cursor.close()
+    connection.close()
     return cursor.fetchall()
 
 
-def post_location_get_starchart(header: str, lat: float, long: float, date: str) -> None:
+def post_location_get_starchart(header: str, lat: float, long: float, date_to_query: str) -> None:
     """returns the url of a star chart for specific coordinates"""
     body = {
         "style": "default",
         "observer": {
             "latitude": lat,
             "longitude": long,
-            "date": date
+            "date": date_to_query
         },
         "view": {
             "type": "constellation",
@@ -44,12 +48,13 @@ def post_location_get_starchart(header: str, lat: float, long: float, date: str)
     response = requests.post(
         "https://api.astronomyapi.com/api/v2/studio/star-chart",
         headers={'Authorization': header},
-        json=body
+        json=body,
+        timeout=60
     )
     return response.json()['data']['imageUrl']
 
 
-def post_location_get_moonphase(header: str, lat: float, long: float, date: str) -> None:
+def post_location_get_moonphase(header: str, lat: float, long: float, date_to_query: str) -> None:
     """returns the url of a star chart for specific coordinates"""
     body = {
         "format": "png",
@@ -63,7 +68,7 @@ def post_location_get_moonphase(header: str, lat: float, long: float, date: str)
         "observer": {
             "latitude": lat,
             "longitude": long,
-            "date": date
+            "date": date_to_query
         },
         "view": {
             "type": "portrait-simple",
@@ -74,7 +79,8 @@ def post_location_get_moonphase(header: str, lat: float, long: float, date: str)
     response = requests.post(
         "https://api.astronomyapi.com/api/v2/studio/moon-phase",
         headers={'Authorization': header},
-        json=body
+        json=body,
+        timeout=60
     )
     return response.json()['data']['imageUrl']
 
@@ -95,9 +101,12 @@ if __name__ == "__main__":
     resultant_data = []
     for city in useful_cities:
         for day in next_week:
-            resultant_data.append((city.get("city_id"), day, post_location_get_starchart(HEADER, city.get(
-                "latitude"), city.get("longitude"), day), post_location_get_moonphase(HEADER, city.get(
-                    "latitude"), city.get("longitude"), day)))
+            resultant_data.append((city.get("city_id"),
+                                   day,
+                                   post_location_get_starchart(HEADER, city.get(
+                                       "latitude"), city.get("longitude"), day),
+                                   post_location_get_moonphase(HEADER, city.get(
+                                       "latitude"), city.get("longitude"), day)))
 
             print(f"done for {day}")
         print(f"done for {city}")
