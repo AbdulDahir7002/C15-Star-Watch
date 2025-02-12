@@ -6,6 +6,7 @@ from os import environ as ENV
 import requests
 from bs4 import BeautifulSoup
 import psycopg2
+from psycopg2.extras import execute_values
 from dotenv import load_dotenv
 
 
@@ -29,18 +30,23 @@ CITIES = [
 def get_connection():
     """Returns psycopg2 connection object."""
     connection = psycopg2.connect(
-        server=ENV["DB_HOST"],
+        host=ENV["DB_HOST"],
         port=ENV["DB_PORT"],
         user=ENV["DB_USERNAME"],
         password=ENV["DB_PASSWORD"],
         database=ENV["DB_NAME"],
-        as_dict=False
     )
     return connection
 
 
 def get_correct_location(results: list) -> tuple:
     """Returns the first city from the results in the UK, none otherwise."""
+    countries = {"England": 1,
+                 "Scotland": 2,
+                 "Wales": 3,
+                 "Northern Ireland": 4
+                 }
+
     for result in results:
         if result.get('country') == "United Kingdom":
             if result['name'] == 'Londonderry':
@@ -48,10 +54,11 @@ def get_correct_location(results: list) -> tuple:
             else:
                 result['country'] = result['admin1']
             return (result['name'],
+                    countries.get(result['country']),
                     result['latitude'],
                     result['longitude'],
-                    result['elevation'],
-                    result['country'])
+                    result['elevation']
+                    )
     return None
 
 
@@ -80,6 +87,27 @@ def get_date_objects(startdate: str, enddate: str) -> tuple:
     return start_object, end_object
 
 
+def convert_peak_night_to_datetime(peak_night: str) -> datetime:
+    """Converts the peak_night string from Nov16-17 to 2025-11-16."""
+    peak_night = peak_night.split(",")[0].split("-")[0]
+    months = {
+        'Jan': 1,
+        'Feb': 2,
+        'Mar': 3,
+        'Apr': 4,
+        'May': 5,
+        'Jun': 6,
+        'Jul': 7,
+        'Aug': 8,
+        'Sep': 9,
+        'Oct': 10,
+        'Nov': 11,
+        'Dec': 12
+    }
+    year = datetime.today().year
+    return datetime(year, months.get(peak_night[:3]), int(peak_night[3:]))
+
+
 def get_meteor_showers():
     """Returns list of tuples of meteor shower information."""
     url = "https://www.imo.net/resources/calendar/"
@@ -88,10 +116,15 @@ def get_meteor_showers():
     soup = BeautifulSoup(html_content, "html.parser")
 
     showers_list = []
-    showers = soup.find_all(class_='shower media')
+    showers_divs = soup.find_all(class_='shower media')
 
-    for shower in showers:
+    for shower in showers_divs:
         media_body = shower.find("div", class_="media-body")
+        left_body = shower.find("div", class_="media-left")
+
+        peak = left_body.find("strong").get_text(strip=True)
+        peak_night = convert_peak_night_to_datetime(peak)
+
         header = media_body.find('h3')
         timings = media_body.find('span').get_text(strip=True)
 
@@ -102,15 +135,67 @@ def get_meteor_showers():
             start_object, end_object = get_date_objects(startdate, enddate)
 
             showers_list.append((header.get_text(strip=True), start_object.strftime(
-                "%Y-%m-%d"), end_object.strftime("%Y-%m-%d")))
+                "%Y-%m-%d"), end_object.strftime("%Y-%m-%d"), peak_night))
 
     return showers_list
 
 
+def insert_countries(connection) -> None:
+    """Inserts countries England, Scotland, Wales and Northern Ireland into the database."""
+    curs = connection.cursor()
+    query = """
+            INSERT INTO country (country_id, country_name)
+            VALUES (1, 'England'), (2, 'Scotland'), (3, 'Wales'), (4, 'Northern Ireland');
+            """
+    curs.execute(query)
+    connection.commit()
+    curs.close()
+
+
+def insert_cities(locations_list, connection) -> None:
+    """Inserts cities into the database."""
+    curs = connection.cursor()
+    query = """
+            INSERT INTO city (city_name, country_id, latitude, longitude, elevation)
+            VALUES %s
+            """
+    execute_values(curs, query, locations_list)
+    connection.commit()
+    curs.close()
+
+
+def insert_meteor_showers(showers_list, connection) -> None:
+    """Inserts meteor showers in the database."""
+    curs = connection.cursor()
+    query = """
+            INSERT INTO meteor_shower (meteor_shower_name, shower_start, shower_end, shower_peak)
+            VALUES %s
+            """
+    execute_values(curs, query, showers_list)
+    connection.commit()
+    curs.close()
+
+
+def clear_tables(connection):
+    """Empties city, country and meteor shower."""
+    curs = connection.cursor()
+    query = """
+            DELETE FROM city;
+            DELETE FROM country;
+            DELETE FROM meteor_shower;
+            """
+    curs.execute(query)
+    connection.commit()
+    curs.close()
+
+
 if __name__ == "__main__":
     load_dotenv()
-    # connection = get_connection()
-    locations_tuple = get_locations(CITIES)
-    showers_tuple = get_meteor_showers()
-    print(locations_tuple)
-    print(showers_tuple)
+    conn = get_connection()
+    locations = get_locations(CITIES)
+    showers = get_meteor_showers()
+    clear_tables(conn)
+    insert_countries(conn)
+    insert_cities(locations, conn)
+    insert_meteor_showers(showers, conn)
+    conn.close()
