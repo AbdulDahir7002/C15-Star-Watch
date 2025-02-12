@@ -74,7 +74,6 @@ def post_moon_phase(header: str, lat: float, long: float, date: str) -> None:
 if __name__ == "__main__":
     load_dotenv()
     auth_string = environ["ASTRONOMY_BASIC_AUTH_KEY"]
-    print(auth_string)
     HEADER = f'Basic {auth_string}'
     print(get_body_locations(HEADER, 51.54, -0.08, 21.7, "2025-02-11",
                              "2025-02-11", "22:00:00"))

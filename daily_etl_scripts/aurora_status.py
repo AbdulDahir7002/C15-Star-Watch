@@ -20,11 +20,18 @@ def get_connection():
     return connection
 
 
-def query_db(conn, query: str, params: tuple) -> tuple:
+def query_db(conn, query: str, params: tuple) -> list[tuple]:
+    """Query the database and return a list of tuples of values"""
     with conn.cursor() as cursor:
         cursor.execute(query, params)
         output = cursor.fetchall()
     return output
+
+
+def insert_db(conn, query: str, params: tuple) -> tuple:
+    with conn.cursor() as cursor:
+        cursor.execute(query, params)
+        cursor.commit()
 
 # Extract
 
@@ -47,6 +54,7 @@ def get_current_aurora_data() -> dict:
         "https://aurorawatch-api.lancs.ac.uk/0.2/status/current-status.xml", timeout=10)
     root = ET.fromstring(response.text)
     last_update = root[0][0].text
+    print(response.text)
     current_status = root[1].attrib["status_id"]
     return {"last_updated": last_update, "current_status": current_status}
 
@@ -91,6 +99,23 @@ def get_status_per_country(status: dict, countries: dict) -> list[tuple]:
         raise ValueError("Current status is unidentified")
     return countries_status
 
+# Load
+
+
+def insert_values_to_db(country_status: list):
+    """Insert the current aurora status into aurora_status table"""
+    query = """
+            INSERT INTO aurora_status (
+                country_id, 
+                aurora_status_at, 
+                camera_visibility, 
+                naked_eye_visibility)
+            VALUES
+                (%s, %s, %s, %s)
+            """
+    for row in country_status:
+        insert_db(query, row)
+
 
 if __name__ == "__main__":
     load_dotenv()
@@ -98,6 +123,8 @@ if __name__ == "__main__":
 
     status_dict = get_current_aurora_data()
     country_list = get_country_dict(conn)
-    print(get_status_per_country(status_dict, country_list))
-
+    print(status_dict, country_list)
+    country_status_list = get_status_per_country(status_dict, country_list)
+    print(country_status_list)
+    insert_values_to_db(country_status_list)
     conn.close()
