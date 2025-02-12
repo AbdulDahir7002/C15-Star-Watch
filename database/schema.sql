@@ -59,7 +59,6 @@ CREATE TABLE nasa_apod (
 CREATE TABLE stargazing_status (
     stargazing_status_id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     city_id SMALLINT NOT NULL,
-    moon_phase_id SMALLINT NOT NULL,
     sunrise TIMESTAMP NOT NULL,
     sunset TIMESTAMP NOT NULL,
     status_date DATE NOT NULL,
