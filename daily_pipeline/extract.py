@@ -5,6 +5,7 @@ import requests
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
+from datetime import date
 
 
 def get_connection():
@@ -87,4 +88,8 @@ if __name__ == "__main__":
     HEADER = f'Basic {ENV["ASTRONOMY_BASIC_AUTH_KEY"]}'
     # print(explore(HEADER, 51.54, -0.08, 21.7, "2025-02-11",
     #               "2025-02-11", "22:00:00"))
-    print(cities)
+    useful_cities = [{"longitude": city.get(
+        "longitude"), "latitude": city.get("latitude")} for city in cities]
+    for city in cities:
+        print(post_location_get_starchart(HEADER, city.get(
+            "latitude"), city.get("longitude"), date.today()))
