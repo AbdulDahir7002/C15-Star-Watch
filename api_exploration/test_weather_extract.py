@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock
 import pandas as pd
 
-from weather_extract import get_dates, convert_df_to_list, get_locations, clear_weather_table, insert_into_db, get_weather_for_location, handle_locations
+from weather_extract import get_dates, convert_df_to_list, get_locations, clear_weather_table, insert_into_db, get_weather_for_location, handle_locations, make_requests
 
 
 class TestGetDates(unittest.TestCase):
@@ -105,6 +105,15 @@ class TestHandleLocations(unittest.TestCase):
         last = pd.Series({'id': 2, 'name': 'Bob', 'city_id': 1})
         self.assertTrue(first.equals(df.iloc[0]))
         self.assertTrue(last.equals(df.iloc[-1]))
+
+
+class TestMakeRequests(unittest.TestCase):
+    def test_make_requests(self):
+        openmeteo = MagicMock()
+        openmeteo.weather_api.return_value = True
+        responses = make_requests(
+            "2025-2-12", "2025-2-19", 13.4, 5.6, openmeteo)
+        self.assertEqual(responses, True)
 
 
 if __name__ == "__main__":
