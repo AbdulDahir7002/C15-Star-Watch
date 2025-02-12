@@ -7,11 +7,12 @@ assignees: ''
 
 ---
 
-**Problem description**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+## Problem description
 
-**User story (If applicable)**
-A clear and concise description of what you want to happen.
+## User story (If applicable)
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+"As a [who], I want [what], so that [why]"
+
+## Acceptance Criteria
+
+## Additional context
