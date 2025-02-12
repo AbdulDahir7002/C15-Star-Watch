@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock
 import pandas as pd
 
-from weather_extract import get_dates, convert_df_to_list, get_locations, clear_weather_table, insert_into_db, get_weather_for_location
+from weather_extract import get_dates, convert_df_to_list, get_locations, clear_weather_table, insert_into_db, get_weather_for_location, handle_locations
 
 
 class TestGetDates(unittest.TestCase):
@@ -91,6 +91,20 @@ class TestGetWeatherForLocation(unittest.TestCase):
             "2025-02-10", "2025-02-17", 51.5, -0.12, openmeteo)
         mock_get_dataframe.assert_called_once_with(mock_hourly)
         self.assertTrue(result_df.equals(sample_df))
+
+
+class TestHandleLocations(unittest.TestCase):
+    @patch("weather_extract.get_weather_for_location")
+    def test_handle_locations(self, mock_get_weather):
+        openmeteo = MagicMock()
+        mock_get_weather.return_value = pd.DataFrame(
+            {'id': [1, 2], 'name': ['Alice', 'Bob']})
+        locations = [(0, 1, 2, 3, 4), (1, 2, 3, 4, 5)]
+        df = handle_locations(locations, openmeteo, "2025-2-3", "2025-2-9")
+        first = pd.Series({'id': 1, 'name': 'Alice', 'city_id': 1})
+        last = pd.Series({'id': 2, 'name': 'Bob', 'city_id': 1})
+        self.assertTrue(first.equals(df.iloc[0]))
+        self.assertTrue(last.equals(df.iloc[-1]))
 
 
 if __name__ == "__main__":
