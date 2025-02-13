@@ -31,7 +31,7 @@ resource "aws_iam_role_policy" "scheduler_lambda_invoke" {
 
 
 resource "aws_scheduler_schedule" "hourly_scheduler" {
-  name       = "c15-starwatch-hourly-schedule"
+  name       = "c15-star-watch-hourly"
   group_name = "default"
 
   flexible_time_window {
