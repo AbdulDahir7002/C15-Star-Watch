@@ -55,8 +55,15 @@ def get_aurora_info(country_id: int, connection) -> pd.DataFrame:
 def get_weather_for_day(day: date, city: str, connection) -> pd.DataFrame:
     """Returns weather information given a city and a day."""
     curs = connection.cursor()
-    curs.execute(
-        f"SELECT * FROM weather_status JOIN city ON (city.city_id = weather_status.city_id) WHERE city_name = '{city}' AND status_at >= '{day}'  AND status_at <= '{day} 23:59';")
+    query = f"""
+            SELECT *
+            FROM weather_status
+            JOIN city ON (city.city_id = weather_status.city_id)
+            WHERE city_name = '{city}'
+            AND status_at >= '{day}'
+            AND status_at <= '{day} 23:59';
+            """
+    curs.execute(query)
     weather_data = [(str(weather[5]).split(" ")[1][:2],
                      round(weather[2], 1),
                      str(weather[3]).split('.')[0],
@@ -70,6 +77,22 @@ def get_weather_for_day(day: date, city: str, connection) -> pd.DataFrame:
     data.index = ['Time', 'Temperature', 'Coverage', 'Visibility']
     curs.close()
     return data
+
+
+def get_stargazing_status_for_day(day: date, city: str, connection) -> pd.DataFrame:
+    """Returns stargazing information given a city and a day."""
+    curs = connection.cursor()
+    query = f"""
+            SELECT stargazing_status.*, city_name
+            FROM stargazing_status JOIN city
+            ON (city.city_id = stargazing_status.city_id)
+            WHERE city_name = {city}
+            AND status_date = {day};
+            """
+    curs.execute(query)
+    stargazing_status = pd.DataFrame(curs.fetchone())
+    curs.close()
+    return stargazing_status
 
 
 def get_days() -> list:
