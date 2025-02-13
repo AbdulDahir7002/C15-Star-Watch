@@ -19,7 +19,7 @@ DB_USER=[Your database username]
 DB_NAME=[Name of your db]
 ```
 
-The dashboard can now be ran locally, but more steps are required to run it on the cloud.
+The dashboard can now be ran locally by using ```streamlit run main.py```, but more steps are required to run it on the cloud.
 
 In ```/terraform```, create a file called ```terraform.tfvars```. It should contain the following variables:
 ```
