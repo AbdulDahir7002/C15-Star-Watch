@@ -52,17 +52,24 @@ def get_aurora_info(country_id: int, connection) -> pd.DataFrame:
     return pd.DataFrame(data)
 
 
-def get_weather_for_day(day, city, connection):
+def get_weather_for_day(day: date, city: str, connection) -> pd.DataFrame:
     """Returns weather information given a city and a day."""
     curs = connection.cursor()
     curs.execute(
         f"SELECT * FROM weather_status JOIN city ON (city.city_id = weather_status.city_id) WHERE city_name = '{city}' AND status_at >= '{day}'  AND status_at <= '{day} 23:59';")
-    weather_data = [(str(weather[5]).split(" ")[1][:2], weather[2], weather[3], weather[4])
+    weather_data = [(str(weather[5]).split(" ")[1][:2],
+                     round(weather[2], 1),
+                     str(weather[3]).split('.')[0],
+                     str(weather[4]).split('.')[0])
                     for weather in curs.fetchall()]
+
     data = pd.DataFrame(weather_data)
     data.columns = ['Time', 'Temperature', 'Coverage', 'Visibility']
+    data = data[data['Time'].isin(['00', '06', '12', '18', '23'])]
+    data = data.T
+    data.index = ['Time', 'Temperature', 'Coverage', 'Visibility']
     curs.close()
-    return data[data['Time'].isin(['00', '06', '12', '18', '23'])]
+    return data
 
 
 def get_days() -> list:
@@ -93,13 +100,13 @@ def app():
     day = st.sidebar.selectbox('Day', get_days())
 
     aurora = get_aurora_info(country_id, connection)
+    weather = get_weather_for_day(day, city, connection)
 
     st.title(city)
-
     col1, col2 = st.columns(2)
     with col1:
         column_one()
-        st.write(get_weather_for_day(day, city, connection))
+        st.markdown(weather.to_html(header=False), unsafe_allow_html=True)
     with col2:
         column_two()
 
@@ -107,12 +114,15 @@ def app():
     st.image("https://cdn.mos.cms.futurecdn.net/xXp45gLeBTBt4jPuZcawUJ-1200-80.jpg",
              use_container_width=True)
 
-    st.write("Aurora activity")
-    st.markdown(aurora.to_html(index=False), unsafe_allow_html=True)
+    if day == date.today():
+        st.write("Current aurora activity")
+        st.markdown(aurora.to_html(index=False), unsafe_allow_html=True)
 
     st.write("Meteor showers")
 
     st.write("Starchart")
+    st.image("https://www.thoughtco.com/thmb/Qao6yuyQrARcbZR3XNF7oZsrEMI=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/8_dipper_bootes_corbor3-56a8cdab3df78cf772a0ccb1.jpg",
+             use_container_width=True)
 
     connection.close()
 
