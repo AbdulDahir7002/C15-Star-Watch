@@ -7,3 +7,5 @@ pytest
 openmeteo-requests
 numpy
 pandas
+asyncio
+aiohttp
