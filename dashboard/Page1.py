@@ -1,4 +1,5 @@
 from os import environ as ENV
+from datetime import date, timedelta
 
 import streamlit as st
 import pandas as pd
@@ -27,7 +28,7 @@ def get_cities(connection) -> list:
     return cities
 
 
-def get_country(city, connection) -> int:
+def get_country(city: str, connection) -> int:
     """Returns the country ID for a given city"""
     curs = connection.cursor()
     curs.execute(f"SELECT country_id FROM city WHERE city_name = '{city}';")
@@ -51,12 +52,34 @@ def get_aurora_info(country_id: int, connection) -> pd.DataFrame:
     return pd.DataFrame(data)
 
 
-def column_one():
+def get_weather_for_day(day, city, connection):
+    """Returns weather information given a city and a day."""
+    curs = connection.cursor()
+    curs.execute(
+        f"SELECT * FROM weather_status JOIN city ON (city.city_id = weather_status.city_id) WHERE city_name = '{city}' AND status_at >= '{day}'  AND status_at <= '{day} 23:59';")
+    weather_data = [(str(weather[5]).split(" ")[1][:2], weather[2], weather[3], weather[4])
+                    for weather in curs.fetchall()]
+    data = pd.DataFrame(weather_data)
+    data.columns = ['Time', 'Temperature', 'Coverage', 'Visibility']
+    curs.close()
+    return data[data['Time'].isin(['00', '06', '12', '18', '23'])]
+
+
+def get_days() -> list:
+    """Returns a list of dates from today to a week from now."""
+    today = date.today()
+    days = [today + timedelta(days=i) for i in range(7)]
+    days.append("Week")
+    return days
+
+
+def column_one() -> None:
+    """Writes info intended for left column."""
     st.write("Weather Forecast")
-    st.write("Weather forecast goes here.")
 
 
 def column_two():
+    """Writes info intended for right column."""
     st.write("Sunset / Sunrise")
     st.write("Sunset/rise goes here.")
 
@@ -67,6 +90,8 @@ def app():
 
     city = st.sidebar.selectbox('City', get_cities(connection))
     country_id = get_country(city, connection)
+    day = st.sidebar.selectbox('Day', get_days())
+
     aurora = get_aurora_info(country_id, connection)
 
     st.title(city)
@@ -74,6 +99,7 @@ def app():
     col1, col2 = st.columns(2)
     with col1:
         column_one()
+        st.write(get_weather_for_day(day, city, connection))
     with col2:
         column_two()
 
