@@ -1,13 +1,7 @@
-provider "aws" {
-  region = "eu-west-2"
-  secret_key = var.AWS_SECRET_ACCESS_KEY
-  access_key = var.AWS_ACCESS_KEY
-}
-
 # ECR
 
 data "aws_ecr_repository" "lambda-image-repo" {
-  name = "c15-star-hourly-pipeline-etl"
+  name = "c15-star-watch-hourly-lambda-repo"
 }
 
 data "aws_ecr_image" "lambda-image-version" {

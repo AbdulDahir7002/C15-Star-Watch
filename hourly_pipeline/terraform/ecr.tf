@@ -10,5 +10,4 @@ resource "awscc_ecr_repository" "c15-star-watch-lambdas-repo" {
   image_scanning_configuration = {
     scan_on_push = true
   }
-
 }
