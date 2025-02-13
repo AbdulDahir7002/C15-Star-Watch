@@ -14,6 +14,21 @@ resource "aws_iam_role" "scheduler_role" {
     })
 }
 
+resource "aws_iam_role_policy" "scheduler_lambda_invoke" {
+    name = "EventBridgeInvokeLambdaPolicy"
+    role = aws_iam_role.scheduler_role.id
+    policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+            {
+            Effect = "Allow"
+            Action = "lambda:InvokeFunction"
+            Resource = aws_lambda_function.pipeline-lambda.arn
+        }
+        ]
+    })
+}
+
 
 resource "aws_scheduler_schedule" "daily_scheduler" {
   name       = "c15-starwatch-daily-schedule"
