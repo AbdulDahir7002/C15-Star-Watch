@@ -30,3 +30,7 @@ jobs:
       - name: Run unittests
         run: |
           python -m unittest discover
+
+      - name: Run pytest
+        run: |
+          pytest
