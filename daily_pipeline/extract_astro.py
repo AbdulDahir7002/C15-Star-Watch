@@ -17,7 +17,6 @@ def get_sunrise_and_set_times(lat: float, long: float, date: str):
 
     return sunrise, sunset
 
-
 def get_connection():
     """Gets a connection to the database"""
     connection = psycopg2.connect(host=ENV["DB_HOST"],

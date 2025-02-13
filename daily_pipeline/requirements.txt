@@ -3,7 +3,8 @@ python-dotenv
 pandas
 psycopg2
 pylint
-pytest
 openmeteo-requests
 numpy
 pandas
+pytest
+
