@@ -25,9 +25,16 @@ DB_PASSWORD=[Your database password]
 DB_USER=[Your database username]
 DB_NAME=[Name of your db]
 ```
-You can now run the python files locally.
 
-To run on the cloud, first use terraform to create an Amazon ECR. Then, you can build and upload a docker image. When building, use ```--provenance=false``` and the appropriate ```-platform``` argument. An AWS Lambda function should point to this image URI. The function should be scheduled to occur once an hour.
+You can now run the python files locally. To run on the cloud as an hourly pipeline, more steps are required.
+
+In ```/terraform```, create a ```terraform.tfvars``` folder. It should contain the following variables:
+```
+REGION = "[Your desired aws region]"
+AWS_SECRET_ACCESS_KEY = "[Your aws secret key]"
+AWS_ACCESS_KEY = "[your aws access key]"
+```
+Then, use terraform init and terraform apply to create an AWS ECR and lambda function. Then, you can build and upload a docker image to the ECR. When building, use ```--provenance=false``` and the appropriate ```-platform``` argument. An AWS step function should be used to schedule the lambda function to occur once an hour.
 
 ## Additional Information
 
