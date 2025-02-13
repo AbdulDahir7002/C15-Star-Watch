@@ -26,7 +26,8 @@ def get_connection():
 
 def get_openmeteo():
     """Sets up caching and retries for openmeteo."""
-    cache_session = requests_cache.CachedSession('.cache', expire_after=3600)
+    cache_session = requests_cache.CachedSession(
+        '/tmp/.cache', expire_after=3600)
     retry_session = retry(cache_session, retries=5, backoff_factor=0.2)
     return openmeteo_requests.Client(session=retry_session)
 

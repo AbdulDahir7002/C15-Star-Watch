@@ -25,6 +25,8 @@ def lambda_handler(event, context):
     insert_into_db(data, conn)
 
     conn.close()
+    print("Finished")
+    return {"statusCode": 200}
 
 
 if __name__ == "__main__":

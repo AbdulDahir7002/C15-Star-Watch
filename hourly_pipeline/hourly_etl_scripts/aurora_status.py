@@ -111,6 +111,12 @@ def insert_values_to_db(conn, country_status: list):
                 naked_eye_visibility)
             VALUES
                 (%s, %s, %s, %s)
+            ON CONFLICT (
+                country_id,
+                aurora_status_at,
+                camera_visibility,
+                naked_eye_visibility)
+            DO NOTHING
             """
     for row in country_status:
         insert_db(conn, query, row)
