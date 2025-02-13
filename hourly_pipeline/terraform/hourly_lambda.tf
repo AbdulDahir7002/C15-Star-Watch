@@ -60,12 +60,13 @@ resource "aws_lambda_function" "pipeline-lambda" {
   role = aws_iam_role.lambda-role.arn
   package_type = "Image"
   image_uri = data.aws_ecr_image.lambda-image-version.image_uri
-  timeout = 600
+  timeout = 60
+  architectures = ["arm64"]
   environment { 
     variables = {
         DB_HOST = var.DB_HOST
         DB_NAME = var.DB_NAME
-        DB_USER = var.DB_USER
+        DB_USERNAME = var.DB_USER
         DB_PASSWORD = var.DB_PASSWORD
         DB_PORT = var.DB_PORT
         }
