@@ -1,7 +1,5 @@
 """Script to subscribe users to topics on AWS."""
 import re
-from os import environ
-from dotenv import load_dotenv
 from boto3 import client
 
 
@@ -49,27 +47,28 @@ def subscribe_user(user_data: dict, topic_list: list, sns: client):
     return "Subscribed!"
 
 
-def list_subscribed_topics(email: str):
+def list_subscribed_topics(email: str, sns: client):
     """Returns a list of subscribed topics."""
     response = sns.list_subscriptions()
-    subscriptions = sns.list_subscriptions()["Subscriptions"]
-    while "NextToken" in response:
+    subscriptions = []
+    while True:
         subscriptions.extend(response["Subscriptions"])
-        response = sns.list_subscriptions()["NextToken"]
+
+        if "NextToken" in response:
+            response = sns.list_subscriptions(NextToken=response["NextToken"])
+        else:
+            break
+
     valid_subscriptions = [
-        s for s in subscriptions if s["Endpoint"] == email]
-    return subscriptions
+        s["SubscriptionArn"] for s in subscriptions if s["Endpoint"] == email
+        and s["SubscriptionArn"] not in ["Deleted", "PendingConfirmation"]]
+
+    return valid_subscriptions
 
 
-def unsubscribe_user(user_data: dict):
+def unsubscribe_user(email: str, sns: client):
     """Unsubscribes user from all topics."""
-    pass
-
-
-if __name__ == "__main__":
-    load_dotenv()
-    sns = client('sns', aws_access_key_id=environ["AWS_ACCESS_KEY"],
-                 aws_secret_access_key=environ["AWS_SECRET_ACCESS_KEY"])
-    # print([subscription["Endpoint"]
-    #       for subscription in sns.list_subscriptions()["Subscriptions"]])
-    print(list_subscribed_topics("beenzu13@yahoo.com"))
+    subscription_arns = list_subscribed_topics(email, sns)
+    for s in subscription_arns:
+        sns.unsubscribe(SubscriptionArn=s)
+    return "Unsubscribed!"
