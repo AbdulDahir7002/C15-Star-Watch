@@ -29,7 +29,7 @@ def get_cities(connection) -> list:
 
 
 def get_country(city: str, connection) -> int:
-    """Returns the country ID for a given city"""
+    """Returns the country ID for a given city."""
     curs = connection.cursor()
     curs.execute(f"SELECT country_id FROM city WHERE city_name = '{city}';")
     country_id = curs.fetchone()[0]
@@ -64,6 +64,7 @@ def get_weather_for_day(day: date, city: str, connection) -> pd.DataFrame:
             AND status_at <= '{day} 23:59';
             """
     curs.execute(query)
+
     weather_data = [(str(weather[5]).split(" ")[1][:2],
                      round(weather[2], 1),
                      str(weather[3]).split('.')[0],
@@ -93,6 +94,35 @@ def get_stargazing_status_for_day(day: date, city: str, connection) -> pd.DataFr
     stargazing_status = pd.DataFrame(curs.fetchone())
     curs.close()
     return stargazing_status
+
+
+def get_meteor_showers_for_day(stargazing_id: int, connection) -> pd.DataFrame:
+    """Gets meteor showers linked to given stargazing status"""
+    curs = connection.cursor()
+    query = f"""
+            SELECT *
+            FROM meteor_shower_assignment
+            JOIN meteor_shower
+            ON (meteor_shower.meteor_shower_id = meteor_shower_assignment.meteor_shower_id)
+            WHERE stargazing_status_id = {stargazing_id};
+            """
+    ...
+
+
+def get_emoji_for_weather(weather: pd.DataFrame) -> str:
+    """Uses the weather DF to return an appropriate emoji."""
+    weather = weather.T
+    weather['Coverage'] = pd.to_numeric(weather['Coverage'])
+    average = weather['Coverage'].mean()
+
+    if average >= 85:
+        return '&#x2601;'
+    if average >= 65:
+        return '&#x26C5;'
+    if average >= 30:
+        return '&#x1F324;'
+    if average < 30:
+        return '&#57418;'
 
 
 def get_days() -> list:
@@ -128,7 +158,9 @@ def app():
     st.title(city)
     col1, col2 = st.columns(2)
     with col1:
-        column_one()
+        emoji = get_emoji_for_weather(weather)
+        st.markdown(f'<p>Weather Forecast {emoji}</p>',
+                    unsafe_allow_html=True)
         st.markdown(weather.to_html(header=False), unsafe_allow_html=True)
     with col2:
         column_two()
