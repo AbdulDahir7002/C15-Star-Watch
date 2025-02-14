@@ -4,14 +4,14 @@ from datetime import datetime, date, timedelta
 
 import asyncio
 import aiohttp
-import requests
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
 
 
-async def get_sunrise_and_set_times(session, lat: float, long: float, date: str):
-    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={long}&daily=sunrise,sunset&timezone=auto&start_date={date}&end_date={date}"
+async def get_sunrise_and_set_times(session, lat: float, long: float, date_to_query: str):
+    """Call from the open meteo API to get the daily sunrise and sunset times"""
+    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={long}&daily=sunrise,sunset&timezone=auto&start_date={date_to_query}&end_date={date_to_query}"
     response = await session.get(url)
     data = await response.json()
     # sunrise = data['daily']['sunrise'][0]
@@ -40,7 +40,7 @@ def get_locations(connection):
     return rows
 
 
-async def post_location_get_starchart(session, header: str, lat: float, long: float, date_to_query: str) -> None:
+async def post_location_get_starchart(session, header: str, lat: float, long: float, date_to_query: str):
     """returns the url of a star chart for specific coordinates"""
     body = {
         "style": "default",
@@ -67,7 +67,7 @@ async def post_location_get_starchart(session, header: str, lat: float, long: fl
     return response
 
 
-async def post_location_get_moonphase(session, header: str, lat: float, long: float, date_to_query: str) -> None:
+async def post_location_get_moonphase(session, header: str, lat: float, long: float, date_to_query: str):
     """returns the url of a star chart for specific coordinates"""
     body = {
         "format": "png",
@@ -117,12 +117,12 @@ async def format_tasks(city: dict, day: str, header: str, lat: float, long: floa
             }
 
 
-async def collate_data(header: str, cities: list, dates: list) -> dict:
+async def collate_data(header: str, city_list: list, dates: list) -> dict:
     """Formats into list of tuples in format 
     (city_id, sunrise, sunset, date, star_chart, moon_phase)"""
     async with aiohttp.ClientSession() as session:
         city_data = []
-        for city in cities:
+        for city in city_list:
             tasks = []
             for day in dates:
                 lat = city.get("latitude")
@@ -133,23 +133,23 @@ async def collate_data(header: str, cities: list, dates: list) -> dict:
             print(f"Queued for city {city["city_id"]}")
 
             # await asyncio.sleep(0.5)
-            resultant_data = await asyncio.gather(*tasks)
-            city_data.extend(resultant_data)
+            results = await asyncio.gather(*tasks)
+            city_data.extend(results)
     return city_data
 
 
 def format_for_insert(data: list[dict]) -> list[tuple]:
     """Format the data for insertion into the database"""
     data_as_tuple = []
-    for dict in data:
-        data_as_tuple.append((dict["city_id"],
-                             datetime.strptime(' '.join(
-                                 dict["sunrise_and_sunset"]["daily"]["sunrise"][0].split('T')), "%Y-%m-%d %H:%M"),
-                             datetime.strptime(' '.join(
-                                 dict["sunrise_and_sunset"]["daily"]["sunset"][0].split('T')), "%Y-%m-%d %H:%M"),
-                             dict["date"],
-                             dict["star_chart"]["data"]["imageUrl"],
-                             dict["moon_phase"]["data"]["imageUrl"]
+    for row in data:
+        data_as_tuple.append((row["city_id"],
+                              datetime.strptime(' '.join(
+                                  row["sunrise_and_sunset"]["daily"]["sunrise"][0].split('T')), "%Y-%m-%d %H:%M"),
+                              datetime.strptime(' '.join(
+                                  row["sunrise_and_sunset"]["daily"]["sunset"][0].split('T')), "%Y-%m-%d %H:%M"),
+                              row["date"],
+                              row["star_chart"]["data"]["imageUrl"],
+                              row["moon_phase"]["data"]["imageUrl"]
                               ))
     return data_as_tuple
 
@@ -160,7 +160,7 @@ def seed_next_week(connection, data: list[tuple]):
     q = """INSERT INTO stargazing_status (city_id, sunrise, sunset, status_date, star_chart_url, moon_phase_url)
             VALUES (%s,%s,%s,%s,%s,%s)"""
     cursor.executemany(q, data)
-    conn.commit()
+    connection.commit()
     print("Uploaded to database")
 
 
