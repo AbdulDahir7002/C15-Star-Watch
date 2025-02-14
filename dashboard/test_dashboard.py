@@ -5,7 +5,7 @@ from datetime import date, datetime
 
 import pandas as pd
 
-from Page1 import get_weather_for_day, get_aurora_info, get_country, get_cities, get_days, get_emoji_for_weather, get_meteor_showers_for_day
+from Page1 import get_weather_for_day, get_aurora_info, get_country, get_cities, get_days, get_emoji_for_weather, get_meteor_showers_for_day, get_stargazing_status_for_day
 
 
 class TestGetWeatherForDay(unittest.TestCase):
@@ -149,6 +149,19 @@ class TestGetMeteorShowersPerDay(unittest.TestCase):
                                         'End Date': ['end'],
                                         'Peak Date': ['peak']})
         pd.testing.assert_frame_equal(result, expected_result)
+
+
+class TestGetStargazingStatusForDay(unittest.TestCase):
+    def test_get_stargazing_status_for_day(self):
+        mock_conn = MagicMock()
+        mock_curs = MagicMock()
+
+        mock_conn.cursor.return_value = mock_curs
+        mock_curs.fetchone.return_value = (1, 2, 3)
+        self.assertEqual(
+            (1, 2, 3), get_stargazing_status_for_day('1', '1', mock_conn))
+        mock_conn.cursor.assert_called_once()
+        mock_curs.close.assert_called_once()
 
 
 if __name__ == "__main__":
