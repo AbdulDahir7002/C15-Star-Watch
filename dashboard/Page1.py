@@ -80,7 +80,7 @@ def get_weather_for_day(day: date, city: str, connection) -> pd.DataFrame:
     return data
 
 
-def get_stargazing_status_for_day(day: date, city: str, connection) -> pd.DataFrame:
+def get_stargazing_status_for_day(day: date, city: str, connection) -> list:
     """Returns stargazing information given a city and a day."""
     curs = connection.cursor()
     query = f"""
@@ -93,7 +93,6 @@ def get_stargazing_status_for_day(day: date, city: str, connection) -> pd.DataFr
     curs.execute(query)
     stargazing_status = curs.fetchone()
     curs.close()
-    print(stargazing_status)
     return stargazing_status
 
 
@@ -134,14 +133,23 @@ def get_days() -> list:
     return days
 
 
-def column_one() -> None:
+def column_one(weather: pd.DataFrame, star_status: list) -> None:
     """Writes info intended for left column."""
     st.write("Weather Forecast")
+    emoji = get_emoji_for_weather(weather)
+    st.markdown(f'<p>Weather Forecast {emoji}</p>',
+                unsafe_allow_html=True)
+    st.markdown(weather.to_html(header=False), unsafe_allow_html=True)
+    st.write("Moonphase")
+    st.image(star_status[6])
 
 
-def column_two():
+def column_two(star_status: list):
     """Writes info intended for right column."""
     st.write("Sunset / Sunrise")
+    st.write("Sunrise: ", date.strftime(star_status[2], '%H:%M'), 'AM')
+    st.write("Sunset: ", date.strftime(star_status[3], '%H:%M'), 'PM')
+    st.write("Meteor showers")
 
 
 def app():
@@ -159,23 +167,15 @@ def app():
     st.title(city)
     col1, col2 = st.columns(2)
     with col1:
-        emoji = get_emoji_for_weather(weather)
-        st.markdown(f'<p>Weather Forecast {emoji}</p>',
-                    unsafe_allow_html=True)
-        st.markdown(weather.to_html(header=False), unsafe_allow_html=True)
-        st.write("Moonphase")
-        st.image(star_status[6])
+        column_one(weather, star_status)
     with col2:
-        column_two()
-        st.write("Sunrise: ", star_status[2])
-        st.write("Sunset: ", star_status[3])
-        st.write("Meteor showers")
+        column_two(star_status)
 
     st.write("Starchart")
     st.image(star_status[5])
 
     if day == date.today():
-        st.write("Current aurora activity")
+        st.write("Aurora Activity")
         st.markdown(aurora.to_html(index=False), unsafe_allow_html=True)
 
     connection.close()
