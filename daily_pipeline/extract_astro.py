@@ -161,7 +161,6 @@ def seed_next_week(connection, data: list[tuple]):
     print("Uploaded to database")
 
 
-# seed next 7 days, daily ask for the 8th day
 if __name__ == "__main__":
     load_dotenv()
     conn = get_connection()

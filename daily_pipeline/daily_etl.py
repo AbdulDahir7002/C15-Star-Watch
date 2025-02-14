@@ -5,7 +5,7 @@ from datetime import datetime, date, timedelta
 import requests
 from dotenv import load_dotenv
 
-from extract_astro import post_location_get_starchart, post_location_get_moonphase, get_connection, get_locations, format_tasks
+from extract_astro import get_connection, get_locations
 
 
 def post_location_get_starchart(header: str, lat: float, long: float, date_to_query: str):
@@ -78,6 +78,7 @@ def get_sunrise_and_set_times(lat: float, long: float, date_to_query: str):
 
 
 def get_future_data(cities: list[dict], new_date: str, header: str):
+    """Get the data from the API with the given date"""
     city_data = []
     for city in cities:
         lat = city.get("latitude")
@@ -95,6 +96,7 @@ def get_future_data(cities: list[dict], new_date: str, header: str):
 
 
 def upload_data(conn, data: list[tuple]):
+    """Upload the next day's data"""
     cursor = conn.cursor()
     cursor.executemany(
         """INSERT INTO stargazing_status (city_id, sunrise, sunset, status_date, star_chart_url, moon_phase_url) 
@@ -112,8 +114,8 @@ if __name__ == "__main__":
 
     new_date = datetime.strftime(
         date.today() + timedelta(days=7), "%Y-%m-%d")  # in 8 days
-    print(new_date)
 
-    # data = get_future_data(cities, new_date, HEADER)
-    # print(data)
-    # upload_data(conn, data)
+    data = get_future_data(cities, new_date, HEADER)
+
+    upload_data(conn, data)
+    conn.close()
