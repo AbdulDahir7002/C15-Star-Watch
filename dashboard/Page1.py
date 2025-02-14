@@ -97,17 +97,23 @@ def get_stargazing_status_for_day(day: date, city: str, connection) -> list:
     return stargazing_status
 
 
-def get_meteor_showers_for_day(stargazing_id: int, connection) -> pd.DataFrame:
-    """Gets meteor showers linked to given stargazing status"""
+def get_meteor_showers_for_day(day, connection) -> pd.DataFrame:
+    """Gets meteor showers occurring during given day."""
     curs = connection.cursor()
     query = f"""
             SELECT *
-            FROM meteor_shower_assignment
-            JOIN meteor_shower
-            ON (meteor_shower.meteor_shower_id = meteor_shower_assignment.meteor_shower_id)
-            WHERE stargazing_status_id = {stargazing_id};
+            FROM meteor_shower
+            WHERE '{day}' >= shower_start
+            AND '{day}' <= shower_end;
             """
-    ...
+    curs.execute(query)
+    results = curs.fetchall()
+    curs.close()
+    df = pd.DataFrame(results)
+    if len(results) > 0:
+        df.columns = ["id", "Name", "Start Date", "End Date", "Peak Date"]
+        return df
+    return None
 
 
 def get_emoji_for_weather(weather: pd.DataFrame) -> str:
@@ -135,21 +141,36 @@ def get_days() -> list:
 
 def column_one(weather: pd.DataFrame, star_status: list) -> None:
     """Writes info intended for left column."""
-    st.write("Weather Forecast")
-    emoji = get_emoji_for_weather(weather)
-    st.markdown(f'<p>Weather Forecast {emoji}</p>',
-                unsafe_allow_html=True)
-    st.markdown(weather.to_html(header=False), unsafe_allow_html=True)
+    if weather is None:
+        st.write("No weather for this date/location.")
+    else:
+        emoji = get_emoji_for_weather(weather)
+        st.markdown(f'<p>Weather Forecast {emoji}</p>',
+                    unsafe_allow_html=True)
+        st.markdown(weather.to_html(header=False), unsafe_allow_html=True)
+
     st.write("Moonphase")
-    st.image(star_status[6])
+    if star_status is None:
+        st.write("No data for this date/location.")
+    else:
+        st.image(star_status[6])
 
 
-def column_two(star_status: list):
+def column_two(showers, star_status: list):
     """Writes info intended for right column."""
     st.write("Sunset / Sunrise")
-    st.write("Sunrise: ", date.strftime(star_status[2], '%H:%M'), 'AM')
-    st.write("Sunset: ", date.strftime(star_status[3], '%H:%M'), 'PM')
+    if star_status is None:
+        st.write("No data for this date/location.")
+    else:
+        st.write("Sunrise: ", date.strftime(star_status[2], '%H:%M'), 'AM')
+        st.write("Sunset: ", date.strftime(star_status[3], '%H:%M'), 'PM')
+
     st.write("Meteor showers")
+
+    if showers is None:
+        st.write("No meteor showers on this day.")
+    else:
+        st.markdown(showers.to_html(index=False), unsafe_allow_html=True)
 
 
 def app():
@@ -160,7 +181,7 @@ def app():
     city = st.sidebar.selectbox('City', get_cities(connection))
     country_id = get_country(city, connection)
     day = st.sidebar.selectbox('Day', get_days())
-
+    showers = get_meteor_showers_for_day(day, connection)
     aurora = get_aurora_info(country_id, connection)
     weather = get_weather_for_day(day, city, connection)
     star_status = get_stargazing_status_for_day(day, city, connection)
@@ -170,10 +191,13 @@ def app():
     with col1:
         column_one(weather, star_status)
     with col2:
-        column_two(star_status)
+        column_two(showers, star_status)
 
     st.write("Starchart")
-    st.image(star_status[5])
+    if star_status is None:
+        st.write("No Data for this date and location.")
+    else:
+        st.image(star_status[5])
 
     if day == date.today():
         st.write("Aurora Activity")
