@@ -3,9 +3,22 @@ import re
 from boto3 import client
 
 
-def list_relevant_topics(sns: client) -> list:
+def list_all_topics(sns: client):
+    """Returns a list of all topics on AWS."""
+    response = sns.list_topics()
+    topics = []
+    while True:
+        topics.extend(response["Topics"])
+        if "NextToken" in response:
+            response = sns.list_topics(NextToken=response["NextToken"])
+        else:
+            break
+    return [topic["TopicArn"] for topic in topics]
+
+
+def list_relevant_topics(all_topics: list) -> list:
     """Returns a list of starwatch topics on AWS."""
-    topics = [topic["TopicArn"] for topic in sns.list_topics()["Topics"]]
+    topics = all_topics
     starwatch_topics = [name for name in topics if re.search(
         "(c15-star-watch-)(.*)", name)]
     return starwatch_topics
@@ -15,6 +28,7 @@ def retrieve_chosen_topics(topic_list: list, city_list: list) -> list:
     """Returns a list of topics the user has chosen to subscribe to."""
     chosen_topics = [topic for topic in topic_list for city in city_list if bool(
         re.search(f".*({city})$", topic))]
+
     return chosen_topics
 
 
