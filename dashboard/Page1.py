@@ -87,12 +87,13 @@ def get_stargazing_status_for_day(day: date, city: str, connection) -> pd.DataFr
             SELECT stargazing_status.*, city_name
             FROM stargazing_status JOIN city
             ON (city.city_id = stargazing_status.city_id)
-            WHERE city_name = {city}
-            AND status_date = {day};
+            WHERE city_name = '{city}'
+            AND status_date = '{day}';
             """
     curs.execute(query)
-    stargazing_status = pd.DataFrame(curs.fetchone())
+    stargazing_status = curs.fetchone()
     curs.close()
+    print(stargazing_status)
     return stargazing_status
 
 
@@ -141,7 +142,6 @@ def column_one() -> None:
 def column_two():
     """Writes info intended for right column."""
     st.write("Sunset / Sunrise")
-    st.write("Sunset/rise goes here.")
 
 
 def app():
@@ -154,6 +154,7 @@ def app():
 
     aurora = get_aurora_info(country_id, connection)
     weather = get_weather_for_day(day, city, connection)
+    star_status = get_stargazing_status_for_day(day, city, connection)
 
     st.title(city)
     col1, col2 = st.columns(2)
@@ -162,22 +163,20 @@ def app():
         st.markdown(f'<p>Weather Forecast {emoji}</p>',
                     unsafe_allow_html=True)
         st.markdown(weather.to_html(header=False), unsafe_allow_html=True)
+        st.write("Moonphase")
+        st.image(star_status[6])
     with col2:
         column_two()
+        st.write("Sunrise: ", star_status[2])
+        st.write("Sunset: ", star_status[3])
+        st.write("Meteor showers")
 
-    st.write("Moonphase")
-    st.image("https://cdn.mos.cms.futurecdn.net/xXp45gLeBTBt4jPuZcawUJ-1200-80.jpg",
-             use_container_width=True)
+    st.write("Starchart")
+    st.image(star_status[5])
 
     if day == date.today():
         st.write("Current aurora activity")
         st.markdown(aurora.to_html(index=False), unsafe_allow_html=True)
-
-    st.write("Meteor showers")
-
-    st.write("Starchart")
-    st.image("https://www.thoughtco.com/thmb/Qao6yuyQrARcbZR3XNF7oZsrEMI=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/8_dipper_bootes_corbor3-56a8cdab3df78cf772a0ccb1.jpg",
-             use_container_width=True)
 
     connection.close()
 
