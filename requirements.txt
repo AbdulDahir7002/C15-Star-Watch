@@ -11,3 +11,7 @@ psycopg2
 python-dotenv
 coverage
 streamlit
+asyncio
+aiohttp
+moto
+boto3
