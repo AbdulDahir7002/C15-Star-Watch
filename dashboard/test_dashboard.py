@@ -5,7 +5,7 @@ from datetime import date, datetime
 
 import pandas as pd
 
-from Page1 import get_weather_for_day, get_aurora_info, get_country, get_cities, get_days
+from Page1 import get_weather_for_day, get_aurora_info, get_country, get_cities, get_days, get_emoji_for_weather
 
 
 class TestGetWeatherForDay(unittest.TestCase):
@@ -90,6 +90,40 @@ class TestGetDays(unittest.TestCase):
             'Week'
         ]
         self.assertEqual(expected_result, result)
+
+
+class TestGetEmojiForWeather(unittest.TestCase):
+    def test_get_emoji_for_weather_cloud(self):
+        weather = pd.DataFrame([['06'], [14.7],
+                                ['86'], ['12345']],
+                               index=['Time', 'Temperature',
+                                      'Coverage', 'Visibility'],
+                               columns=[0])
+        self.assertEqual('&#x2601;', get_emoji_for_weather(weather))
+
+    def test_get_emoji_for_weather_slightsun(self):
+        weather = pd.DataFrame([['06'], [14.7],
+                                ['84'], ['12345']],
+                               index=['Time', 'Temperature',
+                                      'Coverage', 'Visibility'],
+                               columns=[0])
+        self.assertEqual('&#x26C5;', get_emoji_for_weather(weather))
+
+    def test_get_emoji_for_weather_somesun(self):
+        weather = pd.DataFrame([['06'], [14.7],
+                                ['64'], ['12345']],
+                               index=['Time', 'Temperature',
+                                      'Coverage', 'Visibility'],
+                               columns=[0])
+        self.assertEqual('&#x1F324;', get_emoji_for_weather(weather))
+
+    def test_get_emoji_for_weather_sunny(self):
+        weather = pd.DataFrame([['06'], [14.7],
+                                ['29'], ['12345']],
+                               index=['Time', 'Temperature',
+                                      'Coverage', 'Visibility'],
+                               columns=[0])
+        self.assertEqual('&#57418;', get_emoji_for_weather(weather))
 
 
 if __name__ == "__main__":
