@@ -5,7 +5,7 @@ from datetime import date, datetime
 
 import pandas as pd
 
-from Page1 import get_weather_for_day, get_aurora_info, get_country, get_cities
+from Page1 import get_weather_for_day, get_aurora_info, get_country, get_cities, get_days
 
 
 class TestGetWeatherForDay(unittest.TestCase):
@@ -72,6 +72,24 @@ class TestGetCities(unittest.TestCase):
         self.assertEqual(['Aberdeen'], result)
         mock_conn.cursor.assert_called_once()
         mock_cursor.close.assert_called_once()
+
+
+class TestGetDays(unittest.TestCase):
+    @patch('Page1.date')
+    def test_get_days(self, mock_date):
+        mock_date.today.return_value = date(2025, 2, 14)
+        result = get_days()
+        expected_result = [
+            date(2025, 2, 14),
+            date(2025, 2, 15),
+            date(2025, 2, 16),
+            date(2025, 2, 17),
+            date(2025, 2, 18),
+            date(2025, 2, 19),
+            date(2025, 2, 20),
+            'Week'
+        ]
+        self.assertEqual(expected_result, result)
 
 
 if __name__ == "__main__":
