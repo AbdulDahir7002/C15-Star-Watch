@@ -1,11 +1,11 @@
-"""Runs the pipeline for 8 days from current date, to keep up with forecast"""
+"""Runs the pipeline for 7 days from current date, to keep up with forecast"""
 from os import environ as ENV
 from datetime import datetime, date, timedelta
 
 import requests
 from dotenv import load_dotenv
 
-from extract_astro import get_connection, get_locations
+from first_week import get_connection, get_locations
 
 
 def post_location_get_starchart(header: str, lat: float, long: float, date_to_query: str):
