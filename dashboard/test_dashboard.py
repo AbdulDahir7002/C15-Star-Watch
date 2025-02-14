@@ -9,15 +9,17 @@ from Page1 import get_weather_for_day, get_aurora_info, get_country, get_cities,
 
 
 class TestGetWeatherForDay(unittest.TestCase):
-    def test_get_weather_for_day(self):
+    @patch('Page1.get_connection')
+    def test_get_weather_for_day(self, mock_get_connection):
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
 
+        mock_get_connection.return_value = mock_conn
         mock_conn.cursor.return_value = mock_cursor
         mock_cursor.fetchall.return_value = [
             (1, 2, 14.65, 86.0, 12345, '2025-02-14 06:00:00')]
 
-        result = get_weather_for_day(date(2025, 2, 14), 'TestCity', mock_conn)
+        result = get_weather_for_day(date(2025, 2, 14), 'TestCity')
 
         expected_result = pd.DataFrame([['06'], [14.7],
                                         ['86'], ['12345']],
@@ -30,14 +32,16 @@ class TestGetWeatherForDay(unittest.TestCase):
 
 
 class TestGetAuroraInfo(unittest.TestCase):
-    def test_get_aurora_info(self):
+    @patch('Page1.get_connection')
+    def test_get_aurora_info(self, mock_get_connection):
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
 
+        mock_get_connection.return_value = mock_conn
         mock_conn.cursor.return_value = mock_cursor
         mock_cursor.fetchall.return_value = [(0,
                                               datetime(2025, 2, 14, 8, 57, 32), False, False, 2)]
-        result = get_aurora_info(2, mock_conn)
+        result = get_aurora_info(2)
         expected_result = pd.DataFrame(
             {'Recording At': ['2025-02-14 08:57:32'],
              'Visible by Camera': ['False'],
@@ -48,27 +52,31 @@ class TestGetAuroraInfo(unittest.TestCase):
 
 
 class TestGetCountry(unittest.TestCase):
-    def test_get_country(self):
+    @patch('Page1.get_connection')
+    def test_get_country(self, mock_get_connection):
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
 
+        mock_get_connection.return_value = mock_conn
         mock_conn.cursor.return_value = mock_cursor
         mock_cursor.fetchone.return_value = (1, 'Aberdeen')
 
-        result = get_country('Aberdeen', mock_conn)
+        result = get_country('Aberdeen')
         self.assertEqual(result, 1)
         mock_conn.cursor.assert_called_once()
         mock_cursor.close.assert_called_once()
 
 
 class TestGetCities(unittest.TestCase):
-    def test_get_cities(self):
+    @patch('Page1.get_connection')
+    def test_get_cities(self, mock_get_connection):
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
 
+        mock_get_connection.return_value = mock_conn
         mock_conn.cursor.return_value = mock_cursor
         mock_cursor.fetchall.return_value = [('Aberdeen',)]
-        result = get_cities(mock_conn)
+        result = get_cities()
         self.assertEqual(['Aberdeen'], result)
         mock_conn.cursor.assert_called_once()
         mock_cursor.close.assert_called_once()
@@ -127,22 +135,26 @@ class TestGetEmojiForWeather(unittest.TestCase):
 
 
 class TestGetMeteorShowersPerDay(unittest.TestCase):
-    def test_get_meteor_shower_per_day_none(self):
+    @patch('Page1.get_connection')
+    def test_get_meteor_shower_per_day_none(self, mock_get_connection):
         mock_conn = MagicMock()
         mock_curs = MagicMock()
 
+        mock_get_connection.return_value = mock_conn
         mock_conn.cursor.return_value = mock_curs
         mock_curs.fetchall.return_value = []
-        self.assertEqual(None, get_meteor_showers_for_day('1', mock_conn))
+        self.assertEqual(None, get_meteor_showers_for_day('1'))
 
-    def test_get_meteor_shower_per_day(self):
+    @patch('Page1.get_connection')
+    def test_get_meteor_shower_per_day(self, mock_get_connection):
         mock_conn = MagicMock()
         mock_curs = MagicMock()
 
+        mock_get_connection.return_value = mock_conn
         mock_conn.cursor.return_value = mock_curs
         mock_curs.fetchall.return_value = [(1, 'name', 'start', 'end', 'peak')]
 
-        result = get_meteor_showers_for_day('1', mock_conn)
+        result = get_meteor_showers_for_day('1')
         expected_result = pd.DataFrame({'id': [1],
                                         'Name': ['name'],
                                         'Start Date': ['start'],
@@ -152,14 +164,16 @@ class TestGetMeteorShowersPerDay(unittest.TestCase):
 
 
 class TestGetStargazingStatusForDay(unittest.TestCase):
-    def test_get_stargazing_status_for_day(self):
+    @patch('Page1.get_connection')
+    def test_get_stargazing_status_for_day(self, mock_get_connection):
         mock_conn = MagicMock()
         mock_curs = MagicMock()
 
+        mock_get_connection.return_value = mock_conn
         mock_conn.cursor.return_value = mock_curs
         mock_curs.fetchone.return_value = (1, 2, 3)
         self.assertEqual(
-            (1, 2, 3), get_stargazing_status_for_day('1', '1', mock_conn))
+            (1, 2, 3), get_stargazing_status_for_day('1', '1'))
         mock_conn.cursor.assert_called_once()
         mock_curs.close.assert_called_once()
 
