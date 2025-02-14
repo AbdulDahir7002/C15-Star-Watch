@@ -1,4 +1,4 @@
-"""Extracts simple astronomic data from the AstronomyAPI"""
+"""Extracts the first weeks forecast of astronomic data from the AstronomyAPI"""
 from os import environ as ENV
 from datetime import datetime, date, timedelta
 

@@ -1,9 +1,11 @@
 # pylint: skip-file
+from os import environ
+
+from unittest.mock import patch, MagicMock
 import pytest
 from dotenv import load_dotenv
-from os import environ
-from extract_astro import get_connection, get_locations, post_location_get_moonphase, post_location_get_starchart, collate_data
-from unittest.mock import patch, MagicMock
+
+from first_week import get_connection, get_locations, post_location_get_moonphase, post_location_get_starchart, collate_data
 
 # load_dotenv()
 
