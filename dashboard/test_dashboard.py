@@ -5,7 +5,7 @@ from datetime import date, datetime
 
 import pandas as pd
 
-from Page1 import get_weather_for_day, get_aurora_info, get_country
+from Page1 import get_weather_for_day, get_aurora_info, get_country, get_cities
 
 
 class TestGetWeatherForDay(unittest.TestCase):
@@ -57,6 +57,19 @@ class TestGetCountry(unittest.TestCase):
 
         result = get_country('Aberdeen', mock_conn)
         self.assertEqual(result, 1)
+        mock_conn.cursor.assert_called_once()
+        mock_cursor.close.assert_called_once()
+
+
+class TestGetCities(unittest.TestCase):
+    def test_get_cities(self):
+        mock_conn = MagicMock()
+        mock_cursor = MagicMock()
+
+        mock_conn.cursor.return_value = mock_cursor
+        mock_cursor.fetchall.return_value = [('Aberdeen',)]
+        result = get_cities(mock_conn)
+        self.assertEqual(['Aberdeen'], result)
         mock_conn.cursor.assert_called_once()
         mock_cursor.close.assert_called_once()
 
