@@ -12,3 +12,5 @@ python-dotenv
 coverage
 asyncio
 aiohttp
+moto
+boto3
