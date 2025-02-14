@@ -123,7 +123,7 @@ class TestGetEmojiForWeather(unittest.TestCase):
                                index=['Time', 'Temperature',
                                       'Coverage', 'Visibility'],
                                columns=[0])
-        self.assertEqual('&#57418;', get_emoji_for_weather(weather))
+        self.assertEqual('&#9728;', get_emoji_for_weather(weather))
 
 
 class TestGetMeteorShowersPerDay(unittest.TestCase):
