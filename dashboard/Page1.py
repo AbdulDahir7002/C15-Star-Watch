@@ -1,3 +1,4 @@
+"""Page1 of the dashboard."""
 from os import environ as ENV
 from datetime import date, timedelta
 
@@ -121,8 +122,7 @@ def get_emoji_for_weather(weather: pd.DataFrame) -> str:
         return '&#x26C5;'
     if average >= 30:
         return '&#x1F324;'
-    if average < 30:
-        return '&#57418;'
+    return '&#57418;'
 
 
 def get_days() -> list:
@@ -153,6 +153,7 @@ def column_two(star_status: list):
 
 
 def app():
+    """The function ran when the user switches to this page."""
     load_dotenv()
     connection = get_connection()
 
