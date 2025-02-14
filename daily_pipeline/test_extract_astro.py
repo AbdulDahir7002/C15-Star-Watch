@@ -27,13 +27,10 @@ def test_cursor_closes(mock_connect):
     mock_conn = MagicMock()
     mock_cursor = MagicMock()
 
-    # Ensure the connection returns the mock cursor when calling cursor()
     mock_conn.cursor.return_value = mock_cursor
-    # Mock connection returned by psycopg2.connect
+
     mock_connect.return_value = mock_conn
 
-    # Call the function under test
     get_locations(mock_conn)
 
-    # Assertions
     mock_cursor.close.assert_called_once()

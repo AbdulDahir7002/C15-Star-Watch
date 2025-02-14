@@ -10,5 +10,7 @@ beautifulsoup4
 psycopg2
 python-dotenv
 coverage
+asyncio
+aiohttp
 moto
 boto3
