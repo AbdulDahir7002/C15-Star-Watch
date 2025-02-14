@@ -128,7 +128,7 @@ def get_emoji_for_weather(weather: pd.DataFrame) -> str:
         return '&#x26C5;'
     if average >= 30:
         return '&#x1F324;'
-    return '&#57418;'
+    return '&#9728;'
 
 
 def get_days() -> list:
@@ -158,7 +158,8 @@ def column_one(weather: pd.DataFrame, star_status: list) -> None:
 
 def column_two(showers, star_status: list):
     """Writes info intended for right column."""
-    st.write("Sunset / Sunrise")
+    st.markdown(f"<p>Sunset / Sunrise &#9728;</p>",
+                unsafe_allow_html=True)
     if star_status is None:
         st.write("No data for this date/location.")
     else:
