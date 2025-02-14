@@ -16,29 +16,27 @@ def list_all_topics(sns: client):
             response = sns.list_topics(NextToken=response["NextToken"])
         else:
             break
-    return topics
+    return [topic["TopicArn"] for topic in topics]
 
 
-def get_topic(city: str, sns: client):
+def get_topic(city: str, sns: client, all_topics: list):
     """Returns the topic arn of the associated city."""
-    topics = [topic["TopicArn"] for topic in sns.list_topics()["Topics"]]
-    topic_arn = [name for name in topics if re.search(
+    topic_arn = [name for name in all_topics if re.search(
         f"(c15-star-watch-{city})", name)]
-    return topic_arn
+    return topic_arn[0]
 
 
-def list_relevant_topics(sns: client) -> list:
-    """Returns a list of starwatch topics on AWS."""
-    topics = [topic["TopicArn"] for topic in sns.list_topics()["Topics"]]
-    starwatch_topics = [name for name in topics if re.search(
-        "(c15-star-watch-)(.*)", name)]
-    return starwatch_topics
+def publish_message(topic_arn: str, sns: client):
+    """Publishes a message to specified city."""
+    response = sns.publish(TopicArn=topic_arn, Message="</p>WOW</p>",
+                           Subject="This is my message to you", MessageStructure="json")
+    return response
 
 
 if __name__ == "__main__":
     load_dotenv()
     sns = client("sns", aws_access_key_id=environ["AWS_ACCESS_KEY"],
                  aws_secret_access_key=environ["AWS_SECRET_ACCESS_KEY"])
-    print(list_all_topics(sns))
-    print(list_relevant_topics(sns))
-    # print(get_topic("testcity", sns))
+    all_topics = list_all_topics(sns)
+    topic_arn = get_topic("testcity", sns, all_topics)
+    print(publish_message(topic_arn, sns))
