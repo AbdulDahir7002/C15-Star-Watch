@@ -1,6 +1,5 @@
 """Script to subscribe users to topics on AWS."""
 import re
-import json
 from boto3 import client
 
 
