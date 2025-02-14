@@ -2,7 +2,7 @@
 import pytest
 from dotenv import load_dotenv
 
-from extract_astro import get_connection, get_locations, post_location_get_moonphase, post_location_get_starchart, collate_data
+from first_week import get_connection, get_locations, post_location_get_moonphase, post_location_get_starchart, collate_data
 from unittest.mock import patch, MagicMock
 
 load_dotenv()
