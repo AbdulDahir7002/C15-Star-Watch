@@ -41,17 +41,10 @@ def user_data():
     return data
 
 
-@mock_aws
-@patch("boto3.client")
-def test_list_topics(fake_client):
-    mock_sns = MagicMock()
-    fake_client.return_value = mock_sns
-    mock_sns.list_topics.return_value = {"Topics": [
-        {"TopicArn": "arn:aws:sns:eu-west-2:129033205317:c15-star-watch-somewhere"},
-        {"TopicArn": "arn:aws:sns:eu-west-2:129033205317:West_Africa_Gulf_of_Guinea_0"}
-    ]
-    }
-    assert list_relevant_topics(mock_sns) == [
+def test_list_topics():
+    all_topics = ["arn:aws:sns:eu-west-2:129033205317:c15-star-watch-somewhere",
+                  "arn:aws:sns:eu-west-2:129033205317:West_Africa_Gulf_of_Guinea_0"]
+    assert list_relevant_topics(all_topics) == [
         "arn:aws:sns:eu-west-2:129033205317:c15-star-watch-somewhere"]
 
 
