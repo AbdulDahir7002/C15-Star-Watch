@@ -69,6 +69,8 @@ def list_subscribed_topics(email: str, sns: client):
 def unsubscribe_user(email: str, sns: client):
     """Unsubscribes user from all topics."""
     subscription_arns = list_subscribed_topics(email, sns)
+    if len(subscription_arns) == 0:
+        return "Email is not subscribed to any topics!"
     for s in subscription_arns:
         sns.unsubscribe(SubscriptionArn=s)
     return "Unsubscribed!"
