@@ -1,7 +1,7 @@
 requests
 python-dotenv
 pandas
-psycopg2
+psycopg2-binary
 pylint
 openmeteo-requests
 numpy
