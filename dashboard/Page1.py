@@ -195,7 +195,7 @@ def app():
 
     st.write("Starchart")
     if star_status is None:
-        st.write("No Data for this date and location.")
+        st.write("No Data for this date/location.")
     else:
         st.image(star_status[5])
 
