@@ -107,6 +107,7 @@ def get_weather_for_week(city: str) -> pd.DataFrame:
                      float(str(weather[3]).split('.')[0]),
                      float(str(weather[4]).split('.')[0]))
                     for weather in curs.fetchall()]
+    curs.close()
     weather_data = pd.DataFrame(weather_data)
     weather_data.columns = ['Time', 'Temperature', 'Coverage', 'Visibility']
     return weather_data
