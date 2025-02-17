@@ -61,14 +61,15 @@ resource "aws_lambda_function" "pipeline-lambda" {
   package_type = "Image"
   image_uri = data.aws_ecr_image.lambda-image-version.image_uri
   timeout = 600
-  architectures = [ "arm64" ]
+  architectures = ["x86_64"]
   environment { 
     variables = {
         DB_HOST = var.DB_HOST
         DB_NAME = var.DB_NAME
-        DB_USER = var.DB_USER
+        DB_USERNAME = var.DB_USERNAME
         DB_PASSWORD = var.DB_PASSWORD
         DB_PORT = var.DB_PORT
+        ASTRONOMY_BASIC_AUTH_KEY = var.ASTRONOMY_BASIC_AUTH_KEY
         }
     }
 }
