@@ -5,7 +5,7 @@ from datetime import date, datetime
 
 import pandas as pd
 
-from Page1 import get_weather_for_day, get_aurora_info, get_country, get_cities, get_days, get_emoji_for_weather, get_meteor_showers_for_day, get_stargazing_status_for_day
+from Page1 import get_weather_for_day, get_aurora_info, get_country, get_cities, get_days, get_emoji_for_weather, get_meteor_showers_for_day, get_stargazing_status_for_day, get_weather_for_week
 
 
 class TestGetWeatherForDay(unittest.TestCase):
@@ -26,6 +26,28 @@ class TestGetWeatherForDay(unittest.TestCase):
                                        index=['Time', 'Temperature',
                                               'Coverage', 'Visibility'],
                                        columns=[0])
+        pd.testing.assert_frame_equal(result, expected_result)
+        mock_conn.cursor.assert_called_once()
+        mock_cursor.close.assert_called_once()
+
+
+class TestGetWeatherForWeek(unittest.TestCase):
+    @patch('Page1.get_connection')
+    def test_get_weather_for_week(self, mock_get_connection):
+        mock_conn = MagicMock()
+        mock_cursor = MagicMock()
+
+        mock_get_connection.return_value = mock_conn
+        mock_conn.cursor.return_value = mock_cursor
+        mock_cursor.fetchall.return_value = [
+            (1, 2, 14.65, 86.0, 12345, '2025-02-14 06:00:00')]
+
+        result = get_weather_for_week('TestCity')
+
+        expected_result = pd.DataFrame([('2025-02-14 06:00:00', 14.7,
+                                        float(86), float(12345))],
+                                       columns=['Time', 'Temperature',
+                                                'Coverage', 'Visibility'])
         pd.testing.assert_frame_equal(result, expected_result)
         mock_conn.cursor.assert_called_once()
         mock_cursor.close.assert_called_once()
