@@ -46,6 +46,22 @@ def get_locations(connection):
     return rows
 
 
+def configure_logs():
+    """Configure the logs for the whole project to refer to"""
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="{asctime} - {levelname} - {message}",
+        style="{",
+        datefmt="%Y-%m-%d %H:%M",
+        handlers=[
+            logging.FileHandler("logs/pipeline.log", mode="a",
+                                encoding="utf-8"),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+
+
 def post_location_get_starchart(header: str, lat: float, long: float, date_to_query: str):
     """returns the url of a star chart for specific coordinates"""
     logging.info("Getting star chart")

@@ -91,10 +91,12 @@ def get_aurora_info(country_id: int) -> pd.DataFrame:
     """Returns the aurora data for given country."""
     logging.info("Fetching requested aurora data...")
     connection = get_connection()
+
     with connection.cursor() as curs:
         curs.execute(
             f"SELECT * FROM aurora_status WHERE country_id = '{country_id}';")
         aurora_data = curs.fetchall()
+        logging.info("Fetched!")
         data = {
             'Recording At': [str(aurora_data[-1][1])],
             'Visible by Camera': [str(aurora_data[-1][2])],
@@ -170,6 +172,7 @@ def get_stargazing_status_for_day(day: date, city: str) -> list:
             WHERE city_name = '{city}'
             AND status_date = '{day}';
             """
+
     with connection.cursor() as curs:
         curs.execute(query)
         stargazing_status = curs.fetchone()
@@ -336,6 +339,9 @@ def get_lat_and_long(city: str) -> tuple:
 def app():
     """The function ran when the user switches to this page."""
     load_dotenv()
+
+    configure_logs()
+
     HEADER = f'Basic {ENV["ASTRONOMY_BASIC_AUTH_KEY"]}'
 
     city = st.sidebar.selectbox('City', get_cities())
@@ -351,6 +357,7 @@ def app():
     aurora = get_aurora_info(country_id)
 
     st.title(city)
+
     if day != 'Week':
         col1, col2 = st.columns(2)
         with col1:
@@ -361,6 +368,7 @@ def app():
         st.write("Starchart")
         if star_status is None:
             st.write("No Data for this date/location.")
+            logging.debug("No data found in star status")
         else:
             constellation = st.selectbox('Constellation', get_constellations())
             code = get_constellation_code(constellation)
