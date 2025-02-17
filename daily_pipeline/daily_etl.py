@@ -1,6 +1,8 @@
 """Runs the pipeline for 7 days from current date, to keep up with forecast"""
 from os import environ as ENV
 from datetime import datetime, date, timedelta
+import sys
+import logging
 
 import requests
 from dotenv import load_dotenv
@@ -8,19 +10,40 @@ from dotenv import load_dotenv
 from first_week import get_connection, get_locations
 
 
+def configure_logs():
+    """Configure the logs for the whole project to refer to"""
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="{asctime} - {levelname} - {message}",
+        style="{",
+        datefmt="%Y-%m-%d %H:%M",
+        handlers=[
+            logging.FileHandler("logs/pipeline.log", mode="a",
+                                encoding="utf-8"),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+
+
 def post_location_get_starchart(header: str, lat: float, long: float, date_to_query: str):
     """returns the url of a star chart for specific coordinates"""
+    logging.info("Getting star chart")
     body = {
-        "style": "default",
         "observer": {
             "latitude": lat,
             "longitude": long,
             "date": date_to_query
         },
         "view": {
-            "type": "constellation",
+            "type": "area",
             "parameters": {
-                "constellation": "ori"
+                "position": {
+                    "equatorial": {
+                        "rightAscension": 0.0,
+                        "declination": lat
+                    }
+                }
             }
         }
     }
@@ -37,14 +60,15 @@ def post_location_get_starchart(header: str, lat: float, long: float, date_to_qu
 
 def post_location_get_moonphase(header: str, lat: float, long: float, date_to_query: str):
     """returns the url of a star chart for specific coordinates"""
+    logging.info("Getting moonphase")
     body = {
         "format": "png",
         "style": {
-            "moonStyle": "sketch",
+            "moonStyle": "default",
             "backgroundStyle": "stars",
             "backgroundColor": "red",
             "headingColor": "white",
-            "textColor": "red"
+            "textColor": "white"
         },
         "observer": {
             "latitude": lat,
@@ -53,7 +77,7 @@ def post_location_get_moonphase(header: str, lat: float, long: float, date_to_qu
         },
         "view": {
             "type": "portrait-simple",
-            "orientation": "south-up"
+            "orientation": "north-up"
         }
     }
 
@@ -68,6 +92,7 @@ def post_location_get_moonphase(header: str, lat: float, long: float, date_to_qu
 
 def get_sunrise_and_set_times(lat: float, long: float, date_to_query: str):
     """Call from the open meteo API to get the daily sunrise and sunset times"""
+    logging.info("Getting sunrise and set times")
     url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={long}&daily=sunrise,sunset&timezone=auto&start_date={date_to_query}&end_date={date_to_query}"
     response = requests.get(url)
     data = response.json()
@@ -91,7 +116,6 @@ def get_future_data(cities: list[dict], new_date: str, header: str):
                           post_location_get_starchart(
                               header, lat, long, new_date),
                           post_location_get_moonphase(header, lat, long, new_date)))
-    print("Extracted data from API")
     return city_data
 
 
@@ -103,11 +127,12 @@ def upload_data(conn, data: list[tuple]):
         VALUES (%s, %s, %s, %s, %s, %s)""", data)
     conn.commit()
     cursor.close()
-    print("Uploaded a single days data")
 
 
 if __name__ == "__main__":
     load_dotenv()
+    configure_logs()
+
     conn = get_connection()
     cities = get_locations(conn)
     HEADER = f'Basic {ENV["ASTRONOMY_BASIC_AUTH_KEY"]}'
@@ -116,6 +141,8 @@ if __name__ == "__main__":
         date.today() + timedelta(days=7), "%Y-%m-%d")  # in 8 days
 
     data = get_future_data(cities, new_date, HEADER)
+    logging.info("Star chart and Moon phase url's retrieved")
 
     upload_data(conn, data)
+    logging.info("Uploaded a single days data")
     conn.close()

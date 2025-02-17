@@ -1,6 +1,25 @@
 """Script to subscribe users to topics on AWS."""
 import re
+import logging
+import sys
+
 from boto3 import client
+
+
+def configure_logs():
+    """Configure the logs for the whole project to refer to"""
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="{asctime} - {levelname} - {message}",
+        style="{",
+        datefmt="%Y-%m-%d %H:%M",
+        handlers=[
+            logging.FileHandler("logs/pipeline.log", mode="a",
+                                encoding="utf-8"),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
 
 
 def list_all_topics(sns: client):
@@ -58,6 +77,7 @@ def subscribe_user(user_data: dict, topic_list: list, sns: client):
         )
         if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
             return f"Could not subscribe user to {topic}."
+    logging.info(f"User was subscribed to {topic}")
     return "Subscribed!"
 
 
@@ -84,7 +104,9 @@ def unsubscribe_user(email: str, sns: client):
     """Unsubscribes user from all topics."""
     subscription_arns = list_subscribed_topics(email, sns)
     if len(subscription_arns) == 0:
+        logging.warning(f"Unknown user {email} attempted to unsubscribe")
         return "Email is not subscribed to any topics!"
     for s in subscription_arns:
         sns.unsubscribe(SubscriptionArn=s)
+    logging.info(f"User was unsubscribed from {subscription_arns}")
     return "Unsubscribed!"
