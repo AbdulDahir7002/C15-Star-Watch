@@ -1,8 +1,6 @@
 import streamlit as st
 import boto3
 import re
-from os import environ as ENV
-from dotenv import load_dotenv
 
 sns_client = boto3.client("sns", region_name="eu-west-2")
 user_data = {}
@@ -63,17 +61,13 @@ def list_all_topics(sns):
 
 def list_relevant_topics(all_topics: list) -> list:
     """Returns a list of starwatch topics on AWS."""
-    topics = all_topics
-    starwatch_topics = [name for name in topics if re.search(
-        "(c15-star-watch-)(.*)", name)]
-    return starwatch_topics
+    return [topic for topic in all_topics if "c15-star-watch-" in topic]
 
 
 def retrieve_chosen_topics(topic_list, city_list):
     """Returns a list of topics the user has chosen to subscribe to."""
-    chosen_topics = [topic for topic in topic_list for city in city_list if bool(
-        re.search(f".*({city})$", topic))]
-    return chosen_topics
+    return [topic for topic in topic_list for city in city_list if city in topic]
+
 
 def subscribe_user(user_data, topic_list, sns):
     """Subscribes a user to chosen topic(s)."""
@@ -124,16 +118,24 @@ def list_subscribed_topics(email, sns):
     return valid_subscriptions
 
 
-def unsubscribe_user(cities_to_unsubscribe, sns):
-    """Unsubscribes user from all topics."""
+def unsubscribe_user(cities_to_unsubscribe, sns_client, endpoint):
+    """Unsubscribes user from selected topics."""
     if len(cities_to_unsubscribe) == 0:
-        return "Email is not subscribed to any topics!"
+        return "You are not subscribed to any topics!"
+    
     for city_arn in cities_to_unsubscribe:
         try:
-            sns_client.unsubscribe(SubscriptionArn=city_arn)
-            print(f"Unsubscribed from {city_arn}")
+            subscriptions = sns_client.list_subscriptions_by_topic(TopicArn=city_arn)
+            
+            for subscription in subscriptions['Subscriptions']:
+                if subscription['Endpoint'] == endpoint:
+                    sns_client.unsubscribe(SubscriptionArn=subscription['SubscriptionArn'])
+                    break
+            else:
+                st.warning(f"No subscription found for {endpoint} on {city_arn}")
         except Exception as e:
-            print(f"Error unsubscribing from {city_arn}: {e}")
+            st.error(f"Error unsubscribing from {city_arn}: {e}")
+
 
 
 def update_selectbox():
@@ -165,7 +167,7 @@ def subscription_form():
             relevant_topics = list_relevant_topics(all_topics)
             subscribe_user(user_data, relevant_topics, sns_client)
             st.success(
-                f"Thank you! You've been successfully subscribed to the newsletter for {', '.join(selected_cities)}.")
+                f"Thank you! You've been successfully subscribed to the newsletter for {', '.join(selected_cities)}. Please check your email address to confirm the subscription.")
 
     elif subscription_type == "Alerts":
         phone_number = st.text_input("Phone Number (+44)")
@@ -236,11 +238,11 @@ def unsubscribe_form(sns_client):
                 submit_button = st.button(label="Unsubscribe")
                 if submit_button:
                     if cities_to_unsubscribe:
-                        for city in cities_to_unsubscribe:
-                            topic_arn_to_unsubscribe = city_arn_mapping.get(city)
-                            if topic_arn_to_unsubscribe:
-                                unsubscribe_user(subscribed_topics, sns_client)
-                        
+                        topic_arns_to_unsubscribe = [
+                            city_arn_mapping[city] for city in cities_to_unsubscribe if city in city_arn_mapping
+                        ]
+                        if topic_arns_to_unsubscribe:
+                            unsubscribe_user(topic_arns_to_unsubscribe, sns_client, email)
                         st.success(f"You have been unsubscribed from {', '.join(cities_to_unsubscribe)}.")
                     else:
                         st.warning("Please select at least one city to unsubscribe from.")
@@ -264,8 +266,7 @@ def unsubscribe_form(sns_client):
                         for city in cities_to_unsubscribe:
                             topic_arn_to_unsubscribe = city_arn_mapping.get(city)
                             if topic_arn_to_unsubscribe:
-                                unsubscribe_user(topic_arn_to_unsubscribe, sns_client)
-                        
+                                unsubscribe_user([topic_arn_to_unsubscribe], sns_client, phone_number)
                         st.success(f"You have been unsubscribed from {', '.join(cities_to_unsubscribe)}.")
                     else:
                         st.warning("Please select at least one city to unsubscribe from.")
@@ -275,5 +276,6 @@ def unsubscribe_form(sns_client):
 
 
 
+
 if __name__ == "__main__":
-    print(app())
+    app()
