@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="stylesheet.css">
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Manrope:wght@200..800&display=swap');
+        </style>
+    </head>
+    <body>
+        <h1>
+            Starwatch Weekly Report 
+        </h1>
+        <h2>
+            {city}
+        </h2>
+        <h5>
+            {date}
+        </h5>
+        
+        <h3>
+            Meteor Events Happening This Week
+        </h3>
+        <h4>
+            <ul>
+                <li>{{name}}, will reach it's peak in {{days_till_peak}} days.</li>
+                <li>{{name}}, ends on {{day of the week}}.</li>
+            </ul>
+        </h4>
+        <h3>
+            Sunrise & Sunset
+        </h3>
+        {{table}}
+        <div class="flex-container">
+            <div><img src={image_name}></div>
+            <div><img src={image_name}></div>
+        </div>
+        <div class="container">
+            <div>The day with the lowest coverage this week is {day}</div>
+            <div>The day with the highest visibility this week is {day}</div>
+        </h4>
+        </div>
+        <h3>
+            We think the best day to go stargazing is 
+        </h3>
+        <h4>{day_of_week}.</h4>
+        <h4>
+            The visibility will be {visibility} and the coverage will be {coverage}, making the best day to see the stars!
+        </h4>
+    </body>
+</html>
