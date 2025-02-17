@@ -53,16 +53,20 @@ def get_constellations(connection):
 async def post_location_get_starchart(session, header: str, lat: float, long: float, date_to_query: str):
     """returns the url of a star chart for specific coordinates"""
     body = {
-        "style": "default",
         "observer": {
             "latitude": lat,
             "longitude": long,
             "date": date_to_query
         },
         "view": {
-            "type": "constellation",
+            "type": "area",
             "parameters": {
-                "constellation": "ori"  # need to put code in
+                "position": {
+                    "equatorial": {
+                        "rightAscension": 0.0,
+                        "declination": lat
+                    }
+                }
             }
         }
     }
@@ -82,7 +86,7 @@ async def post_location_get_moonphase(session, header: str, lat: float, long: fl
     body = {
         "format": "png",
         "style": {
-            "moonStyle": "sketch",
+            "moonStyle": "default",
             "backgroundStyle": "stars",
             "backgroundColor": "red",
             "headingColor": "white",

@@ -11,16 +11,20 @@ from first_week import get_connection, get_locations
 def post_location_get_starchart(header: str, lat: float, long: float, date_to_query: str):
     """returns the url of a star chart for specific coordinates"""
     body = {
-        "style": "default",
         "observer": {
             "latitude": lat,
             "longitude": long,
             "date": date_to_query
         },
         "view": {
-            "type": "constellation",
+            "type": "area",
             "parameters": {
-                "constellation": "ori"
+                "position": {
+                    "equatorial": {
+                        "rightAscension": 0.0,
+                        "declination": lat
+                    }
+                }
             }
         }
     }
