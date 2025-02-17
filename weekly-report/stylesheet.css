@@ -50,9 +50,16 @@ ul, li {
 table {
     align-content: center;
     border: 1px solid;
+    border-collapse: collapse;
     align-self: center;
     margin-left: auto;
     margin-right: auto;
+    text-align: center;
+    width: 1125px;
+}
+
+th {
+    text-align: center;
 }
 
 .flex-container {

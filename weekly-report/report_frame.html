@@ -11,10 +11,10 @@
             Starwatch Weekly Report 
         </h1>
         <h2>
-            {city}
+            {{city}}
         </h2>
         <h5>
-            {date}
+            {{date}}
         </h5>
         
         <h3>
@@ -22,8 +22,9 @@
         </h3>
         <h4>
             <ul>
-                <li>{{name}}, will reach it's peak in {{days_till_peak}} days.</li>
-                <li>{{name}}, ends on {{day of the week}}.</li>
+                {% for info in meteor_shower_info %}
+                <li>{{info["shower_name"]}} {{info["days"]}}</li>
+                {% endfor %}
             </ul>
         </h4>
         <h3>
@@ -31,20 +32,20 @@
         </h3>
         {{table}}
         <div class="flex-container">
-            <div><img src={image_name}></div>
-            <div><img src={image_name}></div>
+            <div><img src={{avg_coverage_graph}}></div>
+            <div><img src={{avg_visibility_graph}}></div>
         </div>
         <div class="container">
-            <div>The day with the lowest coverage this week is {day}</div>
-            <div>The day with the highest visibility this week is {day}</div>
+            <div>The day with the lowest coverage this week is {{coverage_day}}</div>
+            <div>The day with the highest visibility this week is {{visibility_day}}</div>
         </h4>
         </div>
         <h3>
             We think the best day to go stargazing is 
         </h3>
-        <h4>{day_of_week}.</h4>
+        <h4>{{day_of_week}}.</h4>
         <h4>
-            The visibility will be {visibility} and the coverage will be {coverage}, making the best day to see the stars!
+            The visibility will be {{visibility}} and the coverage will be {{coverage}}, making it the best day to see the stars!
         </h4>
     </body>
 </html>
