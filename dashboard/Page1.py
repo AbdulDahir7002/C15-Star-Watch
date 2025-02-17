@@ -2,6 +2,7 @@
 from os import environ as ENV
 from datetime import date, timedelta
 
+import requests
 import streamlit as st
 import pandas as pd
 import psycopg2
@@ -30,6 +31,32 @@ def get_cities() -> list:
     cities = [city[0] for city in curs.fetchall()]
     curs.close()
     return cities
+
+
+@st.cache_data
+def get_constellations() -> list:
+    """Gets a list of constellations from the database."""
+    connection = get_connection()
+    curs = connection.cursor()
+    curs.execute("SELECT constellation_name FROM constellation;")
+    constellations = [constellation[0] for constellation in curs.fetchall()]
+    curs.close()
+    return constellations
+
+
+def get_constellation_code(constellation: str) -> str:
+    """Gets the code that identifies the constellation."""
+    connection = get_connection()
+    curs = connection.cursor()
+    query = f"""
+            SELECT constellation_code
+            FROM constellation
+            WHERE constellation_name = '{constellation}';
+            """
+    curs.execute(query)
+    constellation = curs.fetchone()[0]
+    curs.close()
+    return constellation
 
 
 @st.cache_data
@@ -77,8 +104,8 @@ def get_weather_for_day(day: date, city: str) -> pd.DataFrame:
 
     weather_data = [(str(weather[5]).split(" ")[1][:2],
                      round(weather[2], 1),
-                     str(weather[3]).split('.')[0],
-                     str(weather[4]).split('.')[0])
+                     str(weather[3]).split('.', maxsplit=1)[0],
+                     str(weather[4]).split('.', maxsplit=1)[0])
                     for weather in curs.fetchall()]
 
     data = pd.DataFrame(weather_data)
@@ -104,8 +131,8 @@ def get_weather_for_week(city: str) -> pd.DataFrame:
 
     weather_data = [(weather[5],
                      round(weather[2], 1),
-                     float(str(weather[3]).split('.')[0]),
-                     float(str(weather[4]).split('.')[0]))
+                     float(str(weather[3]).split('.', maxsplit=1)[0]),
+                     float(str(weather[4]).split('.', maxsplit=1)[0]))
                     for weather in curs.fetchall()]
     curs.close()
     weather_data = pd.DataFrame(weather_data)
@@ -131,7 +158,8 @@ def get_stargazing_status_for_day(day: date, city: str) -> list:
     return stargazing_status
 
 
-def get_stargazing_status_for_week(city: str) -> pd.DataFrame:
+def get_stargazing_status_for_week(city: str) -> list:
+    """Gets stargazing weekly forecast for a city"""
     connection = get_connection()
     curs = connection.cursor()
     query = f"""
@@ -143,8 +171,8 @@ def get_stargazing_status_for_week(city: str) -> pd.DataFrame:
             """
     curs.execute(query)
     results = curs.fetchall()
-    data = pd.DataFrame(results)
-    return data
+    curs.close()
+    return results
 
 
 def get_meteor_showers_for_day(day) -> pd.DataFrame:
@@ -207,9 +235,9 @@ def column_one(weather: pd.DataFrame, star_status: list) -> None:
         st.image(star_status[6])
 
 
-def column_two(showers, star_status: list):
+def column_two(showers, star_status: list) -> None:
     """Writes info intended for right column."""
-    st.markdown(f"<p>Sunset / Sunrise &#9728;</p>",
+    st.markdown("<p>Sunset / Sunrise &#9728;</p>",
                 unsafe_allow_html=True)
     if star_status is None:
         st.write("No data for this date/location.")
@@ -225,9 +253,67 @@ def column_two(showers, star_status: list):
         st.markdown(showers.to_html(index=False), unsafe_allow_html=True)
 
 
+def weather_charts(weather: pd.DataFrame) -> None:
+    """Adds the weather charts to the dashboard."""
+    st.write('Data for the next 7 days.')
+    st.write("Temperature:")
+    st.line_chart(weather.set_index('Time'), y=['Temperature'])
+    st.write("Visibility:")
+    st.line_chart(weather.set_index('Time'), y=['Visibility'])
+    st.write("Coverage:")
+    st.line_chart(weather.set_index('Time'), y=['Coverage'])
+
+
+def post_location_get_starchart(header: str,
+                                lat: float,
+                                long: float,
+                                date_to_query: str,
+                                code: str) -> str:
+    """returns the url of a star chart for specific coordinates"""
+    body = {
+        "style": "default",
+        "observer": {
+            "latitude": lat,
+            "longitude": long,
+            "date": str(date_to_query)
+        },
+        "view": {
+            "type": "constellation",
+            "parameters": {
+                "constellation": code
+            }
+        }
+    }
+
+    response = requests.post(
+        "https://api.astronomyapi.com/api/v2/studio/star-chart",
+        headers={'Authorization': header},
+        json=body,
+        timeout=60
+    )
+
+    return response.json()['data']['imageUrl']
+
+
+def get_lat_and_long(city: str) -> tuple:
+    """Gets the latitude and longitude of a given city."""
+    connection = get_connection()
+    curs = connection.cursor()
+    query = f"""
+            SELECT latitude, longitude
+            FROM city
+            WHERE city_name = '{city}';
+            """
+    curs.execute(query)
+    results = curs.fetchall()
+    curs.close()
+    return results[0][0], results[0][1]
+
+
 def app():
     """The function ran when the user switches to this page."""
     load_dotenv()
+    HEADER = f'Basic {ENV["ASTRONOMY_BASIC_AUTH_KEY"]}'
 
     city = st.sidebar.selectbox('City', get_cities())
     country_id = get_country(city)
@@ -253,20 +339,28 @@ def app():
         if star_status is None:
             st.write("No Data for this date/location.")
         else:
-            st.image(star_status[5])
+            constellation = st.selectbox('Constellation', get_constellations())
+            code = get_constellation_code(constellation)
+            lat, long = get_lat_and_long(city)
+            url = post_location_get_starchart(
+                HEADER, lat, long, day, code)
+            st.image(url)
 
         if day == date.today():
             st.write("Aurora Activity")
             st.markdown(aurora.to_html(index=False), unsafe_allow_html=True)
     else:
-        st.write('Data for the next 7 days.')
-        st.write("Temperature:")
-        st.line_chart(weather.set_index('Time'), y=['Temperature'])
-        st.write("Visibility:")
-        st.line_chart(weather.set_index('Time'), y=['Visibility'])
-        st.write("Coverage:")
-        st.line_chart(weather.set_index('Time'), y=['Coverage'])
-        st.dataframe(get_stargazing_status_for_week(city))
+        weather_charts(weather)
+        columns = st.columns(8)
+        data = []
+        for i, status in enumerate(star_status):
+            data.append((str(status[2]).split(" ", maxsplit=1)[0], str(status[2]).split(" ")[1],
+                        str(status[3]).split(" ")[1]))
+            with columns[i]:
+                st.image(status[6])
+        sun_times = pd.DataFrame(data)
+        sun_times.columns = ["Day", "Sun Rise", "Sun Set"]
+        st.line_chart(sun_times.set_index('Day'))
 
 
 if __name__ == "__main__":
