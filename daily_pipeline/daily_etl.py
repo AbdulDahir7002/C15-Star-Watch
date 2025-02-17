@@ -6,6 +6,8 @@ import logging
 
 import requests
 from dotenv import load_dotenv
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
 from first_week import get_connection, get_locations
 
@@ -24,6 +26,17 @@ def configure_logs():
             logging.StreamHandler(sys.stdout)
         ]
     )
+
+
+def get_connection():
+    """Gets a connection to the database"""
+    connection = psycopg2.connect(host=ENV["DB_HOST"],
+                                  user=ENV["DB_USERNAME"],
+                                  dbname=ENV["DB_NAME"],
+                                  password=ENV["DB_PASSWORD"],
+                                  port=ENV["DB_PORT"],
+                                  cursor_factory=RealDictCursor)
+    return connection
 
 
 def post_location_get_starchart(header: str, lat: float, long: float, date_to_query: str):
