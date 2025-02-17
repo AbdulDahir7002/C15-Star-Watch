@@ -6,8 +6,44 @@ import logging
 
 import requests
 from dotenv import load_dotenv
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
-from first_week import get_connection, get_locations
+
+def configure_logs():
+    """Configure the logs for the whole project to refer to"""
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="{asctime} - {levelname} - {message}",
+        style="{",
+        datefmt="%Y-%m-%d %H:%M",
+        handlers=[
+            # logging.FileHandler("logs/pipeline.log", mode="a",
+            #                     encoding="utf-8"),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+
+
+def get_connection():
+    """Gets a connection to the database"""
+    connection = psycopg2.connect(host=ENV["DB_HOST"],
+                                  user=ENV["DB_USERNAME"],
+                                  dbname=ENV["DB_NAME"],
+                                  password=ENV["DB_PASSWORD"],
+                                  port=ENV["DB_PORT"],
+                                  cursor_factory=RealDictCursor)
+    return connection
+
+
+def get_locations(connection):
+    """Retrieves the cities we need to extract data for"""
+    cursor = connection.cursor()
+    cursor.execute("""SELECT * FROM city""")
+    rows = cursor.fetchall()
+    cursor.close()
+    return rows
 
 
 def configure_logs():
@@ -127,6 +163,26 @@ def upload_data(conn, data: list[tuple]):
         VALUES (%s, %s, %s, %s, %s, %s)""", data)
     conn.commit()
     cursor.close()
+
+
+def handler(event, context):
+    """Lambda function handler"""
+    load_dotenv()
+    configure_logs()
+
+    conn = get_connection()
+    cities = get_locations(conn)
+    HEADER = f'Basic {ENV["ASTRONOMY_BASIC_AUTH_KEY"]}'
+
+    new_date = datetime.strftime(
+        date.today() + timedelta(days=7), "%Y-%m-%d")
+
+    data = get_future_data(cities, new_date, HEADER)
+    logging.info("Star chart and Moon phase url's retrieved")
+
+    upload_data(conn, data)
+    logging.info("Uploaded a single days data")
+    conn.close()
 
 
 if __name__ == "__main__":

@@ -71,9 +71,10 @@ resource "aws_lambda_function" "pipeline-lambda" {
     variables = {
         DB_HOST = var.DB_HOST
         DB_NAME = var.DB_NAME
-        DB_USER = var.DB_USER
+        DB_USER = var.DB_USERNAME
         DB_PASSWORD = var.DB_PASSWORD
         DB_PORT = var.DB_PORT
+        ASTRONOMY_BASIC_AUTH_KEY=var.ASTRONOMY_BASIC_AUTH_KEY
         }
     }
 }

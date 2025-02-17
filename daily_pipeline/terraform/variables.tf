@@ -10,7 +10,7 @@ variable "DB_PASSWORD" {
   type = string
 }
 
-variable "DB_USER" {
+variable "DB_USERNAME" {
   type = string
 }
 
@@ -27,4 +27,7 @@ variable "AWS_SECRET_ACCESS_KEY" {
 
 variable "AWS_REGION" {
     type = string
+}
+
+variable "ASTRONOMY_BASIC_AUTH_KEY" {
 }
