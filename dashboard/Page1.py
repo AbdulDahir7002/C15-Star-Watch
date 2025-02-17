@@ -90,6 +90,28 @@ def get_weather_for_day(day: date, city: str) -> pd.DataFrame:
     return data
 
 
+def get_weather_for_week(city: str) -> pd.DataFrame:
+    """Returns the weekly weather forecast of a city."""
+    connection = get_connection()
+    curs = connection.cursor()
+    query = f"""
+            SELECT *
+            FROM weather_status
+            JOIN city ON (city.city_id = weather_status.city_id)
+            WHERE city_name = '{city}';
+            """
+    curs.execute(query)
+
+    weather_data = [(weather[5],
+                     round(weather[2], 1),
+                     float(str(weather[3]).split('.')[0]),
+                     float(str(weather[4]).split('.')[0]))
+                    for weather in curs.fetchall()]
+    weather_data = pd.DataFrame(weather_data)
+    weather_data.columns = ['Time', 'Temperature', 'Coverage', 'Visibility']
+    return weather_data
+
+
 @st.cache_data(ttl=86400)
 def get_stargazing_status_for_day(day: date, city: str) -> list:
     """Returns stargazing information given a city and a day."""
@@ -106,6 +128,22 @@ def get_stargazing_status_for_day(day: date, city: str) -> list:
     stargazing_status = curs.fetchone()
     curs.close()
     return stargazing_status
+
+
+def get_stargazing_status_for_week(city: str) -> pd.DataFrame:
+    connection = get_connection()
+    curs = connection.cursor()
+    query = f"""
+            SELECT stargazing_status.*, city_name
+            FROM stargazing_status JOIN city
+            ON (city.city_id = stargazing_status.city_id)
+            WHERE city_name = '{city}'
+            AND status_date >= '{date.today()}';
+            """
+    curs.execute(query)
+    results = curs.fetchall()
+    data = pd.DataFrame(results)
+    return data
 
 
 def get_meteor_showers_for_day(day) -> pd.DataFrame:
@@ -193,27 +231,41 @@ def app():
     city = st.sidebar.selectbox('City', get_cities())
     country_id = get_country(city)
     day = st.sidebar.selectbox('Day', get_days())
-    showers = get_meteor_showers_for_day(day)
+    if day != 'Week':
+        showers = get_meteor_showers_for_day(day)
+        weather = get_weather_for_day(day, city)
+        star_status = get_stargazing_status_for_day(day, city)
+    else:
+        weather = get_weather_for_week(city)
+        star_status = get_stargazing_status_for_week(city)
     aurora = get_aurora_info(country_id)
-    weather = get_weather_for_day(day, city)
-    star_status = get_stargazing_status_for_day(day, city)
 
     st.title(city)
-    col1, col2 = st.columns(2)
-    with col1:
-        column_one(weather, star_status)
-    with col2:
-        column_two(showers, star_status)
+    if day != 'Week':
+        col1, col2 = st.columns(2)
+        with col1:
+            column_one(weather, star_status)
+        with col2:
+            column_two(showers, star_status)
 
-    st.write("Starchart")
-    if star_status is None:
-        st.write("No Data for this date/location.")
+        st.write("Starchart")
+        if star_status is None:
+            st.write("No Data for this date/location.")
+        else:
+            st.image(star_status[5])
+
+        if day == date.today():
+            st.write("Aurora Activity")
+            st.markdown(aurora.to_html(index=False), unsafe_allow_html=True)
     else:
-        st.image(star_status[5])
-
-    if day == date.today():
-        st.write("Aurora Activity")
-        st.markdown(aurora.to_html(index=False), unsafe_allow_html=True)
+        st.write('Data for the next 7 days.')
+        st.write("Temperature:")
+        st.line_chart(weather.set_index('Time'), y=['Temperature'])
+        st.write("Visibility:")
+        st.line_chart(weather.set_index('Time'), y=['Visibility'])
+        st.write("Coverage:")
+        st.line_chart(weather.set_index('Time'), y=['Coverage'])
+        st.dataframe(get_stargazing_status_for_week(city))
 
 
 if __name__ == "__main__":
