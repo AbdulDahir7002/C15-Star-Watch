@@ -8,6 +8,7 @@ import psycopg2
 from dotenv import load_dotenv
 
 
+@st.cache_resource
 def get_connection():
     """Returns psycopg2 connection object."""
     connection = psycopg2.connect(
@@ -20,8 +21,10 @@ def get_connection():
     return connection
 
 
-def get_cities(connection) -> list:
+@st.cache_data
+def get_cities() -> list:
     """Gets a list of cities from the database."""
+    connection = get_connection()
     curs = connection.cursor()
     curs.execute("SELECT city_name FROM city;")
     cities = [city[0] for city in curs.fetchall()]
@@ -29,8 +32,10 @@ def get_cities(connection) -> list:
     return cities
 
 
-def get_country(city: str, connection) -> int:
+@st.cache_data
+def get_country(city: str) -> int:
     """Returns the country ID for a given city."""
+    connection = get_connection()
     curs = connection.cursor()
     curs.execute(f"SELECT country_id FROM city WHERE city_name = '{city}';")
     country_id = curs.fetchone()[0]
@@ -38,8 +43,10 @@ def get_country(city: str, connection) -> int:
     return country_id
 
 
-def get_aurora_info(country_id: int, connection) -> pd.DataFrame:
+@st.cache_data(ttl=3600)
+def get_aurora_info(country_id: int) -> pd.DataFrame:
     """Returns the aurora data for given country."""
+    connection = get_connection()
     curs = connection.cursor()
     curs.execute(
         f"SELECT * FROM aurora_status WHERE country_id = '{country_id}';")
@@ -53,8 +60,10 @@ def get_aurora_info(country_id: int, connection) -> pd.DataFrame:
     return pd.DataFrame(data)
 
 
-def get_weather_for_day(day: date, city: str, connection) -> pd.DataFrame:
+@st.cache_data(ttl=3600)
+def get_weather_for_day(day: date, city: str) -> pd.DataFrame:
     """Returns weather information given a city and a day."""
+    connection = get_connection()
     curs = connection.cursor()
     query = f"""
             SELECT *
@@ -81,8 +90,10 @@ def get_weather_for_day(day: date, city: str, connection) -> pd.DataFrame:
     return data
 
 
-def get_stargazing_status_for_day(day: date, city: str, connection) -> list:
+@st.cache_data(ttl=86400)
+def get_stargazing_status_for_day(day: date, city: str) -> list:
     """Returns stargazing information given a city and a day."""
+    connection = get_connection()
     curs = connection.cursor()
     query = f"""
             SELECT stargazing_status.*, city_name
@@ -97,8 +108,9 @@ def get_stargazing_status_for_day(day: date, city: str, connection) -> list:
     return stargazing_status
 
 
-def get_meteor_showers_for_day(day, connection) -> pd.DataFrame:
+def get_meteor_showers_for_day(day) -> pd.DataFrame:
     """Gets meteor showers occurring during given day."""
+    connection = get_connection()
     curs = connection.cursor()
     query = f"""
             SELECT *
@@ -177,15 +189,14 @@ def column_two(showers, star_status: list):
 def app():
     """The function ran when the user switches to this page."""
     load_dotenv()
-    connection = get_connection()
 
-    city = st.sidebar.selectbox('City', get_cities(connection))
-    country_id = get_country(city, connection)
+    city = st.sidebar.selectbox('City', get_cities())
+    country_id = get_country(city)
     day = st.sidebar.selectbox('Day', get_days())
-    showers = get_meteor_showers_for_day(day, connection)
-    aurora = get_aurora_info(country_id, connection)
-    weather = get_weather_for_day(day, city, connection)
-    star_status = get_stargazing_status_for_day(day, city, connection)
+    showers = get_meteor_showers_for_day(day)
+    aurora = get_aurora_info(country_id)
+    weather = get_weather_for_day(day, city)
+    star_status = get_stargazing_status_for_day(day, city)
 
     st.title(city)
     col1, col2 = st.columns(2)
@@ -203,8 +214,6 @@ def app():
     if day == date.today():
         st.write("Aurora Activity")
         st.markdown(aurora.to_html(index=False), unsafe_allow_html=True)
-
-    connection.close()
 
 
 if __name__ == "__main__":
