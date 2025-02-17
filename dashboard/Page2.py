@@ -8,7 +8,7 @@ import streamlit as st
 import pandas as pd
 import psycopg2
 from streamlit_timeline import st_timeline
-
+import altair as alt
 # DB connect
 
 
@@ -34,18 +34,31 @@ def query_db(conn, query: str, params: tuple) -> list[dict]:
     return output
 
 
-def get_sunrise_sunset_df(conn):
+def get_avg_sunrise_sunset_df(conn):
     """Returns a dataframe containing sunrise and sunset data."""
     q = """
             SELECT 
-                s.stargazing_status_id, 
-                s.sunrise,
-                s.sunset, 
+                to_timestamp(AVG(extract( epoch FROM s.sunrise))) as sunrise,
+                to_timestamp(AVG(extract( epoch FROM s.sunset))) as sunset, 
                 s.status_date 
             FROM stargazing_status AS s
+            JOIN city as c USING (city_id)
+            GROUP BY
+                s.status_date;
             """
     rows = query_db(conn, q, [])
-    return pd.DataFrame(rows)
+    sunrise_sunset_df = pd.DataFrame(rows)
+    sunrise_sunset_df["sunrise"] = sunrise_sunset_df["sunrise"].dt.time
+    sunrise_sunset_df["sunset"] = sunrise_sunset_df["sunset"].dt.time
+    return sunrise_sunset_df
+
+
+def sunrise_sunset_line(sunrise_sunset_dataframe: pd.DataFrame):
+    ss_line = alt.Chart(sunrise_sunset_dataframe).mark_line().encode(
+        alt.X("status_date"),
+        alt.Y("sunrise"))
+    st.altair_chart(ss_line)
+    # TODO: Fix the output by making the y-axis time (not datetime or epoch)
 
 
 def get_weather_status_week_df(conn):
@@ -84,8 +97,7 @@ def get_meteor_shower_df(conn):
     return rows
 
 
-def meteor_timeline(meteor_df):
-
+def meteor_timeline(meteor_df: pd.DataFrame):
     items = []
     for item in meteor_df:
         items.append({
@@ -110,8 +122,10 @@ def app():
     st.write("This is Page 2.")
     st.write("You can add more content here!")
 
-    sunrise_sunset_df = get_sunrise_sunset_df(connection)
-    st.write(sunrise_sunset_df)
+    avg_sunrise_sunset_df = get_avg_sunrise_sunset_df(connection)
+    st.write(avg_sunrise_sunset_df)
+
+    sunrise_sunset_line(avg_sunrise_sunset_df)
 
     weather_status_df = get_weather_status_week_df(connection)
     st.write(weather_status_df)
