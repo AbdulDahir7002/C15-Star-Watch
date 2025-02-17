@@ -5,7 +5,7 @@ from datetime import date, datetime
 
 import pandas as pd
 
-from Page1 import get_weather_for_day, get_aurora_info, get_country, get_cities, get_days, get_emoji_for_weather, get_meteor_showers_for_day, get_stargazing_status_for_day, get_weather_for_week, get_lat_and_long, get_constellation_code, get_constellations
+from Page1 import get_weather_for_day, get_aurora_info, get_country, get_cities, get_days, get_emoji_for_weather, get_meteor_showers_for_day, get_stargazing_status_for_day, get_weather_for_week, get_lat_and_long, get_constellation_code, get_constellations, get_stargazing_status_for_week
 
 
 class TestGetWeatherForDay(unittest.TestCase):
@@ -51,6 +51,27 @@ class TestGetWeatherForWeek(unittest.TestCase):
         pd.testing.assert_frame_equal(result, expected_result)
         mock_conn.cursor.assert_called_once()
         mock_cursor.close.assert_called_once()
+
+
+class TestGetStargazingForWeek(unittest.TestCase):
+    @patch('Page1.date')
+    @patch('Page1.get_connection')
+    def test_get_stargazing_for_week(self, mock_get_connection, mock_date):
+        mock_conn = MagicMock()
+        mock_curs = MagicMock()
+
+        mock_get_connection.return_value = mock_conn
+        mock_date.today.return_value = date(2025, 2, 16)
+        mock_conn.cursor.return_value = mock_curs
+        mock_curs.fetchall.return_value = [
+            (1, 1, 1, 1, 1, 'URL', 'URL', 'Testcity')
+        ]
+        self.assertEqual(
+            [
+                (1, 1, 1, 1, 1, 'URL', 'URL', 'Testcity')
+            ], get_stargazing_status_for_week('Testcity'))
+        mock_conn.cursor.assert_called_once()
+        mock_curs.close.assert_called_once()
 
 
 class TestGetAuroraInfo(unittest.TestCase):
