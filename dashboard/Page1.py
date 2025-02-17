@@ -26,10 +26,9 @@ def get_connection():
 def get_cities() -> list:
     """Gets a list of cities from the database."""
     connection = get_connection()
-    curs = connection.cursor()
-    curs.execute("SELECT city_name FROM city;")
-    cities = [city[0] for city in curs.fetchall()]
-    curs.close()
+    with connection.cursor() as curs:
+        curs.execute("SELECT city_name FROM city;")
+        cities = [city[0] for city in curs.fetchall()]
     return cities
 
 
@@ -37,25 +36,24 @@ def get_cities() -> list:
 def get_constellations() -> list:
     """Gets a list of constellations from the database."""
     connection = get_connection()
-    curs = connection.cursor()
-    curs.execute("SELECT constellation_name FROM constellation;")
-    constellations = [constellation[0] for constellation in curs.fetchall()]
-    curs.close()
+    with connection.cursor() as curs:
+        curs.execute("SELECT constellation_name FROM constellation;")
+        constellations = [constellation[0]
+                          for constellation in curs.fetchall()]
     return constellations
 
 
 def get_constellation_code(constellation: str) -> str:
     """Gets the code that identifies the constellation."""
     connection = get_connection()
-    curs = connection.cursor()
     query = f"""
             SELECT constellation_code
             FROM constellation
             WHERE constellation_name = '{constellation}';
             """
-    curs.execute(query)
-    constellation = curs.fetchone()[0]
-    curs.close()
+    with connection.cursor() as curs:
+        curs.execute(query)
+        constellation = curs.fetchone()[0]
     return constellation
 
 
@@ -63,10 +61,10 @@ def get_constellation_code(constellation: str) -> str:
 def get_country(city: str) -> int:
     """Returns the country ID for a given city."""
     connection = get_connection()
-    curs = connection.cursor()
-    curs.execute(f"SELECT country_id FROM city WHERE city_name = '{city}';")
-    country_id = curs.fetchone()[0]
-    curs.close()
+    with connection.cursor() as curs:
+        curs.execute(
+            f"SELECT country_id FROM city WHERE city_name = '{city}';")
+        country_id = curs.fetchone()[0]
     return country_id
 
 
@@ -74,16 +72,15 @@ def get_country(city: str) -> int:
 def get_aurora_info(country_id: int) -> pd.DataFrame:
     """Returns the aurora data for given country."""
     connection = get_connection()
-    curs = connection.cursor()
-    curs.execute(
-        f"SELECT * FROM aurora_status WHERE country_id = '{country_id}';")
-    aurora_data = curs.fetchall()
-    data = {
-        'Recording At': [str(aurora_data[-1][1])],
-        'Visible by Camera': [str(aurora_data[-1][2])],
-        'Visible by Eye': [str(aurora_data[-1][3])]
-    }
-    curs.close()
+    with connection.cursor() as curs:
+        curs.execute(
+            f"SELECT * FROM aurora_status WHERE country_id = '{country_id}';")
+        aurora_data = curs.fetchall()
+        data = {
+            'Recording At': [str(aurora_data[-1][1])],
+            'Visible by Camera': [str(aurora_data[-1][2])],
+            'Visible by Eye': [str(aurora_data[-1][3])]
+        }
     return pd.DataFrame(data)
 
 
@@ -91,7 +88,6 @@ def get_aurora_info(country_id: int) -> pd.DataFrame:
 def get_weather_for_day(day: date, city: str) -> pd.DataFrame:
     """Returns weather information given a city and a day."""
     connection = get_connection()
-    curs = connection.cursor()
     query = f"""
             SELECT *
             FROM weather_status
@@ -100,41 +96,42 @@ def get_weather_for_day(day: date, city: str) -> pd.DataFrame:
             AND status_at >= '{day}'
             AND status_at <= '{day} 23:59';
             """
-    curs.execute(query)
+    with connection.cursor() as curs:
+        curs.execute(query)
 
-    weather_data = [(str(weather[5]).split(" ")[1][:2],
-                     round(weather[2], 1),
-                     str(weather[3]).split('.', maxsplit=1)[0],
-                     str(weather[4]).split('.', maxsplit=1)[0])
-                    for weather in curs.fetchall()]
+        weather_data = [(str(weather[5]).split(" ")[1][:2],
+                         round(weather[2], 1),
+                         str(weather[3]).split('.', maxsplit=1)[0],
+                         str(weather[4]).split('.', maxsplit=1)[0])
+                        for weather in curs.fetchall()]
 
     data = pd.DataFrame(weather_data)
     data.columns = ['Time', 'Temperature', 'Coverage', 'Visibility']
     data = data[data['Time'].isin(['00', '06', '12', '18', '23'])]
     data = data.T
     data.index = ['Time', 'Temperature', 'Coverage', 'Visibility']
-    curs.close()
     return data
 
 
+@st.cache_data(ttl=3600)
 def get_weather_for_week(city: str) -> pd.DataFrame:
     """Returns the weekly weather forecast of a city."""
     connection = get_connection()
-    curs = connection.cursor()
     query = f"""
             SELECT *
             FROM weather_status
             JOIN city ON (city.city_id = weather_status.city_id)
             WHERE city_name = '{city}';
             """
-    curs.execute(query)
+    with connection.cursor() as curs:
+        curs.execute(query)
 
-    weather_data = [(weather[5],
-                     round(weather[2], 1),
-                     float(str(weather[3]).split('.', maxsplit=1)[0]),
-                     float(str(weather[4]).split('.', maxsplit=1)[0]))
-                    for weather in curs.fetchall()]
-    curs.close()
+        weather_data = [(weather[5],
+                         round(weather[2], 1),
+                         float(str(weather[3]).split('.', maxsplit=1)[0]),
+                         float(str(weather[4]).split('.', maxsplit=1)[0]))
+                        for weather in curs.fetchall()]
+
     weather_data = pd.DataFrame(weather_data)
     weather_data.columns = ['Time', 'Temperature', 'Coverage', 'Visibility']
     return weather_data
@@ -144,7 +141,6 @@ def get_weather_for_week(city: str) -> pd.DataFrame:
 def get_stargazing_status_for_day(day: date, city: str) -> list:
     """Returns stargazing information given a city and a day."""
     connection = get_connection()
-    curs = connection.cursor()
     query = f"""
             SELECT stargazing_status.*, city_name
             FROM stargazing_status JOIN city
@@ -152,16 +148,17 @@ def get_stargazing_status_for_day(day: date, city: str) -> list:
             WHERE city_name = '{city}'
             AND status_date = '{day}';
             """
-    curs.execute(query)
-    stargazing_status = curs.fetchone()
-    curs.close()
+    with connection.cursor() as curs:
+        curs.execute(query)
+        stargazing_status = curs.fetchone()
+
     return stargazing_status
 
 
+@st.cache_data(ttl=86400)
 def get_stargazing_status_for_week(city: str) -> list:
     """Gets stargazing weekly forecast for a city"""
     connection = get_connection()
-    curs = connection.cursor()
     query = f"""
             SELECT stargazing_status.*, city_name
             FROM stargazing_status JOIN city
@@ -169,25 +166,26 @@ def get_stargazing_status_for_week(city: str) -> list:
             WHERE city_name = '{city}'
             AND status_date >= '{date.today()}';
             """
-    curs.execute(query)
-    results = curs.fetchall()
-    curs.close()
+    with connection.cursor() as curs:
+        curs.execute(query)
+        results = curs.fetchall()
+
     return results
 
 
 def get_meteor_showers_for_day(day) -> pd.DataFrame:
     """Gets meteor showers occurring during given day."""
     connection = get_connection()
-    curs = connection.cursor()
     query = f"""
             SELECT *
             FROM meteor_shower
             WHERE '{day}' >= shower_start
             AND '{day}' <= shower_end;
             """
-    curs.execute(query)
-    results = curs.fetchall()
-    curs.close()
+    with connection.cursor() as curs:
+        curs.execute(query)
+        results = curs.fetchall()
+
     df = pd.DataFrame(results)
     if len(results) > 0:
         df.columns = ["id", "Name", "Start Date", "End Date", "Peak Date"]
@@ -298,15 +296,15 @@ def post_location_get_starchart(header: str,
 def get_lat_and_long(city: str) -> tuple:
     """Gets the latitude and longitude of a given city."""
     connection = get_connection()
-    curs = connection.cursor()
     query = f"""
             SELECT latitude, longitude
             FROM city
             WHERE city_name = '{city}';
             """
-    curs.execute(query)
-    results = curs.fetchall()
-    curs.close()
+    with connection.cursor() as curs:
+        curs.execute(query)
+        results = curs.fetchall()
+
     return results[0][0], results[0][1]
 
 
