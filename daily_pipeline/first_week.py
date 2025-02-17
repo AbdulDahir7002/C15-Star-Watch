@@ -1,12 +1,15 @@
 """Extracts the first weeks forecast of astronomic data from the AstronomyAPI"""
 from os import environ as ENV
 from datetime import datetime, date, timedelta
+import logging
 
 import asyncio
 import aiohttp
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
+
+from logs_setup.logs import configure_logs
 
 
 async def get_sunrise_and_set_times(session, lat: float, long: float, date_to_query: str):
@@ -83,7 +86,7 @@ async def post_location_get_moonphase(session, header: str, lat: float, long: fl
             "backgroundStyle": "stars",
             "backgroundColor": "red",
             "headingColor": "white",
-            "textColor": "red"
+            "textColor": "white"
         },
         "observer": {
             "latitude": lat,
@@ -92,7 +95,7 @@ async def post_location_get_moonphase(session, header: str, lat: float, long: fl
         },
         "view": {
             "type": "portrait-simple",
-            "orientation": "south-up"
+            "orientation": "north-up"
         }
     }
 
@@ -126,6 +129,7 @@ async def format_tasks(city: dict, day: str, header: str, lat: float, long: floa
 async def collate_data(header: str, city_list: list, dates: list) -> dict:
     """Formats into list of tuples in format 
     (city_id, sunrise, sunset, date, star_chart, moon_phase)"""
+    logging.info("Assembling tasks...")
     async with aiohttp.ClientSession() as session:
         city_data = []
         for city in city_list:
@@ -135,8 +139,8 @@ async def collate_data(header: str, city_list: list, dates: list) -> dict:
                 long = city.get("longitude")
                 tasks.append(format_tasks(
                     city, day, header, lat, long, session))
-                print(f"Queued for {day}")
-            print(f"Queued for city {city["city_id"]}")
+
+            logging.info(f"Queued for all dates in city {city["city_id"]}")
 
             results = await asyncio.gather(*tasks)
             city_data.extend(results)
@@ -166,12 +170,12 @@ def seed_next_week(connection, data: list[tuple]):
             VALUES (%s,%s,%s,%s,%s,%s)"""
     cursor.executemany(q, data)
     connection.commit()
-    print("Uploaded to database")
 
 
 if __name__ == "__main__":
     load_dotenv()
     conn = get_connection()
+    configure_logs()
 
     cities = get_locations(conn)
     HEADER = f'Basic {ENV["ASTRONOMY_BASIC_AUTH_KEY"]}'
@@ -184,7 +188,10 @@ if __name__ == "__main__":
 
     resultant_data = asyncio.run(
         collate_data(HEADER, useful_cities, next_week))
-    print(resultant_data)
+    logging.info("Tasks ran and results stored")
+
     finalised_data = format_for_insert(resultant_data)
     seed_next_week(conn, finalised_data)
+    logging.info("Uploaded to database")
+
     conn.close()

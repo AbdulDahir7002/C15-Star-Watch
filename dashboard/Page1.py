@@ -1,6 +1,7 @@
 """Page1 of the dashboard."""
 from os import environ as ENV
 from datetime import date, timedelta
+import logging
 
 import streamlit as st
 import pandas as pd
@@ -208,6 +209,7 @@ def app():
     st.write("Starchart")
     if star_status is None:
         st.write("No Data for this date/location.")
+        logging.debug("No data found in star status")
     else:
         st.image(star_status[5])
 

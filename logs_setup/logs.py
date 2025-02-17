@@ -16,5 +16,3 @@ def configure_logs():
             logging.StreamHandler(sys.stdout)
         ]
     )
-
-    logging.info("\n\nRunning cycle...")

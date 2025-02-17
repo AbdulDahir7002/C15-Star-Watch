@@ -2,12 +2,15 @@
 from datetime import datetime
 import re
 from os import environ as ENV
+import importlib
+import logging
 
 import requests
 from bs4 import BeautifulSoup
 import psycopg2
 from psycopg2.extras import execute_values
 from dotenv import load_dotenv
+from logs_setup.logs import configure_logs
 
 
 CITIES = [
@@ -110,6 +113,7 @@ def convert_peak_night_to_datetime(peak_night: str) -> datetime:
 
 def get_meteor_showers():
     """Returns list of tuples of meteor shower information."""
+    logging.info("Calling for meteor data...")
     url = "https://www.imo.net/resources/calendar/"
     response = requests.get(url, timeout=5)
     html_content = response.text
@@ -192,10 +196,23 @@ def clear_tables(connection):
 if __name__ == "__main__":
     load_dotenv()
     conn = get_connection()
+    configure_logs()
+
     locations = get_locations(CITIES)
     showers = get_meteor_showers()
+    logging.info("Meteor data retrieved")
+
     clear_tables(conn)
+    logging.warning("Tables city, country, meteor_shower CLEARED")
+
     insert_countries(conn)
+    logging.info("Country data uploaded")
+
     insert_cities(locations, conn)
+    logging.info("City data uploaded")
+
     insert_meteor_showers(showers, conn)
+    logging.info("Meteor data uploaded")
+
+    logging.info("Finished")
     conn.close()

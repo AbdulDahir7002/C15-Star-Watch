@@ -2,12 +2,16 @@
 from xml.etree import ElementTree as ET
 from os import environ as ENV
 import requests
+import importlib
+import logging
 
 import psycopg2
 from dotenv import load_dotenv
-
+from logs_setup.logs import configure_logs
 
 # DB connect
+
+
 def get_connection():
     """Returns psycopg2 connection object."""
     connection = psycopg2.connect(
@@ -50,6 +54,7 @@ def get_country_dict(conn):
 
 def get_current_aurora_data() -> dict:
     """Fetch current aurora status and last update"""
+    logging.info("Retrieving Aurora data...")
     response = requests.get(
         "https://aurorawatch-api.lancs.ac.uk/0.2/status/current-status.xml", timeout=10)
     root = ET.fromstring(response.text)
@@ -126,10 +131,18 @@ if __name__ == "__main__":
     load_dotenv()
     conn = get_connection()
 
+    configure_logs()
+
     status_dict = get_current_aurora_data()
+    logging.info("Aurora data retrieved")
+
     country_list = get_country_dict(conn)
     print(status_dict, country_list)
+
     country_status_list = get_status_per_country(status_dict, country_list)
+    logging.info("Aurora status linked to country")
     print(country_status_list)
+
     insert_values_to_db(conn, country_status_list)
+    logging.info("Aurora status data uploaded to database")
     conn.close()
