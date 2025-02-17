@@ -1,13 +1,7 @@
-provider "aws" {
-  region = "eu-west-2"
-  secret_key = var.AWS_SECRET_ACCESS_KEY
-  access_key = var.AWS_ACCESS_KEY
-}
-
 # ECR
 
 data "aws_ecr_repository" "lambda-image-repo" {
-  name = "c15-star-daily-pipeline-etl"
+  name = "c15-star-watch-daily-lambda-repo"
 }
 
 data "aws_ecr_image" "lambda-image-version" {
@@ -45,12 +39,12 @@ data "aws_iam_policy_document" "lambda-role-permissions-policy-doc" {
 # Role
 
 resource "aws_iam_role" "lambda-role" {
-  name ="c15-star-watch-lambda-role"
+  name ="c15-star-watch-daily-lambda-role"
   assume_role_policy = data.aws_iam_policy_document.lambda-role-trust-policy-doc.json
 }
 
 resource "aws_iam_policy" "lambda-role-permissions-policy" {
-  name = "c15-star-watch-pipeline-policy"
+  name = "c15-star-watch-daily-pipeline-policy"
   policy = data.aws_iam_policy_document.lambda-role-permissions-policy-doc.json
 }
 
@@ -67,6 +61,7 @@ resource "aws_lambda_function" "pipeline-lambda" {
   package_type = "Image"
   image_uri = data.aws_ecr_image.lambda-image-version.image_uri
   timeout = 600
+  architectures = [ "arm64" ]
   environment { 
     variables = {
         DB_HOST = var.DB_HOST
