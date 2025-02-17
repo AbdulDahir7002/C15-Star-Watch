@@ -2,12 +2,26 @@
 from xml.etree import ElementTree as ET
 from os import environ as ENV
 import requests
-import importlib
 import logging
 
 import psycopg2
 from dotenv import load_dotenv
-from logs_setup.logs import configure_logs
+
+
+def configure_logs():
+    """Configure the logs for the whole project to refer to"""
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="{asctime} - {levelname} - {message}",
+        style="{",
+        datefmt="%Y-%m-%d %H:%M",
+        handlers=[
+            logging.FileHandler("logs/pipeline.log", mode="a",
+                                encoding="utf-8"),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
 
 # DB connect
 

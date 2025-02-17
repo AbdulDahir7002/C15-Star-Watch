@@ -2,11 +2,28 @@
 from os import environ as ENV
 from datetime import date, timedelta
 import logging
+import sys
 
 import streamlit as st
 import pandas as pd
 import psycopg2
 from dotenv import load_dotenv
+
+
+def configure_logs():
+    """Configure the logs for the whole project to refer to"""
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="{asctime} - {levelname} - {message}",
+        style="{",
+        datefmt="%Y-%m-%d %H:%M",
+        handlers=[
+            logging.FileHandler("logs/pipeline.log", mode="a",
+                                encoding="utf-8"),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
 
 
 @st.cache_resource
@@ -47,11 +64,13 @@ def get_country(city: str) -> int:
 @st.cache_data(ttl=3600)
 def get_aurora_info(country_id: int) -> pd.DataFrame:
     """Returns the aurora data for given country."""
+    logging.info("Fetching requested aurora data...")
     connection = get_connection()
     curs = connection.cursor()
     curs.execute(
         f"SELECT * FROM aurora_status WHERE country_id = '{country_id}';")
     aurora_data = curs.fetchall()
+    logging.info("Fetched!")
     data = {
         'Recording At': [str(aurora_data[-1][1])],
         'Visible by Camera': [str(aurora_data[-1][2])],
@@ -64,6 +83,7 @@ def get_aurora_info(country_id: int) -> pd.DataFrame:
 @st.cache_data(ttl=3600)
 def get_weather_for_day(day: date, city: str) -> pd.DataFrame:
     """Returns weather information given a city and a day."""
+    logging.info("Fetching requested weather data...")
     connection = get_connection()
     curs = connection.cursor()
     query = f"""
@@ -83,6 +103,7 @@ def get_weather_for_day(day: date, city: str) -> pd.DataFrame:
                     for weather in curs.fetchall()]
 
     data = pd.DataFrame(weather_data)
+    logging.info("Fetched!")
     data.columns = ['Time', 'Temperature', 'Coverage', 'Visibility']
     data = data[data['Time'].isin(['00', '06', '12', '18', '23'])]
     data = data.T
@@ -94,6 +115,7 @@ def get_weather_for_day(day: date, city: str) -> pd.DataFrame:
 @st.cache_data(ttl=86400)
 def get_stargazing_status_for_day(day: date, city: str) -> list:
     """Returns stargazing information given a city and a day."""
+    logging.info("Fetching requested star chart...")
     connection = get_connection()
     curs = connection.cursor()
     query = f"""
@@ -105,12 +127,14 @@ def get_stargazing_status_for_day(day: date, city: str) -> list:
             """
     curs.execute(query)
     stargazing_status = curs.fetchone()
+    logging.info("Fetched!")
     curs.close()
     return stargazing_status
 
 
 def get_meteor_showers_for_day(day) -> pd.DataFrame:
     """Gets meteor showers occurring during given day."""
+    logging.info("Fetching requested meteor shower data...")
     connection = get_connection()
     curs = connection.cursor()
     query = f"""
@@ -123,9 +147,11 @@ def get_meteor_showers_for_day(day) -> pd.DataFrame:
     results = curs.fetchall()
     curs.close()
     df = pd.DataFrame(results)
+    logging.info("Fetched!")
     if len(results) > 0:
         df.columns = ["id", "Name", "Start Date", "End Date", "Peak Date"]
         return df
+
     return None
 
 
@@ -190,6 +216,7 @@ def column_two(showers, star_status: list):
 def app():
     """The function ran when the user switches to this page."""
     load_dotenv()
+    configure_logs()
 
     city = st.sidebar.selectbox('City', get_cities())
     country_id = get_country(city)

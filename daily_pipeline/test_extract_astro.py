@@ -6,6 +6,7 @@ import pytest
 from dotenv import load_dotenv
 
 from first_week import get_connection, get_locations, post_location_get_moonphase, post_location_get_starchart, collate_data
+import logs_setup.logs
 
 # load_dotenv()
 

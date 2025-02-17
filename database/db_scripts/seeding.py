@@ -2,15 +2,14 @@
 from datetime import datetime
 import re
 from os import environ as ENV
-import importlib
 import logging
+import sys
 
 import requests
 from bs4 import BeautifulSoup
 import psycopg2
 from psycopg2.extras import execute_values
 from dotenv import load_dotenv
-from logs_setup.logs import configure_logs
 
 
 CITIES = [
@@ -28,6 +27,22 @@ CITIES = [
     "Sunderland", "Swansea", "Truro", "Wakefield", "Wells", "Westminster",
     "Winchester", "Wolverhampton", "Worcester", "Wrexham", "York"
 ]
+
+
+def configure_logs():
+    """Configure the logs for the whole project to refer to"""
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="{asctime} - {levelname} - {message}",
+        style="{",
+        datefmt="%Y-%m-%d %H:%M",
+        handlers=[
+            logging.FileHandler("logs/pipeline.log", mode="a",
+                                encoding="utf-8"),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
 
 
 def get_connection():

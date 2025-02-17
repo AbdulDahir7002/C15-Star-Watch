@@ -1,12 +1,27 @@
 """Script to extract, transform and load weather data and aurora updates"""
 from dotenv import load_dotenv
 import logging
-import importlib
+import sys
 
 from aurora_status import get_connection, get_country_dict, get_current_aurora_data, get_status_per_country, insert_values_to_db
 
 from weather_extract import get_openmeteo, get_locations, get_dates, handle_locations, clear_weather_table, insert_into_db
-from logs_setup.logs import configure_logs
+
+
+def configure_logs():
+    """Configure the logs for the whole project to refer to"""
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="{asctime} - {levelname} - {message}",
+        style="{",
+        datefmt="%Y-%m-%d %H:%M",
+        handlers=[
+            logging.FileHandler("logs/pipeline.log", mode="a",
+                                encoding="utf-8"),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
 
 
 def lambda_handler(event, context):
