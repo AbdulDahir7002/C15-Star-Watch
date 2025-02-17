@@ -172,7 +172,7 @@ def app():
     st.write("You can add more content here!")
 
     avg_sunrise_sunset_df = get_avg_sunrise_sunset_df(connection)
-    st.write(avg_sunrise_sunset_df)
+    # st.write(avg_sunrise_sunset_df)
 
     sunrise_sunset_line(avg_sunrise_sunset_df)
 
@@ -181,14 +181,14 @@ def app():
 
     meteor_shower_dict = get_meteor_shower_data(connection)
     meteor_shower_df = pd.DataFrame(meteor_shower_dict)
-    st.write(meteor_shower_df)
+    # st.write(meteor_shower_df)
 
-    st.write("Meteor shower timeline")
+    st.markdown("## Meteor shower timeline")
     meteor_timeline(meteor_shower_dict)
 
     st.write("Aurora Data")
     aurora_dataframe = get_aurora_status_df(connection)
-    st.write(aurora_dataframe)
+    # st.write(aurora_dataframe)
 
     aurora_status_timeline(aurora_dataframe)
 
