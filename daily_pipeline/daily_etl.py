@@ -129,6 +129,26 @@ def upload_data(conn, data: list[tuple]):
     cursor.close()
 
 
+def handler(event, context):
+    """Lambda function handler"""
+    load_dotenv()
+    configure_logs()
+
+    conn = get_connection()
+    cities = get_locations(conn)
+    HEADER = f'Basic {ENV["ASTRONOMY_BASIC_AUTH_KEY"]}'
+
+    new_date = datetime.strftime(
+        date.today() + timedelta(days=7), "%Y-%m-%d")
+
+    data = get_future_data(cities, new_date, HEADER)
+    logging.info("Star chart and Moon phase url's retrieved")
+
+    upload_data(conn, data)
+    logging.info("Uploaded a single days data")
+    conn.close()
+
+
 if __name__ == "__main__":
     load_dotenv()
     configure_logs()

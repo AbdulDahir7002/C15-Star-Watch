@@ -10,4 +10,4 @@ COPY first_week.py .
 
 COPY daily_etl.py .
 
-CMD ["python3 daily_etl.py"]
+CMD ["python3 daily_etl.handler"]
