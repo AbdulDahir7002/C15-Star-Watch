@@ -22,27 +22,14 @@
         </h3>
         <h4>
             <ul>
-                <li>{name}, will reach it's peak in {x} days.</li>
-                <li>{name}, ends on {day of the week}.</li>
+                <li>{{name}}, will reach it's peak in {{days_till_peak}} days.</li>
+                <li>{{name}}, ends on {{day of the week}}.</li>
             </ul>
         </h4>
         <h3>
             Sunrise & Sunset
         </h3>
-        <table>
-            <tr>
-                <th>Firstname</th>
-                <th>Lastname</th>
-            </tr>
-            <tr>
-                <td>Peter</td>
-                <td>Griffin</td>
-            </tr>
-            <tr>
-                <td>Lois</td>
-                <td>Griffin</td>
-            </tr>
-        </table>
+        {{table}}
         <div class="flex-container">
             <div><img src={image_name}></div>
             <div><img src={image_name}></div>
