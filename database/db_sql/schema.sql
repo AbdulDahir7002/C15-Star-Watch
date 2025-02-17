@@ -81,3 +81,9 @@ CREATE TABLE meteor_shower_assignment (
     FOREIGN KEY (meteor_shower_id) REFERENCES meteor_shower(meteor_shower_id),
     FOREIGN KEY (stargazing_status_id) REFERENCES stargazing_status(stargazing_status_id)
 );
+
+CREATE TABLE constellation (
+    constellation_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    constellation_name VARCHAR(50) NOT NULL,
+    constellation_code VARCHAR(3) NOT NULL
+);
