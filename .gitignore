@@ -96,7 +96,7 @@ venv/
 .terraform.*
 terraform.*
 *.pem
+.pemkey
+*.csv
 
-.csv
-
-.log
+*.log
