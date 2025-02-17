@@ -38,6 +38,15 @@ def get_locations(connection):
     return rows
 
 
+def get_constellations(connection):
+    """Retrieves the constellations we need to extract data for"""
+    cursor = connection.cursor()
+    cursor.execute("""SELECT * FROM constellation""")
+    rows = cursor.fetchall()
+    cursor.close()
+    return rows
+
+
 async def post_location_get_starchart(session, header: str, lat: float, long: float, date_to_query: str):
     """returns the url of a star chart for specific coordinates"""
     body = {
@@ -50,7 +59,7 @@ async def post_location_get_starchart(session, header: str, lat: float, long: fl
         "view": {
             "type": "constellation",
             "parameters": {
-                "constellation": "ori"
+                "constellation": "ori"  # need to put code in
             }
         }
     }
@@ -59,7 +68,7 @@ async def post_location_get_starchart(session, header: str, lat: float, long: fl
         "https://api.astronomyapi.com/api/v2/studio/star-chart",
         headers={'Authorization': header},
         json=body,
-        timeout=60
+        timeout=600
     )
 
     return response
@@ -91,7 +100,7 @@ async def post_location_get_moonphase(session, header: str, lat: float, long: fl
         "https://api.astronomyapi.com/api/v2/studio/moon-phase",
         headers={'Authorization': header},
         json=body,
-        timeout=60
+        timeout=600
     )
 
     return response
@@ -129,7 +138,6 @@ async def collate_data(header: str, city_list: list, dates: list) -> dict:
                 print(f"Queued for {day}")
             print(f"Queued for city {city["city_id"]}")
 
-            # await asyncio.sleep(0.5)
             results = await asyncio.gather(*tasks)
             city_data.extend(results)
     return city_data
@@ -176,7 +184,7 @@ if __name__ == "__main__":
 
     resultant_data = asyncio.run(
         collate_data(HEADER, useful_cities, next_week))
-
+    print(resultant_data)
     finalised_data = format_for_insert(resultant_data)
     seed_next_week(conn, finalised_data)
     conn.close()
