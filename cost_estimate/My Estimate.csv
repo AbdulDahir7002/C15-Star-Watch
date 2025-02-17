@@ -1,0 +1,23 @@
+﻿Estimate summary
+Upfront cost,Monthly cost,Total 12 months cost,Currency
+0,47.7,572.40,USD
+,,* Includes upfront cost
+
+
+Detailed Estimate
+Group hierarchy,Region,Description,Service,Upfront,Monthly,First 12 months total,Currency,Status,Configuration summary
+My Estimate,US East (Ohio),,AWS Lambda,0,0,0.00,USD,,"Architecture (x86), Architecture (x86), Invoke Mode (Buffered), Amount of ephemeral storage allocated (512 MB), Number of requests (24 per day)"
+My Estimate,US East (Ohio),,AWS Lambda,0,0,0.00,USD,,"Architecture (x86), Architecture (x86), Invoke Mode (Buffered), Amount of ephemeral storage allocated (512 MB), Number of requests (1 per day)"
+My Estimate,US East (Ohio),,AWS Lambda,0,0,0.00,USD,,"Architecture (x86), Architecture (x86), Invoke Mode (Buffered), Amount of ephemeral storage allocated (512 MB), Number of requests (4 per month)"
+My Estimate,Europe (London),,Amazon RDS for PostgreSQL,0,42.81,513.72,USD,,"Storage amount (20 GB), Storage volume (General Purpose SSD (gp2)), Nodes (1), Instance Type (db.t3.micro), Utilization (On-Demand only) (100 %Utilized/Month), Deployment Option (Single-AZ), Pricing Model (OnDemand)"
+My Estimate,Europe (London),,Amazon Simple Email Service (SES),0,0,0.00,USD,,"Email messages sent from EC2 (3000 per month), Email messages sent from email client (3000 per month)"
+My Estimate,Europe (London),,Amazon EC2 ,0,4.891,58.69,USD,,"Tenancy (Shared Instances), Operating system (Linux), Workload (Consistent, Number of instances: 1), Advance EC2 instance (t2.micro), Pricing strategy (EC2 Instance Savings Plans 3yr  No Upfront), Enable monitoring (disabled), DT Inbound: Not selected (0 TB per month), DT Outbound: Not selected (0 TB per month), DT Intra-Region: (0 TB per month)"
+My Estimate,Europe (London),,Standard topics,0,0,0.00,USD,,"Requests (4 per month), HTTP/HTTPS Notifications (0 million per month), EMAIL/EMAIL-JSON Notifications (0 million per month), SQS Notifications (0 million per month), Amazon Web Services Lambda (0 million per month), Amazon Kinesis Data Firehose (0 million per month)"
+My Estimate,Europe (London),,Amazon EventBridge,0,0.0000072,0.00,USD,,"Size of the payload (1 KB), Number of partner events (0 million per month), Number of cross region events (0 million per month), Number of bus-2-bus in the same account events (0 million per month), Number of custom events (30 per month), Number of invocations (30 per month), Number of invocations (30 per month)"
+My Estimate,Europe (London),,Amazon EventBridge,0,0.0001728,0.00,USD,,"Size of the payload (1 KB), Number of custom events (720 per month), Number of invocations (720 per month), Number of invocations (720 per month)"
+My Estimate,Europe (London),,Amazon EventBridge,0,0.000001,0.00,USD,,"Size of the payload (1 KB), Number of custom events (4 per month), Number of invocations (4 per month), Number of events ( million per month), Number of invocations (4 per month)"
+
+
+
+Acknowledgement
+"* AWS Pricing Calculator provides only an estimate of your AWS fees and doesn't include any taxes that might apply. Your actual fees depend on a variety of factors, including your actual usage of AWS services."
