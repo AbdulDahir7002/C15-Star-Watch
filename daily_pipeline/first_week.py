@@ -1,4 +1,4 @@
-"""Extracts simple astronomic data from the AstronomyAPI"""
+"""Extracts the first weeks forecast of astronomic data from the AstronomyAPI"""
 from os import environ as ENV
 from datetime import datetime, date, timedelta
 
@@ -14,8 +14,6 @@ async def get_sunrise_and_set_times(session, lat: float, long: float, date_to_qu
     url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={long}&daily=sunrise,sunset&timezone=auto&start_date={date_to_query}&end_date={date_to_query}"
     response = await session.get(url)
     data = await response.json()
-    # sunrise = data['daily']['sunrise'][0]
-    # sunset = data['daily']['sunset'][0]
 
     return data
 
@@ -97,7 +95,6 @@ async def post_location_get_moonphase(session, header: str, lat: float, long: fl
     )
 
     return response
-# response.json()['data']['imageUrl']
 
 
 async def format_tasks(city: dict, day: str, header: str, lat: float, long: float, session) -> asyncio.coroutines:
@@ -164,7 +161,6 @@ def seed_next_week(connection, data: list[tuple]):
     print("Uploaded to database")
 
 
-# seed next 7 days, daily ask for the 8th day
 if __name__ == "__main__":
     load_dotenv()
     conn = get_connection()
@@ -177,8 +173,6 @@ if __name__ == "__main__":
 
     next_week = [datetime.strftime(
         date.today()+timedelta(days=n), "%Y-%m-%d") for n in range(8)]
-    eighth_day = datetime.strftime(
-        date.today() + timedelta(days=8), "%Y-%m-%d")
 
     resultant_data = asyncio.run(
         collate_data(HEADER, useful_cities, next_week))
