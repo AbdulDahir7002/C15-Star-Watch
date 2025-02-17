@@ -5,7 +5,7 @@ from datetime import date, datetime
 
 import pandas as pd
 
-from Page1 import get_weather_for_day, get_aurora_info, get_country, get_cities, get_days, get_emoji_for_weather, get_meteor_showers_for_day, get_stargazing_status_for_day, get_weather_for_week, get_lat_and_long, get_constellation_code
+from Page1 import get_weather_for_day, get_aurora_info, get_country, get_cities, get_days, get_emoji_for_weather, get_meteor_showers_for_day, get_stargazing_status_for_day, get_weather_for_week, get_lat_and_long, get_constellation_code, get_constellations
 
 
 class TestGetWeatherForDay(unittest.TestCase):
@@ -133,6 +133,21 @@ class TestGetCities(unittest.TestCase):
         mock_cursor.fetchall.return_value = [('Aberdeen',)]
         result = get_cities()
         self.assertEqual(['Aberdeen'], result)
+        mock_conn.cursor.assert_called_once()
+        mock_cursor.close.assert_called_once()
+
+
+class TestGetConstellations(unittest.TestCase):
+    @patch('Page1.get_connection')
+    def test_get_constellations(self, mock_get_connection):
+        mock_conn = MagicMock()
+        mock_cursor = MagicMock()
+
+        mock_get_connection.return_value = mock_conn
+        mock_conn.cursor.return_value = mock_cursor
+        mock_cursor.fetchall.return_value = [('Orion', 'ori')]
+        result = get_constellations()
+        self.assertEqual(['Orion'], result)
         mock_conn.cursor.assert_called_once()
         mock_cursor.close.assert_called_once()
 
