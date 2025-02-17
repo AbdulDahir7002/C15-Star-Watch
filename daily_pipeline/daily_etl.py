@@ -9,8 +9,6 @@ from dotenv import load_dotenv
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-from first_week import get_connection, get_locations
-
 
 def configure_logs():
     """Configure the logs for the whole project to refer to"""
@@ -37,6 +35,15 @@ def get_connection():
                                   port=ENV["DB_PORT"],
                                   cursor_factory=RealDictCursor)
     return connection
+
+
+def get_locations(connection):
+    """Retrieves the cities we need to extract data for"""
+    cursor = connection.cursor()
+    cursor.execute("""SELECT * FROM city""")
+    rows = cursor.fetchall()
+    cursor.close()
+    return rows
 
 
 def post_location_get_starchart(header: str, lat: float, long: float, date_to_query: str):
