@@ -60,8 +60,7 @@ resource "aws_lambda_function" "pipeline-lambda" {
   role = aws_iam_role.lambda-role.arn
   package_type = "Image"
   image_uri = data.aws_ecr_image.lambda-image-version.image_uri
-  timeout = 600
-  architectures = ["x86_64"]
+  timeout = 240
   environment { 
     variables = {
         DB_HOST = var.DB_HOST

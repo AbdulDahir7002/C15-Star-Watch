@@ -1,15 +1,17 @@
 # pylint: skip-file
+from os import environ
+
+from unittest.mock import patch, MagicMock
 import pytest
 from dotenv import load_dotenv
-from os import environ
-from extract_astro import get_connection, get_locations, post_location_get_moonphase, post_location_get_starchart, collate_data
-from unittest.mock import patch, MagicMock
+
+from first_week import get_connection, get_locations, post_location_get_moonphase, post_location_get_starchart, collate_data
 
 # load_dotenv()
 
 
 @patch.dict(environ, {"DB_HOST": "HOST", "DB_USERNAME": "USERNAME", "DB_NAME": "NAME", "DB_PASSWORD": "PASSWORD", "DB_PORT": "PORT"})
-@patch("extract_astro.psycopg2.connect", return_value="mocked_conn")
+@patch("first_week.psycopg2.connect", return_value="mocked_conn")
 def test_connection_made(mock_conn):
     """Tests that the connection function is called once"""
     get_connection()
@@ -21,7 +23,7 @@ def test_city_format():
     pass
 
 
-@patch("extract_astro.psycopg2.connect")
+@patch("first_week.psycopg2.connect")
 def test_cursor_closes(mock_connect):
     """Tests the cursor is closed"""
     mock_conn = MagicMock()

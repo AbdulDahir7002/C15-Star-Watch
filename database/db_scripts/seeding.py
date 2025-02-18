@@ -2,6 +2,8 @@
 from datetime import datetime
 import re
 from os import environ as ENV
+import logging
+import sys
 
 import requests
 from bs4 import BeautifulSoup
@@ -25,6 +27,22 @@ CITIES = [
     "Sunderland", "Swansea", "Truro", "Wakefield", "Wells", "Westminster",
     "Winchester", "Wolverhampton", "Worcester", "Wrexham", "York"
 ]
+
+
+def configure_logs():
+    """Configure the logs for the whole project to refer to"""
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="{asctime} - {levelname} - {message}",
+        style="{",
+        datefmt="%Y-%m-%d %H:%M",
+        handlers=[
+            logging.FileHandler("logs/pipeline.log", mode="a",
+                                encoding="utf-8"),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
 
 
 def get_connection():
@@ -110,6 +128,7 @@ def convert_peak_night_to_datetime(peak_night: str) -> datetime:
 
 def get_meteor_showers():
     """Returns list of tuples of meteor shower information."""
+    logging.info("Calling for meteor data...")
     url = "https://www.imo.net/resources/calendar/"
     response = requests.get(url, timeout=5)
     html_content = response.text
@@ -192,10 +211,23 @@ def clear_tables(connection):
 if __name__ == "__main__":
     load_dotenv()
     conn = get_connection()
+    configure_logs()
+
     locations = get_locations(CITIES)
     showers = get_meteor_showers()
+    logging.info("Meteor data retrieved")
+
     clear_tables(conn)
+    logging.warning("Tables city, country, meteor_shower CLEARED")
+
     insert_countries(conn)
+    logging.info("Country data uploaded")
+
     insert_cities(locations, conn)
+    logging.info("City data uploaded")
+
     insert_meteor_showers(showers, conn)
+    logging.info("Meteor data uploaded")
+
+    logging.info("Finished")
     conn.close()
