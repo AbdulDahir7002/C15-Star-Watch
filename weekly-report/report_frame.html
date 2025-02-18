@@ -30,22 +30,23 @@
         <h3>
             Sunrise & Sunset
         </h3>
+        <div class="flex-container">
         {{table}}
+        </div>
         <div class="flex-container">
             <div><img src={{avg_coverage_graph}}></div>
             <div><img src={{avg_visibility_graph}}></div>
         </div>
-        <div class="container">
+        <div class="container2">
             <div>The day with the lowest coverage this week is {{coverage_day}}</div>
             <div>The day with the highest visibility this week is {{visibility_day}}</div>
-        </h4>
         </div>
         <h3>
             We think the best day to go stargazing is 
         </h3>
         <h4>{{day_of_week}}.</h4>
         <h4>
-            The visibility will be {{visibility}} and the coverage will be {{coverage}}, making it the best day to see the stars!
+            The visibility will be {{visibility}}km and the coverage will be {{coverage}}%, making it the best day to see the stars!
         </h4>
     </body>
 </html>

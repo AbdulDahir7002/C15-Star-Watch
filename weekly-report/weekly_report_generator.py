@@ -1,11 +1,14 @@
 """Script that generates the weekly report for each city."""
 
 from os import environ
+from datetime import datetime
 from dotenv import load_dotenv
 from jinja2 import Environment, FileSystemLoader
 import psycopg2
 import pandas as pd
 from psycopg2.extras import RealDictCursor
+import altair as alt
+from xhtml2pdf import pisa
 
 
 def get_connection():
@@ -102,39 +105,196 @@ def sunrise_set_df(conn, city):
     cur = conn.cursor()
     cur.execute(q)
     sunrise_set_df = pd.DataFrame(cur.fetchall())
+    if sunrise_set_df.empty:
+        return sunrise_set_df
+    sunrise_set_df["sunrise"] = sunrise_set_df["sunrise"].astype(
+        str).str.replace(":00", "")
+    sunrise_set_df["sunset"] = sunrise_set_df["sunset"].astype(
+        str).str.replace(":00", "")
+    sunrise_set_df = sunrise_set_df.set_index("weekday")
     sunrise_set_df = sunrise_set_df.transpose()
     return sunrise_set_df
+
+
+def average_coverage_graph(conn, city):
+    """Returns a line graph showing average coverage per day."""
+    q = """
+    SELECT ROUND(avg(coverage)) AS coverage, TO_CHAR(w.status_at, 'Day') AS date, CAST(EXTRACT(ISODOW FROM w.status_at) AS integer) AS day_number
+    FROM stargazing_status ss
+    JOIN weather_status AS w 
+    ON w.city_id = ss.city_id
+    JOIN city AS c
+    ON w.city_id = c.city_id
+    WHERE c.city_name = '%s'
+    AND w.status_at > sunset
+    GROUP BY TO_CHAR(w.status_at, 'Day'), day_number
+    ORDER BY day_number;
+
+    """ % (city)
+
+    cur = conn.cursor()
+    cur.execute(q)
+    average_coverage_df = pd.DataFrame(cur.fetchall())
+    graph = alt.Chart(average_coverage_df).mark_line().encode(
+        x=alt.X("day_number:O"),
+        y="coverage:Q").properties(width=535, height=535)
+    graph.save("average_coverage_graph.png", ppi=1000)
+
+
+def average_visibility_graph(conn, city):
+    """Returns a line graph showing average coverage per day."""
+    q = """
+    SELECT ROUND(avg(visibility)) AS visibility, TO_CHAR(w.status_at, 'Day') AS date, CAST(EXTRACT(ISODOW FROM w.status_at) AS integer) AS day_number
+    FROM stargazing_status ss
+    JOIN weather_status AS w 
+    ON w.city_id = ss.city_id
+    JOIN city AS c
+    ON w.city_id = c.city_id
+    WHERE c.city_name = '%s'
+    AND w.status_at > sunset
+    GROUP BY TO_CHAR(w.status_at, 'Day'), day_number
+    ORDER BY day_number;
+
+    """ % (city)
+
+    cur = conn.cursor()
+    cur.execute(q)
+    average_coverage_df = pd.DataFrame(cur.fetchall())
+    graph = alt.Chart(average_coverage_df).mark_line().encode(
+        x=alt.X("day_number:O"),
+        y="visibility:Q").properties(width=535, height=535)
+    graph.save("average_visibility_graph.png", ppi=1000)
+
+
+def highest_coverage_day(conn, city):
+    """Returns day with highest coverage."""
+    q = """
+        SELECT ROUND(avg(coverage)) AS coverage, TO_CHAR(w.status_at, 'Day') AS date
+        FROM stargazing_status ss
+        JOIN weather_status AS w 
+        ON w.city_id = ss.city_id
+        JOIN city AS c
+        ON w.city_id = c.city_id
+        WHERE c.city_name = '%s'
+        AND w.status_at > sunset
+        GROUP BY TO_CHAR(w.status_at, 'Day')
+        ORDER BY coverage ASC 
+        LIMIT 1
+        ;
+    """ % (city)
+
+    cur = conn.cursor()
+    cur.execute(q)
+    rows = cur.fetchall()
+    if rows == []:
+        return "No data"
+    return rows[0]["date"].title()
+
+
+def highest_visibility_day(conn, city):
+    """Returns day with highest coverage."""
+    q = """
+        SELECT ROUND(avg(visibility)) AS visibility, TO_CHAR(w.status_at, 'Day') AS date
+        FROM stargazing_status ss
+        JOIN weather_status AS w 
+        ON w.city_id = ss.city_id
+        JOIN city AS c
+        ON w.city_id = c.city_id
+        WHERE c.city_name = '%s'
+        AND w.status_at > sunset
+        GROUP BY TO_CHAR(w.status_at, 'Day')
+        ORDER BY visibility DESC 
+        LIMIT 1
+        ;
+    """ % (city)
+
+    cur = conn.cursor()
+    cur.execute(q)
+    rows = cur.fetchall()
+    if rows == []:
+        return "No data"
+    return rows[0]["date"].title()
+
+
+def best_stargazing_day(conn, city):
+    """Returns the best day to go stargazing with visibility and coverage information."""
+    q = """
+        WITH coverage_rank as(
+    SELECT ROUND(avg(w.coverage)) AS coverage, TO_CHAR(w.status_at, 'Day') AS date, RANK() OVER (ORDER BY AVG(w.coverage) ASC) AS c_rank
+    FROM stargazing_status ss
+    JOIN weather_status AS w 
+    ON w.city_id = ss.city_id
+    JOIN city AS c
+    ON w.city_id = c.city_id
+    WHERE c.city_name = '%s'
+    AND w.status_at > sunset
+    GROUP BY TO_CHAR(w.status_at, 'Day')
+    ORDER BY coverage ASC 
+    ),
+    visibility_rank AS (
+    SELECT ROUND(avg(w.visibility)) AS visibility, TO_CHAR(w.status_at, 'Day') AS date, RANK() OVER (ORDER BY AVG(w.visibility) desc) AS v_rank
+    FROM stargazing_status ss
+    JOIN weather_status AS w 
+    ON w.city_id = ss.city_id
+    JOIN city AS c
+    ON w.city_id = c.city_id
+    WHERE c.city_name = '%s'
+    AND w.status_at > sunset
+    GROUP BY TO_CHAR(w.status_at, 'Day')
+    ORDER BY visibility ASC 
+    )
+    SELECT c.c_rank * v.v_rank AS RANK ,c.coverage, v.visibility, c.date
+    FROM coverage_rank AS c
+    JOIN visibility_rank AS v
+    ON v.date = c.date
+    ORDER BY RANK ASC
+    LIMIT 1;
+    """ % (city, city)
+    cur = conn.cursor()
+    cur.execute(q)
+    rows = cur.fetchone()
+    if rows is None:
+        return {"day": "", "visibility": "", "coverage": ""}
+    return {"day": rows["date"], "visibility": int(rows["visibility"]), "coverage": int(rows["coverage"])}
 
 
 def format_template(conn, city):
     """Returns the formatted template."""
     environment = Environment(loader=FileSystemLoader("."))
     template = environment.get_template("report_frame.html")
+
     meteor_info = combine_meteor_info(get_meteor_peak(
         conn), get_starting_meteors(conn), get_ending_meteors(conn))
+
+    if meteor_info == []:
+        meteor_info = [
+            {"shower_name": "", "days": "There are no meteor events happening this week!"}]
+
+    average_coverage_graph(conn, city)
+    average_visibility_graph(conn, city)
+    best_stargazing_day_info = best_stargazing_day(conn, city)
+
     context = {
-        "city": "City",
-        "date": "17-02-2025",
+        "city": city,
+        "date": datetime.now().strftime('%d-%m-%Y'),
         "meteor_shower_info": meteor_info,
         "day_of_the_week": "Chewsday",
         "table": sunrise_set_df(conn, city).to_html(index=True),
-        "avg_coverage_graph": "filepath",
-        "avg_visibility_graph": "filepath",
-        "coverage_day": "Monday",
-        "visibility_day": "Tuesday",
-        "day_of_week": "Wednesday",
-        "visibility": 20,
-        "coverage": 100
+        "avg_coverage_graph": "average_coverage_graph.png",
+        "avg_visibility_graph": "average_visibility_graph.png",
+        "coverage_day": highest_coverage_day(conn, city),
+        "visibility_day": highest_visibility_day(conn, city),
+        "day_of_week": best_stargazing_day_info["day"],
+        "visibility": best_stargazing_day_info["visibility"],
+        "coverage": best_stargazing_day_info["coverage"]
     }
     return template.render(context)
 
 
-if __name__ == "__main__":
+def write_email(city):
+    """Returns html of the report."""
     load_dotenv()
     conn = get_connection()
-    html = format_template(conn, "London")
-    with open("view_html.html", "w") as f:
-        f.write(html)
-    # print(get_all_cities(conn))
-    # print(get_ending_meteors(conn))
+    html = format_template(conn, city)
     conn.close()
+    return html
