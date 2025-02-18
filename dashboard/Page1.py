@@ -372,14 +372,6 @@ def app():
         else:
             st.image(star_status[5])
 
-            constellation = st.selectbox('Constellation', get_constellations())
-            code = get_constellation_code(constellation)
-            lat, long = get_lat_and_long(city)
-
-            url = post_location_get_starchart(
-                HEADER, lat, long, day, code)
-            st.image(url)
-
         if day == date.today():
             st.write("Aurora Activity")
             st.markdown(aurora.to_html(index=False), unsafe_allow_html=True)
