@@ -39,7 +39,11 @@ jobs:
       - name: kill process
         run: |
           PID=$(pgrep -f "streamlit run")
+          if [ ! -z "$PID" ]; then
           kill $PID
+          else
+          echo "No process running"
+          fi
 
       - name: Deploy to Server
         uses: easingthemes/ssh-deploy@main
