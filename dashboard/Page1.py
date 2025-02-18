@@ -271,7 +271,7 @@ def column_two(showers, star_status: list) -> None:
         st.write("Sunrise: ", date.strftime(star_status[2], '%H:%M'), 'AM')
         st.write("Sunset: ", date.strftime(star_status[3], '%H:%M'), 'PM')
 
-    st.write("Meteor showers")
+    st.markdown("<p>Meteor showers &#9732; </p>", unsafe_allow_html=True)
 
     if showers is None:
         st.write("No meteor showers on this day.")
@@ -286,7 +286,7 @@ def weather_charts(weather: pd.DataFrame) -> None:
     st.line_chart(weather.set_index('Time'), y=['Temperature'])
     st.write("Visibility:")
     st.line_chart(weather.set_index('Time'), y=['Visibility'])
-    st.write("Coverage:")
+    st.write("Cloud Coverage:")
     st.line_chart(weather.set_index('Time'), y=['Coverage'])
 
 
@@ -365,17 +365,12 @@ def app():
         with col2:
             column_two(showers, star_status)
 
-        st.write("Starchart")
+        st.markdown("<p>Starchart &#11088;</p>", unsafe_allow_html=True)
         if star_status is None:
             st.write("No Data for this date/location.")
             logging.debug("No data found in star status")
         else:
-            constellation = st.selectbox('Constellation', get_constellations())
-            code = get_constellation_code(constellation)
-            lat, long = get_lat_and_long(city)
-            url = post_location_get_starchart(
-                HEADER, lat, long, day, code)
-            st.image(url)
+            st.image(star_status[5])
 
         if day == date.today():
             st.write("Aurora Activity")
@@ -391,6 +386,7 @@ def app():
                 st.image(status[6])
         sun_times = pd.DataFrame(data)
         sun_times.columns = ["Day", "Sun Rise", "Sun Set"]
+        st.write("Sunrise/set times:")
         st.line_chart(sun_times.set_index('Day'))
 
 
