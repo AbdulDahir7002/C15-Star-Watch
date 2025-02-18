@@ -4,3 +4,4 @@ python-dotenv
 pandas
 boto3
 streamlit-vis-timeline
+setuptools
