@@ -1,3 +1,4 @@
+"""Streamlit dashboard home page."""
 from os import environ as ENV
 
 from datetime import date
@@ -8,6 +9,7 @@ from Page1 import get_constellations, get_constellation_code, get_lat_and_long, 
 
 
 def app():
+    """Function that is ran when the user selects the home page."""
     load_dotenv()
     HEADER = f'Basic {ENV["ASTRONOMY_BASIC_AUTH_KEY"]}'
     st.title("Starwatch")
