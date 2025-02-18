@@ -35,6 +35,12 @@ jobs:
     steps:
       - name: get code
         uses: actions/checkout@v4.2.2
+
+      - name: kill process
+        run: |
+          PID=$(pgrep -f "streamlit run")
+          kill $PID
+
       - name: Deploy to Server
         uses: easingthemes/ssh-deploy@main
         with:
@@ -43,3 +49,5 @@ jobs:
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           SOURCE: "dashboard"
+      - name: start process
+        run: nohup streamlit run main.py &
