@@ -223,9 +223,12 @@ def app():
     meteor_shower_df = pd.DataFrame(meteor_shower_dict)
     meteor_timeline(meteor_shower_dict)
 
-    st.markdown("## Aurora Data &#10024;")
+    st.markdown("## Aurora Insights &#10024;")
     aurora_dataframe = get_aurora_status_df(connection)
+    st.markdown("### Aurora Occurrences &#10024;")
     aurora_status_timeline(aurora_dataframe)
+
+    st.markdown("### Aurora Sighting Proportions &#10024;")
     aurora_status_bar_charts(aurora_dataframe)
 
 
