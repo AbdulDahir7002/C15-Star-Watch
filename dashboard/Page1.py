@@ -271,7 +271,7 @@ def column_two(showers, star_status: list) -> None:
         st.write("Sunrise: ", date.strftime(star_status[2], '%H:%M'), 'AM')
         st.write("Sunset: ", date.strftime(star_status[3], '%H:%M'), 'PM')
 
-    st.markdown("<p>Meteor showers &#9732;</p>", unsafe_allow_html=True)
+    st.markdown("<p>Meteor showers &#9732; </p>", unsafe_allow_html=True)
 
     if showers is None:
         st.write("No meteor showers on this day.")
@@ -365,7 +365,7 @@ def app():
         with col2:
             column_two(showers, star_status)
 
-        st.write("Starchart")
+        st.markdown("<p>Starchart &#11088;</p>", unsafe_allow_html=True)
         if star_status is None:
             st.write("No Data for this date/location.")
             logging.debug("No data found in star status")
