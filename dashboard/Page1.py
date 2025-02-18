@@ -386,6 +386,7 @@ def app():
                 st.image(status[6])
         sun_times = pd.DataFrame(data)
         sun_times.columns = ["Day", "Sun Rise", "Sun Set"]
+        st.write("Sunrise/set times:")
         st.line_chart(sun_times.set_index('Day'))
 
 
