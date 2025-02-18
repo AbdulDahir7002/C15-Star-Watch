@@ -158,11 +158,11 @@ def meteor_timeline(meteor_df: pd.DataFrame):
                            groups=[], options={}, height="300px")
     st.subheader("Selected Meteor Shower")
     if timeline is None:
-        st.write(f"*Select a meteor shower for details*")
+        st.write("*Select a meteor shower for details*")
     else:
-        st.markdown(f"*{timeline["content"].capitalize()}*")
+        st.markdown(f"*{timeline['content'].capitalize()}*")
         st.write(
-            f"From :orange[*{timeline["start"]}*] to :orange[*{timeline["end"]}*]")
+            f"From :orange[*{timeline['start']}*] to :orange[*{timeline['end']}*]")
         # TODO: return more details
 
 

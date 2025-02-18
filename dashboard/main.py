@@ -10,7 +10,7 @@ def define_logger():
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s - %(levelname)s - %(message)s",
                         handlers=[logging.StreamHandler(),
-                                  logging.FileHandler("dashboard.log")])
+                                  logging.FileHandler("logs/dashboard.log")])
     return logging.getLogger()
 
 
@@ -20,8 +20,8 @@ st.set_page_config(page_title="Streamlit Multi-Page Example", layout="wide")
 
 PAGES = {
     "Home": Home,
-    "Page 1": Page1,
-    "Page 2": Page2,
+    "Today": Page1,
+    "Trends and Forecasts": Page2,
     "Subscribe": Subscriber
 }
 
