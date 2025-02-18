@@ -3,3 +3,4 @@ psycopg2
 python-dotenv
 pandas
 boto3
+streamlit_timeline
