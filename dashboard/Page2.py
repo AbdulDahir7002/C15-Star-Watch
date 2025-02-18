@@ -12,6 +12,7 @@ import altair as alt
 # DB connect
 
 
+@st.cache_resource(ttl=600)
 def get_connection():
     """Returns psycopg2 connection object."""
     connection = psycopg2.connect(
@@ -25,9 +26,9 @@ def get_connection():
     return connection
 
 
-def query_db(conn, query: str, params: tuple) -> list[dict]:
+def query_db(query: str, params: tuple) -> list[dict]:
     """Query the database and return a list of tuples of values."""
-    print(conn)
+    conn = get_connection()
     with conn.cursor() as cursor:
         cursor.execute(query, params)
         output = cursor.fetchall()
@@ -36,7 +37,8 @@ def query_db(conn, query: str, params: tuple) -> list[dict]:
 # Data fetch
 
 
-def get_avg_sunrise_sunset_df(conn):
+@st.cache_data
+def get_avg_sunrise_sunset_df():
     """Returns a dataframe containing sunrise and sunset data."""
     q = """
             SELECT 
@@ -51,14 +53,15 @@ def get_avg_sunrise_sunset_df(conn):
                 s.status_date
             ;
             """
-    rows = query_db(conn, q, [])
+    rows = query_db(q, [])
     if len(rows) == 0:
         return pd.DataFrame(columns=["sunrise", "sunset", "status_date"])
     sunrise_sunset_df = pd.DataFrame(rows)
     return sunrise_sunset_df
 
 
-def get_weather_status_week_df(conn):
+@st.cache_data
+def get_weather_status_week_df():
     """Returns a dataframe containing weather status data."""
     q = """
         SELECT 
@@ -75,14 +78,15 @@ def get_weather_status_week_df(conn):
         WHERE
             w.status_at <= CURRENT_DATE + INTERVAL '7 days'; 
         """
-    rows = query_db(conn, q, [])
+    rows = query_db(q, [])
     if len(rows) == 0:
         return pd.DataFrame(columns=["weather_status_id", "city_name", "temperature",
                                      "coverage", "visibility", "status_at"])
     return pd.DataFrame(rows)
 
 
-def get_meteor_shower_data(conn) -> list[dict]:
+@st.cache_data
+def get_meteor_shower_data() -> list[dict]:
     """Returns a dataframe containing meteor shower data."""
     q = """
         SELECT 
@@ -93,7 +97,7 @@ def get_meteor_shower_data(conn) -> list[dict]:
             shower_peak 
         FROM meteor_shower
         """
-    rows = query_db(conn, q, [])
+    rows = query_db(q, [])
     if len(rows) == 0:
         return [{}]
 
@@ -110,7 +114,8 @@ def set_aurora_vis_label(value):
         return "Fully visible"
 
 
-def get_aurora_status_df(conn):
+@st.cache_data
+def get_aurora_status_df():
     """Gets aurora data and transforms it"""
     q = """
         SELECT 
@@ -124,7 +129,7 @@ def get_aurora_status_df(conn):
         WHERE
             a.aurora_status_at > CURRENT_DATE - INTERVAL '3 days'
         """
-    rows = query_db(conn, q, [])
+    rows = query_db(q, [])
     if len(rows) == 0:
         return pd.DataFrame(columns=["aurora_status_id", "aurora_status_at", "camera_visibility",
                                      "naked_eye_visibility", "country_name"])
@@ -182,8 +187,8 @@ def sunrise_sunset_line(sunrise_sunset_dataframe: pd.DataFrame):
 def aurora_status_timeline(aurora_df: pd.DataFrame):
     """Maps aurora visibility over time"""
     aurora_line = alt.Chart(aurora_df).mark_line().encode(
-        alt.X("aurora_status_at"),
-        alt.Y("aurora_vis_label"),
+        alt.X("aurora_status_at").title("Time"),
+        alt.Y("aurora_vis_label").title("Visibility"),
         color="country_name"
     )
     st.altair_chart(aurora_line)
@@ -196,8 +201,6 @@ def aurora_status_bar_charts(aurora_df: pd.DataFrame):
         "country_name", "naked_eye_visibility"]].value_counts().reset_index()
     aurora_cam_vis["naked_eye_visibility"] = aurora_cam_vis["naked_eye_visibility"].map(
         {True: "Camera Visible", False: "Fully Visible"})
-    st.write(aurora_cam_vis)
-
     aurora_bar = alt.Chart(aurora_cam_vis).mark_bar().encode(
         alt.X("naked_eye_visibility").title("Visibility"),
         alt.Y("count").title("Count"),
@@ -208,23 +211,22 @@ def aurora_status_bar_charts(aurora_df: pd.DataFrame):
 def app():
     """Layout of page 2 of the dashboard."""
     load_dotenv()
-    connection = get_connection()
 
     st.title("Weekly trends")
 
     st.markdown("## Sunrise and Sunset average over time &#9728;")
-    avg_sunrise_sunset_df = get_avg_sunrise_sunset_df(connection)
+    avg_sunrise_sunset_df = get_avg_sunrise_sunset_df()
     sunrise_sunset_line(avg_sunrise_sunset_df)
 
-    weather_status_df = get_weather_status_week_df(connection)
+    weather_status_df = get_weather_status_week_df()
 
     st.markdown("## Meteor shower timeline &#x2604;")
-    meteor_shower_dict = get_meteor_shower_data(connection)
+    meteor_shower_dict = get_meteor_shower_data()
     meteor_shower_df = pd.DataFrame(meteor_shower_dict)
     meteor_timeline(meteor_shower_dict)
 
     st.markdown("## Aurora Insights &#10024;")
-    aurora_dataframe = get_aurora_status_df(connection)
+    aurora_dataframe = get_aurora_status_df()
     st.markdown("### Aurora Occurrences &#10024;")
     aurora_status_timeline(aurora_dataframe)
 
