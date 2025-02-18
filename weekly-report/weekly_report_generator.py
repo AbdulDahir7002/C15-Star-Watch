@@ -8,7 +8,6 @@ import psycopg2
 import pandas as pd
 from psycopg2.extras import RealDictCursor
 import altair as alt
-from xhtml2pdf import pisa
 
 
 def get_connection():
@@ -280,8 +279,8 @@ def format_template(conn, city):
         "meteor_shower_info": meteor_info,
         "day_of_the_week": "Chewsday",
         "table": sunrise_set_df(conn, city).to_html(index=True),
-        "avg_coverage_graph": "average_coverage_graph.png",
-        "avg_visibility_graph": "average_visibility_graph.png",
+        # "avg_coverage_graph": "average_coverage_graph.png",
+        # "avg_visibility_graph": "average_visibility_graph.png",
         "coverage_day": highest_coverage_day(conn, city),
         "visibility_day": highest_visibility_day(conn, city),
         "day_of_week": best_stargazing_day_info["day"],

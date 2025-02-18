@@ -1,10 +1,13 @@
 """Function to send an email using boto3."""
 
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
 import re
 from dotenv import load_dotenv
 from os import environ
 from boto3 import client
-from botocore.exceptions import ClientError
+
 
 from weekly_report_generator import write_email, get_all_cities, get_connection
 
@@ -48,22 +51,36 @@ def get_emails(sns: client, topic_arn: str):
     return emails
 
 
-def send_email(ses: client, emails: str, html: str):
+def send_email(ses: client, emails: list, html: str):
     """Sends an email using boto3."""
-    response = ses.send_email(
+
+    msg = MIMEMultipart('related')
+    msg.attach(MIMEText(html, 'html'))
+    msg['From'] = environ["EMAIL"]  # Your sender email
+    msg['To'] = ', '.join(emails)
+    msg['Subject'] = "Starwatch Weekly Report"
+
+    with open("average_coverage_graph.png", 'rb') as img:
+        img_data = img.read()
+        image = MIMEImage(img_data)
+        image.add_header("Content-ID", '<image1>')
+        image.add_header("Content-Disposition", 'inline',
+                         filename="average_coverage_graph.png")
+        msg.attach(image)
+
+    with open("average_visibility_graph.png", 'rb') as img:
+        img_data = img.read()
+        image = MIMEImage(img_data)
+        image.add_header("Content-ID", '<image2>')
+        image.add_header("Content-Disposition", 'inline',
+                         filename="average_visibility_graph.png")
+        msg.attach(image)
+
+    response = ses.send_raw_email(
         Source=environ["EMAIL"],
-        Destination={
-            "ToAddresses": emails
-        },
-        Message={
-            "Body": {
-                "Html": {
-                    "Data": html
-                }
-            },
-            "Subject": {
-                "Data": "Starwatch Weekly Report"
-            }
+        Destinations=emails,
+        RawMessage={
+            "Data": msg.as_string()
         }
     )
     return "DONE"
@@ -104,13 +121,9 @@ def handler(event, context):
     """Lambda handler"""
     load_dotenv()
     sns = client('sns', aws_access_key_id=environ["AWS_ACCESS_KEY"],
-                 aws_secret_access_key=environ["AWS_SECRET_ACCESS_KEY"])
+                 aws_secret_access_key=environ["AWS_SECRET_ACCESS_KEY"], region_name=environ["REGION"])
     ses = client('ses', aws_access_key_id=environ["AWS_ACCESS_KEY"],
-                 aws_secret_access_key=environ["AWS_SECRET_ACCESS_KEY"])
+                 aws_secret_access_key=environ["AWS_SECRET_ACCESS_KEY"], region_name=environ["REGION"])
     conn = get_connection()
     city_list = get_all_cities(conn)
     send_all_cities(city_list, sns, ses)
-
-
-if __name__ == "__main__":
-    handler(event="", context="")
