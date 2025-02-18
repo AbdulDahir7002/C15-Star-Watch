@@ -286,7 +286,7 @@ def weather_charts(weather: pd.DataFrame) -> None:
     st.line_chart(weather.set_index('Time'), y=['Temperature'])
     st.write("Visibility:")
     st.line_chart(weather.set_index('Time'), y=['Visibility'])
-    st.write("Coverage:")
+    st.write("Cloud Coverage:")
     st.line_chart(weather.set_index('Time'), y=['Coverage'])
 
 
