@@ -1,6 +1,6 @@
 provider "aws" {
     access_key = var.AWS_ACCESS_KEY
-    secret_key = var.AWS_SECRET_KEY
+    secret_key = var.AWS_SECRET_ACCESS_KEY
     region = var.AWS_REGION
 }
 
@@ -66,6 +66,23 @@ resource "aws_vpc_security_group_egress_rule" "send_https" {
   ip_protocol = "tcp"
   cidr_ipv4 = "0.0.0.0/0"
 }
+
+resource "aws_vpc_security_group_ingress_rule" "receive_streamlit" {
+  security_group_id = aws_security_group.ec2_security_group.id
+  from_port = 8502 
+  to_port = 8502 
+  ip_protocol = "tcp"
+  cidr_ipv4 = "0.0.0.0/0"
+}
+
+resource "aws_vpc_security_group_egress_rule" "send_streamlit" {
+  security_group_id = aws_security_group.ec2_security_group.id
+  from_port = 8502 
+  to_port = 8502 
+  ip_protocol = "tcp"
+  cidr_ipv4 = "0.0.0.0/0"
+}
+
 
 resource "aws_instance" "c15-star-watch-ec2" {
   ami                          = "ami-0cbf43fd299e3a464"
