@@ -30,4 +30,5 @@ variable "AWS_REGION" {
 }
 
 variable "ASTRONOMY_BASIC_AUTH_KEY" {
+ type = string 
 }
