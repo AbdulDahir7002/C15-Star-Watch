@@ -35,10 +35,13 @@ jobs:
     steps:
       - name: get code
         uses: actions/checkout@v4.2.2
-
+      - name: make pemkey
+        run: |
+          echo ${{ secrets.SSH_PRIVATE_KEY }} > dashboard/.pemkey
+          chmod 400 dashboard/.pemkey
       - name: kill process
         run: |
-          ssh -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} <<EOF
+          ssh -i dashboard/.pemkey ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} <<EOF
           PID=$(pgrep -f "streamlit run")
           if [ ! -z "$PID" ]; then
           kill $PID
@@ -56,7 +59,7 @@ jobs:
           SOURCE: "dashboard"
       - name: start process
         run: |
-          ssh -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} <<EOF
+          ssh -i dashboard/.pemkey ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} <<EOF
           cd dashboard
           nohup streamlit run main.py &
           EOF
