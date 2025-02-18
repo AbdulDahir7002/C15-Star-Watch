@@ -16,12 +16,6 @@ def get_nasa_apod() -> dict:
     url = f"https://api.nasa.gov/planetary/apod?api_key={API_KEY}"
     response = requests.get(url)
     data = response.json()
-
-    print(f"Title: {data['title']}")
-    print(f"Date: {data['date']}")
-    print(f"Explanation: {data['explanation']}")
-    print(f"Image URL: {data['url']}")
-
     return data
 
 
@@ -40,10 +34,13 @@ def app():
     """Function that is ran when the user selects the home page."""
     load_dotenv()
     HEADER = f'Basic {ENV["ASTRONOMY_BASIC_AUTH_KEY"]}'
+
     st.title("Starwatch")
-    st.write("Welcome to starwatch!")
-    st.write("Select a page from the sidebar to explore more.")
+    st.write("Welcome to Starwatch!")
+    st.write("Select a page from the sidebar to explore cities in the UK, or stay here for more general information.")
+
     display_apod(get_nasa_apod())
+
     constellation = st.selectbox('Constellation', get_constellations())
     code = get_constellation_code(constellation)
     city = 'Aberdeen'
