@@ -38,12 +38,13 @@ jobs:
 
       - name: kill process
         run: |
+          ssh -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} <<EOF
           PID=$(pgrep -f "streamlit run")
           if [ ! -z "$PID" ]; then
           kill $PID
           else
           echo "No process running"
-          fi
+          fi EOF
 
       - name: Deploy to Server
         uses: easingthemes/ssh-deploy@main
@@ -54,4 +55,9 @@ jobs:
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           SOURCE: "dashboard"
       - name: start process
-        run: nohup streamlit run main.py &
+        run: |
+          ssh -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} <<EOF
+          cd dashboard
+          nohup streamlit run main.py &
+          EOF
+
