@@ -271,7 +271,7 @@ def column_two(showers, star_status: list) -> None:
         st.write("Sunrise: ", date.strftime(star_status[2], '%H:%M'), 'AM')
         st.write("Sunset: ", date.strftime(star_status[3], '%H:%M'), 'PM')
 
-    st.write("Meteor showers")
+    st.markdown("<p>Meteor showers &#9732;</p>", unsafe_allow_html=True)
 
     if showers is None:
         st.write("No meteor showers on this day.")
@@ -370,9 +370,12 @@ def app():
             st.write("No Data for this date/location.")
             logging.debug("No data found in star status")
         else:
+            st.image(star_status[5])
+
             constellation = st.selectbox('Constellation', get_constellations())
             code = get_constellation_code(constellation)
             lat, long = get_lat_and_long(city)
+
             url = post_location_get_starchart(
                 HEADER, lat, long, day, code)
             st.image(url)
