@@ -41,7 +41,7 @@ def display_constellation() -> None:
     day = date.today()
     url = post_location_get_starchart(
         HEADER, lat, long, day, code)
-    create_scroll_image(url, 617, 800)
+    create_scroll_image(url, 617)
 
 
 def app():
