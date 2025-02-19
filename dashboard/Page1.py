@@ -81,7 +81,7 @@ def get_country(city: str) -> int:
     connection = get_connection()
     with connection.cursor() as curs:
         curs.execute(
-            f"SELECT country_id FROM city WHERE city_name = '{city}';")
+            "SELECT country_id FROM city WHERE city_name = %s;", [city])
         country_id = curs.fetchone()[0]
     return country_id
 
@@ -110,16 +110,16 @@ def get_weather_for_day(day: date, city: str) -> pd.DataFrame:
     """Returns weather information given a city and a day."""
     logging.info("Fetching requested weather data...")
     connection = get_connection()
-    query = f"""
+    query = """
             SELECT *
             FROM weather_status
             JOIN city ON (city.city_id = weather_status.city_id)
-            WHERE city_name = '{city}'
-            AND status_at >= '{day}'
-            AND status_at <= '{day} 23:59';
+            WHERE city_name = %s
+            AND status_at >= %s
+            AND status_at <= %s;
             """
     with connection.cursor() as curs:
-        curs.execute(query)
+        curs.execute(query, [city, day, str(day)+' 23:59'])
 
         weather_data = [(str(weather[5]).split(" ")[1][:2],
                          round(weather[2], 1),
@@ -144,10 +144,10 @@ def get_weather_for_week(city: str) -> pd.DataFrame:
             SELECT *
             FROM weather_status
             JOIN city ON (city.city_id = weather_status.city_id)
-            WHERE city_name = '{city}';
+            WHERE city_name = %s;
             """
     with connection.cursor() as curs:
-        curs.execute(query)
+        curs.execute(query, [city])
 
         weather_data = [(weather[5],
                          round(weather[2], 1),
@@ -165,16 +165,16 @@ def get_stargazing_status_for_day(day: date, city: str) -> list:
     """Returns stargazing information given a city and a day."""
     logging.info("Fetching requested star chart...")
     connection = get_connection()
-    query = f"""
+    query = """
             SELECT stargazing_status.*, city_name
             FROM stargazing_status JOIN city
             ON (city.city_id = stargazing_status.city_id)
-            WHERE city_name = '{city}'
-            AND status_date = '{day}';
+            WHERE city_name = %s
+            AND status_date = %s;
             """
 
     with connection.cursor() as curs:
-        curs.execute(query)
+        curs.execute(query, [city, day])
         stargazing_status = curs.fetchone()
 
     return stargazing_status
@@ -184,15 +184,15 @@ def get_stargazing_status_for_day(day: date, city: str) -> list:
 def get_stargazing_status_for_week(city: str) -> list:
     """Gets stargazing weekly forecast for a city"""
     connection = get_connection()
-    query = f"""
+    query = """
             SELECT stargazing_status.*, city_name
             FROM stargazing_status JOIN city
             ON (city.city_id = stargazing_status.city_id)
-            WHERE city_name = '{city}'
-            AND status_date >= '{date.today()}';
+            WHERE city_name = %s
+            AND status_date >= %s;
             """
     with connection.cursor() as curs:
-        curs.execute(query)
+        curs.execute(query, [city, date.today()])
         results = curs.fetchall()
 
     return results
@@ -336,13 +336,13 @@ def post_location_get_starchart(header: str,
 def get_lat_and_long(city: str) -> tuple:
     """Gets the latitude and longitude of a given city."""
     connection = get_connection()
-    query = f"""
+    query = """
             SELECT latitude, longitude
             FROM city
-            WHERE city_name = '{city}';
+            WHERE city_name = %s;
             """
     with connection.cursor() as curs:
-        curs.execute(query)
+        curs.execute(query, [city])
         results = curs.fetchall()
 
     return results[0][0], results[0][1]
@@ -397,10 +397,10 @@ def app():
     if day != 'Week':
         col1, col2 = st.columns(2)
         with col1:
-            with st.container(border=True, height=220):
+            with st.container(border=True, height=240):
                 column_one(weather)
         with col2:
-            with st.container(border=True, height=220):
+            with st.container(border=True, height=240):
                 column_two(star_status)
 
         col3, col4 = st.columns(2)
