@@ -6,11 +6,33 @@ StarWatch is a central location for amateur astronomers and the general public t
 Additionally, users can opt into a weekly newsletter for their chosen location. Every week, they will receive an email containing all the information they need for stargazing.
 Currently, 71 cities across the United Kingdom are supported.
 
+The project uses Amazon Web Services.
+
 Here is the architecture diagram:
 ![Architecture Diagram](/images/C15-Star-Watch-Architecture.png)
 
 Here is the ERD diagram:
 ![Database Diagram](/images/C15-Star-Watch-ERD.png)
+
+## Set Up
+
+ - Inside the root directory, use ```python3 -m venv .venv``` and ```source .venv/bin/activate```
+ - Next, do ```pip install -r requirements.txt``` to install the dependencies
+ - Create an environment variables file with ```touch .env```
+ - Populate ```.env``` with the following information:
+```
+DB_NAME=[The name of the RDS database that you create.]
+DB_USERNAME=[The username for the database.]
+DB_PASSWORD=[The password for the database.]
+DB_HOST=[The host address for the RDS that you create.]
+DB_PORT=[The port for the RDS.]
+ASTRONOMY_BASIC_AUTH_KEY= [Your [Astronomy API](https://docs.astronomyapi.com/) auth key.]
+NASA_APOD_KEY=[Your [NASA APOD](https://data.nasa.gov/Space-Science/Astronomy-Picture-of-the-Day-API/ez2w-t8ua/about_data) auth key.]
+```
+
+[Terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli) can be used to easily provision the necessary cloud infrastructure to run the project.
+
+Each directory contains a README with detailed instructions on setting up the corresponding feature. The database is the best place to start. Head to ```/database/README.md``` for more instructions.
 
 ## Directories
 
@@ -33,22 +55,3 @@ The dashboard displays the information that has been gathered by the pipeline. T
 ### weekly-report
 
 The weekly-report is sent to subscribers, containing information regarding a location. The directory contains the terraform files needed to set it up, as well as the html template for the email and other scripts. For more information about setting it up, go to the README in the directory.
-
-## Set Up
-
- - Inside the root directory, use ```python3 -m venv .venv``` and ```source .venv/bin/activate```
- - Next, do ```pip install -r requirements.txt``` to install the dependencies
- - Create an environment variables file with ```touch .env```
- - Populate ```.env``` with the following information:
-```
-DB_NAME=[The name of the RDS database that you create.]
-DB_USERNAME=[The username for the database.]
-DB_PASSWORD=[The password for the database.]
-DB_HOST=[The host address for the RDS that you create.]
-DB_PORT=[The port for the RDS.]
-ASTRONOMY_BASIC_AUTH_KEY= [Your [Astronomy API](https://docs.astronomyapi.com/) auth key.]
-NASA_APOD_KEY=[Your [NASA APOD](https://data.nasa.gov/Space-Science/Astronomy-Picture-of-the-Day-API/ez2w-t8ua/about_data) auth key.]
-```
-
-Each directory contains a README with detailed instructions on setting up the corresponding feature of this project.
-
