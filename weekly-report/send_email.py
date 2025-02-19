@@ -27,8 +27,7 @@ def list_all_topics(sns: client):
 
 def list_relevant_topics(all_topics: list) -> list:
     """Returns a list of starwatch topics on AWS."""
-    topics = all_topics
-    starwatch_topics = [name for name in topics if re.search(
+    starwatch_topics = [name for name in all_topics if re.search(
         "(c15-star-watch-)(.*)", name)]
     return starwatch_topics
 
