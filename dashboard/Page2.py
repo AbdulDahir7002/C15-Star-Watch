@@ -146,18 +146,20 @@ def meteor_timeline(meteor_df: pd.DataFrame):
             "id": int(item["meteor_shower_id"]),
             "content": item["meteor_shower_name"],
             "start": str(item["shower_start"]),
-            "end": str(item["shower_end"])
+            "end": str(item["shower_end"]),
+            "peak": str(item["shower_peak"])
         })
 
     timeline = st_timeline(items=items,
                            groups=[], options={}, height="300px")
-    st.subheader("Selected Meteor Shower")
+    st.markdown("#### Selected Meteor Shower")
     if timeline is None:
         st.write(f"*Select a meteor shower for details*")
     else:
         st.markdown(f"*{timeline["content"].capitalize()}*")
         st.write(
             f"From :orange[*{timeline["start"]}*] to :orange[*{timeline["end"]}*]")
+        st.write(f"Peaks on :orange[*{timeline["peak"]}*]")
         # TODO: return more details
 
 
@@ -196,7 +198,6 @@ def aurora_status_bar_charts(aurora_df: pd.DataFrame):
         "country_name", "naked_eye_visibility"]].value_counts().reset_index()
     aurora_cam_vis["naked_eye_visibility"] = aurora_cam_vis["naked_eye_visibility"].map(
         {True: "Camera Visible", False: "Fully Visible"})
-    st.write(aurora_cam_vis)
 
     aurora_bar = alt.Chart(aurora_cam_vis).mark_bar().encode(
         alt.X("naked_eye_visibility").title("Visibility"),
@@ -212,24 +213,27 @@ def app():
 
     st.title("Weekly trends")
 
-    st.markdown("## Sunrise and Sunset average over time &#9728;")
-    avg_sunrise_sunset_df = get_avg_sunrise_sunset_df(connection)
-    sunrise_sunset_line(avg_sunrise_sunset_df)
+    with st.container(border=True):
+        st.markdown("### Sunrise and Sunset average over time &#9728; ")
+        avg_sunrise_sunset_df = get_avg_sunrise_sunset_df(connection)
+        sunrise_sunset_line(avg_sunrise_sunset_df)
 
     weather_status_df = get_weather_status_week_df(connection)
 
-    st.markdown("## Meteor shower timeline &#x2604;")
-    meteor_shower_dict = get_meteor_shower_data(connection)
-    meteor_shower_df = pd.DataFrame(meteor_shower_dict)
-    meteor_timeline(meteor_shower_dict)
+    with st.container(border=True):
+        st.markdown("### Meteor shower timeline &#x2604;")
+        meteor_shower_dict = get_meteor_shower_data(connection)
+        meteor_shower_df = pd.DataFrame(meteor_shower_dict)
+        meteor_timeline(meteor_shower_dict)
 
-    st.markdown("## Aurora Insights &#10024;")
     aurora_dataframe = get_aurora_status_df(connection)
-    st.markdown("### Aurora Occurrences &#10024;")
-    aurora_status_timeline(aurora_dataframe)
+    with st.container(border=True):
+        st.markdown("### Aurora Occurrences &#10024;")
+        aurora_status_timeline(aurora_dataframe)
 
-    st.markdown("### Aurora Sighting Proportions &#10024;")
-    aurora_status_bar_charts(aurora_dataframe)
+    with st.container(border=True):
+        st.markdown("### Aurora Sighting Proportions &#10024;")
+        aurora_status_bar_charts(aurora_dataframe)
 
 
 if __name__ == "__main__":
