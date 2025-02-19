@@ -37,7 +37,10 @@ jobs:
         uses: actions/checkout@v4.2.2
       - name: make pemkey
         run: |
-          printf "%s" ${{ secrets.SSH_PRIVATE_KEY }} > dashboard/.pemkey
+          echo <<EOF
+          ${{ secrets.SSH_PRIVATE_KEY }}
+          EOF
+          > dashboard/.pemkey
           chmod 400 dashboard/.pemkey
       - name: kill process
         run: |
