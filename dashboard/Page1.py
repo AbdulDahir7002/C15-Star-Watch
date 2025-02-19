@@ -270,7 +270,7 @@ def column_two(star_status: list) -> None:
 
 
 def column_three(star_status: list) -> None:
-    st.markdown("<h3>Moonphase</h3>", unsafe_allow_html=True)
+    st.markdown("<h3>Moonphase &#127765; </h3>", unsafe_allow_html=True)
 
     if star_status is None:
         st.write("No data for this date/location.")
