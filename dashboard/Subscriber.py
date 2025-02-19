@@ -23,13 +23,7 @@ city_options = [
 
 
 def app():
-    st.title("Subscribe")
-    st.write("This is the subscriber page.")
-    st.write("You can add more content here!")
     subscription_form()
-    st.title("Unsubscribe")
-    st.write("You can unsubscribe here.")
-    st.write("You can add more content here!")
     unsubscribe_form(sns_client)
 
 
