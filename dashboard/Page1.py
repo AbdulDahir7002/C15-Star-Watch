@@ -291,12 +291,15 @@ def column_four(showers: pd.DataFrame) -> None:
 def weather_charts(weather: pd.DataFrame) -> None:
     """Adds the weather charts to the dashboard."""
     st.write('Data for the next 7 days.')
-    st.write("Temperature:")
-    st.line_chart(weather.set_index('Time'), y=['Temperature'])
-    st.write("Visibility:")
-    st.line_chart(weather.set_index('Time'), y=['Visibility'])
-    st.write("Cloud Coverage:")
-    st.line_chart(weather.set_index('Time'), y=['Coverage'])
+    with st.container(border=True):
+        st.markdown("<h3>Temperature</h3>", unsafe_allow_html=True)
+        st.line_chart(weather.set_index('Time'), y=['Temperature'])
+    with st.container(border=True):
+        st.markdown("<h3>Visibility</h3>", unsafe_allow_html=True)
+        st.line_chart(weather.set_index('Time'), y=['Visibility'])
+    with st.container(border=True):
+        st.markdown("<h3>Cloud Coverage</h3>", unsafe_allow_html=True)
+        st.line_chart(weather.set_index('Time'), y=['Coverage'])
 
 
 def post_location_get_starchart(header: str,
@@ -424,17 +427,21 @@ def app():
                 st.table(aurora)
     else:
         weather_charts(weather)
-        columns = st.columns(8)
-        data = []
-        for i, status in enumerate(star_status):
-            data.append((str(status[2]).split(" ", maxsplit=1)[0], str(status[2]).split(" ")[1],
-                        str(status[3]).split(" ")[1]))
-            with columns[i]:
-                st.image(status[6])
+        with st.container(border=True):
+            st.markdown("<h3>Moon Phases</h3>", unsafe_allow_html=True)
+            columns = st.columns(8)
+            data = []
+            for i, status in enumerate(star_status):
+                data.append((str(status[2]).split(" ", maxsplit=1)[0], str(status[2]).split(" ")[1],
+                            str(status[3]).split(" ")[1]))
+                with columns[i]:
+                    st.image(status[6])
+
         sun_times = pd.DataFrame(data)
         sun_times.columns = ["Day", "Sun Rise", "Sun Set"]
-        st.write("Sunrise/set times:")
-        st.line_chart(sun_times.set_index('Day'))
+        with st.container(border=True):
+            st.markdown("<h3>Sunrise/set times</h3>", unsafe_allow_html=True)
+            st.line_chart(sun_times.set_index('Day'))
 
 
 if __name__ == "__main__":
