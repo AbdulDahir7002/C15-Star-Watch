@@ -250,7 +250,7 @@ def column_one(weather: pd.DataFrame) -> None:
         st.write("No weather for this date/location.")
     else:
         emoji = get_emoji_for_weather(weather)
-        st.markdown(f'<p>Weather Forecast {emoji}</p>',
+        st.markdown(f'<h3>Weather Forecast {emoji}</h3>',
                     unsafe_allow_html=True)
         weather = weather.reset_index()
         weather.columns = ['Time', 'Midnight', '6 AM', 'Noon', '6 PM', '11 PM']
@@ -260,7 +260,7 @@ def column_one(weather: pd.DataFrame) -> None:
 
 def column_two(star_status: list) -> None:
     """Writes info intended for right column."""
-    st.markdown("<p>Sunset / Sunrise &#9728;</p>",
+    st.markdown("<h3>Sunset / Sunrise &#9728;</h3>",
                 unsafe_allow_html=True)
     if star_status is None:
         st.write("No data for this date/location.")
@@ -270,7 +270,8 @@ def column_two(star_status: list) -> None:
 
 
 def column_three(star_status: list) -> None:
-    st.write("Moonphase")
+    st.markdown("<h3>Moonphase</h3>", unsafe_allow_html=True)
+
     if star_status is None:
         st.write("No data for this date/location.")
     else:
@@ -278,7 +279,7 @@ def column_three(star_status: list) -> None:
 
 
 def column_four(showers: pd.DataFrame) -> None:
-    st.markdown("<p>Meteor showers &#9732; </p>", unsafe_allow_html=True)
+    st.markdown("<h3>Meteor showers &#9732; </h3>", unsafe_allow_html=True)
 
     if showers is None:
         st.write("No meteor showers on this day.")
@@ -344,6 +345,30 @@ def get_lat_and_long(city: str) -> tuple:
     return results[0][0], results[0][1]
 
 
+def create_scroll_image(url: str, height: int, width: int) -> None:
+    """Uses the link to make a pan/zoom image."""
+    st.components.v1.html(
+        f"""
+    <div id="openseadragon1" style="width: {width}px; height: {height}px;"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/openseadragon/3.1.0/openseadragon.min.js"></script>
+    <script>
+        var viewer = OpenSeadragon({{
+            id: "openseadragon1",
+            prefixUrl: "https://cdnjs.cloudflare.com/ajax/libs/openseadragon/3.1.0/images/",
+            tileSources: {{
+                type: 'image',
+                url: '{url}'
+            }},
+            minZoomLevel: 1,
+            maxZoomLevel: 10,
+            defaultZoomLevel: 1
+        }});
+    </script>
+    """,
+        height=height,
+    )
+
+
 def app():
     """The function ran when the user switches to this page."""
     load_dotenv()
@@ -369,10 +394,10 @@ def app():
     if day != 'Week':
         col1, col2 = st.columns(2)
         with col1:
-            with st.container(border=True, height=200):
+            with st.container(border=True, height=220):
                 column_one(weather)
         with col2:
-            with st.container(border=True, height=200):
+            with st.container(border=True, height=220):
                 column_two(star_status)
 
         col3, col4 = st.columns(2)
@@ -383,16 +408,21 @@ def app():
             with st.container(border=True, height=400):
                 column_four(showers)
 
-        st.markdown("<p>Starchart &#11088;</p>", unsafe_allow_html=True)
-        if star_status is None:
-            st.write("No Data for this date/location.")
-            logging.debug("No data found in star status")
-        else:
-            st.image(star_status[5])
+        with st.container(border=True):
+            st.markdown(
+                '<h3 style="text-align: center;">Starchart &#11088;</h3>', unsafe_allow_html=True)
+            if star_status is None:
+                st.write("No Data for this date/location.")
+                logging.debug("No data found in star status")
+            else:
+                st.image(star_status[5], )
+                create_scroll_image(star_status[5], 617, 800)
 
         if day == date.today():
-            st.write("Aurora Activity")
-            st.markdown(aurora.to_html(index=False), unsafe_allow_html=True)
+            with st.container(border=True):
+                st.markdown("<h3>Aurora Activity</h3>",
+                            unsafe_allow_html=True)
+                st.table(aurora)
     else:
         weather_charts(weather)
         columns = st.columns(8)
