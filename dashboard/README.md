@@ -8,7 +8,7 @@ The requirements for this directory are listed in ```requirements.txt```
 
 ## Setup Instructions
 
-Before running or deploying the dashboard, make sure your ```database``` and both ```pipelines``` has been set up. Ensure you have followed the initial steps in the root ```README.md```. You should have a python environment with requirements installed and a ```.env``` files containing variables. This directory uses a [NASA APOD](https://data.nasa.gov/Space-Science/Astronomy-Picture-of-the-Day-API/ez2w-t8ua/about_data) key.
+Before running or deploying the dashboard, make sure your ```database``` and both ```pipelines``` have been set up. Ensure you have followed the initial steps in the root ```README.md```. You should have a python environment with requirements installed and a ```.env``` files containing variables. This directory uses a [NASA APOD](https://data.nasa.gov/Space-Science/Astronomy-Picture-of-the-Day-API/ez2w-t8ua/about_data) key.
 
 Use ```pip install -r requirements.txt```
 
