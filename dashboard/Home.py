@@ -50,7 +50,7 @@ def app():
 
     st.title("Starwatch")
     st.write("Welcome to Starwatch!")
-    st.write("Select a page from the sidebar to explore cities in the UK, or stay here for more general information.")
+    st.write("Select a page from the sidebar to explore forecasts and trends, or stay here for more general information.")
 
     with st.container(border=True):
         display_apod(get_nasa_apod())

@@ -20,8 +20,8 @@ st.set_page_config(page_title="StarWatch", layout="wide")
 
 PAGES = {
     "Home": Home,
-    "Page 1": Page1,
-    "Page 2": Page2,
+    "Forecast": Page1,
+    "Trends": Page2,
     "Subscribe": Subscriber
 }
 
