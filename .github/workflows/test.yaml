@@ -47,7 +47,8 @@ jobs:
           kill $PID
           else
           echo "No process running"
-          fi EOF
+          fi 
+          EOF
 
       - name: Deploy to Server
         uses: easingthemes/ssh-deploy@main
@@ -61,6 +62,5 @@ jobs:
         run: |
           ssh -i dashboard/.pemkey ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} <<EOF
           cd dashboard
-          nohup streamlit run main.py &
-          EOF
+          nohup streamlit run main.py & EOF
 
