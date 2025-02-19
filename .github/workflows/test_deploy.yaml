@@ -1,8 +1,9 @@
-name: PyTest Workflow
+name: PyTest & Deploy Workflow
 
 on:
-  workflow_call:
   push:
+    branches:
+      - main
   pull_request:
   workflow_dispatch:
 
@@ -30,6 +31,12 @@ jobs:
       - name: Run pytest
         run: |
           pytest
+  deploy:
+    runs-on: ubuntu-latest
+    needs: ["test"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Deploy to Server
         uses: easingthemes/ssh-deploy@main
