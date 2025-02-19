@@ -30,7 +30,7 @@ ASTRONOMY_BASIC_AUTH_KEY= [Your [Astronomy API](https://docs.astronomyapi.com/) 
 NASA_APOD_KEY=[Your [NASA APOD](https://data.nasa.gov/Space-Science/Astronomy-Picture-of-the-Day-API/ez2w-t8ua/about_data) auth key.]
 ```
 
-[Terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli) can be used to easily provision the necessary cloud infrastructure to run the project.
+[Terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli) can be used to easily provision the necessary cloud infrastructure to run the project. [Docker](https://www.docker.com/) is also used to create images to upload to the cloud.
 
 Each directory contains a README with detailed instructions on setting up the corresponding feature. The database is the best place to start. Head to ```/database/README.md``` for more instructions.
 
