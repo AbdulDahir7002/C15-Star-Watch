@@ -2,10 +2,11 @@
 name: Deploy Workflow
 
 on:
-  push:
-    branches:
-      - main
-      - abdul-ec2-deploy
+  workflow_run:
+    workflows: ["PyTest Workflow"]
+    branches: [main, abdul-ec2-deploy]
+    types: 
+      - completed
   workflow_dispatch:
 
 permissions:
