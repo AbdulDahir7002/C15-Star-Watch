@@ -16,12 +16,12 @@ def define_logger():
 
 logger = define_logger()
 
-st.set_page_config(page_title="Streamlit Multi-Page Example", layout="wide")
+st.set_page_config(page_title="StarWatch", layout="wide")
 
 PAGES = {
     "Home": Home,
-    "Today": Page1,
-    "Trends and Forecasts": Page2,
+    "Forecast": Page1,
+    "Trends": Page2,
     "Subscribe": Subscriber
 }
 
