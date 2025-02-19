@@ -210,6 +210,38 @@ class TestGetDays(unittest.TestCase):
         ]
         self.assertEqual(expected_result, result)
 
+    @patch('Page1.date')
+    def test_get_days_eom(self, mock_date):
+        mock_date.today.return_value = date(2025, 2, 26)
+        result = get_days()
+        expected_result = [
+            date(2025, 2, 26),
+            date(2025, 2, 27),
+            date(2025, 2, 28),
+            date(2025, 3, 1),
+            date(2025, 3, 2),
+            date(2025, 3, 3),
+            date(2025, 3, 4),
+            'Week'
+        ]
+        self.assertEqual(expected_result, result)
+
+    @patch('Page1.date')
+    def test_get_days_eoy(self, mock_date):
+        mock_date.today.return_value = date(2025, 12, 27)
+        result = get_days()
+        expected_result = [
+            date(2025, 12, 27),
+            date(2025, 12, 28),
+            date(2025, 12, 29),
+            date(2025, 12, 30),
+            date(2025, 12, 31),
+            date(2026, 1, 1),
+            date(2026, 1, 2),
+            'Week'
+        ]
+        self.assertEqual(expected_result, result)
+
 
 class TestGetEmojiForWeather(unittest.TestCase):
     def test_get_emoji_for_weather_cloud(self):
