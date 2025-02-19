@@ -1,4 +1,4 @@
-name: PyTest & Deploy Workflow
+name: PyTest Workflow
 
 on:
   push:
