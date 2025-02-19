@@ -35,21 +35,21 @@ jobs:
     steps:
       - name: get code
         uses: actions/checkout@v4.2.2
-      - name: make pemkey
-        run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > dashboard/.pemkey
-          chmod 400 dashboard/.pemkey
-      - name: kill process
-        run: |
-          ssh -tt -i dashboard/.pemkey ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} <<EOF
-          PID=$(pgrep -f "streamlit run")
-          if [ ! -z "$PID" ]; then
-          kill $PID
-          else
-          echo "No process running"
-          fi 
-          EOF
+      # - name: make pemkey
+      #   run: |
+      #     echo "${{ secrets.SSH_PRIVATE_KEY }}" > dashboard/.pemkey
+      #     chmod 400 dashboard/.pemkey
+      # - name: kill process
+      #   run: |
 
+      #     ssh -tt -i dashboard/.pemkey ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} <<EOF
+      #     PID=$(pgrep -f "streamlit run")
+      #     if [ ! -z "$PID" ]; then
+      #     kill $PID
+      #     else
+      #     echo "No process running"
+      #     fi 
+      #     EOF
       - name: Deploy to Server
         uses: easingthemes/ssh-deploy@main
         with:
