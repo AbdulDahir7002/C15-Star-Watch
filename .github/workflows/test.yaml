@@ -1,6 +1,7 @@
 name: PyTest Workflow
 
 on:
+  workflow_call:
   push:
   pull_request:
   workflow_dispatch:
