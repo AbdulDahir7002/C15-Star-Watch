@@ -6,8 +6,18 @@ import os
 
 import pandas as pd
 
-from Page1 import get_weather_for_day, get_aurora_info, get_country, get_cities, get_days, get_emoji_for_weather, get_meteor_showers_for_day, get_stargazing_status_for_day, get_weather_for_week, get_lat_and_long, get_constellation_code, get_constellations, get_stargazing_status_for_week
+from Page1 import get_weather_for_day, get_aurora_info, get_country, get_cities, get_days, get_emoji_for_weather, get_meteor_showers_for_day, get_stargazing_status_for_day, get_weather_for_week, get_lat_and_long, get_constellation_code, get_constellations, get_stargazing_status_for_week, post_location_get_starchart
 from Home import get_nasa_apod
+
+
+class TestPostLocationGetStarChart(unittest.TestCase):
+    @patch('Page1.requests')
+    def test_post_location_get_starchart(self, mock_requests):
+        mock_response = MagicMock()
+        mock_response.json.return_value = {'data': {'imageUrl': 'Test'}}
+        mock_requests.post.return_value = mock_response
+        self.assertEqual(
+            'Test', post_location_get_starchart('', '', '', '', ''))
 
 
 class TestGetNasaApod(unittest.TestCase):
