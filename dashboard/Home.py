@@ -5,8 +5,9 @@ import requests
 from datetime import date
 from dotenv import load_dotenv
 import streamlit as st
+import pandas as pd
 
-from Page1 import get_constellations, get_constellation_code, get_lat_and_long, post_location_get_starchart
+from Page1 import get_constellations, get_constellation_code, get_lat_and_long, post_location_get_starchart, create_scroll_image
 
 
 @st.cache_data
@@ -48,7 +49,8 @@ def app():
     day = date.today()
     url = post_location_get_starchart(
         HEADER, lat, long, day, code)
-    st.image(url)
+
+    create_scroll_image(url, 617, 800)
 
 
 if __name__ == "__main__":
