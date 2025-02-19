@@ -349,7 +349,7 @@ def create_scroll_image(url: str, height: int, width: int) -> None:
     """Uses the link to make a pan/zoom image."""
     st.components.v1.html(
         f"""
-    <div id="openseadragon1" style="width: {width}px; height: {height}px;"></div>
+    <div id="openseadragon1" style="width: {width}px; height: {height}px; margin-left: auto; margin-right: auto;"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/openseadragon/3.1.0/openseadragon.min.js"></script>
     <script>
         var viewer = OpenSeadragon({{
@@ -415,7 +415,6 @@ def app():
                 st.write("No Data for this date/location.")
                 logging.debug("No data found in star status")
             else:
-                st.image(star_status[5], )
                 create_scroll_image(star_status[5], 617, 800)
 
         if day == date.today():
