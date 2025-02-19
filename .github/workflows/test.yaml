@@ -2,9 +2,6 @@ name: PyTest & Deploy Workflow
 
 on:
   push:
-    branches:
-      - main
-      - abdul-ec2-deploy
   workflow_dispatch:
 
 permissions:
@@ -31,18 +28,3 @@ jobs:
       - name: Run pytest
         run: |
           pytest
-  deploy:
-    runs-on: ubuntu-latest
-    needs: ["test"]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Deploy to Server
-        uses: easingthemes/ssh-deploy@main
-        with:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          ARGS: "-rlgoDzvc --delete -i"
-          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-          REMOTE_USER: ${{ secrets.REMOTE_USER }}
-          SOURCE: "dashboard"
