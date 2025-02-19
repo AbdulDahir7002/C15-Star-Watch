@@ -41,7 +41,7 @@ jobs:
           chmod 400 dashboard/.pemkey
       - name: kill process
         run: |
-          ssh -i dashboard/.pemkey ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} <<EOF
+          ssh -tt -i dashboard/.pemkey ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} <<EOF
           PID=$(pgrep -f "streamlit run")
           if [ ! -z "$PID" ]; then
           kill $PID
@@ -62,5 +62,6 @@ jobs:
         run: |
           ssh -i dashboard/.pemkey ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} <<EOF
           cd dashboard
-          nohup streamlit run main.py & EOF
+          nohup streamlit run main.py & 
+          EOF
 
