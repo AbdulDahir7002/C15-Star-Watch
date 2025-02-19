@@ -29,4 +29,4 @@ psql -h $DB_HOST -U $DB_USERNAME -f db_sql/views.sql
 psql -h $DB_HOST -U $DB_USERNAME -f db_sql/contellations.sql
 ``` 
 
-Now that the database contains the required tables, use ```python db_scripts/seeding.py```. This will populate the country, city and meteor_shower tables.
+Now that the database contains the required tables, use ```python db_scripts/seeding.py```. This will populate the country, city and meteor_shower tables. You can now setup the pipelines (```hourly_pipeline``` and ```daily_pipeline```).
