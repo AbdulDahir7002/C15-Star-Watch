@@ -362,6 +362,6 @@ if __name__ == "__main__":
     data = get_future_data(cities, new_date, HEADER)
     logging.info("Star chart and Moon phase url's retrieved")
 
-    upload_data(conn, data)
+    # upload_data(conn, data)
     logging.info("Uploaded a single days data")
     conn.close()
