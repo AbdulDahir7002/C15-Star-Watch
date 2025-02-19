@@ -16,7 +16,7 @@ def define_logger():
 
 logger = define_logger()
 
-st.set_page_config(page_title="Streamlit Multi-Page Example", layout="wide")
+st.set_page_config(page_title="StarWatch", layout="wide")
 
 PAGES = {
     "Home": Home,
