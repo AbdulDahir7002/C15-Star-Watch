@@ -23,13 +23,7 @@ city_options = [
 
 
 def app():
-    st.title("Subscribe")
-    st.write("This is the subscriber page.")
-    st.write("You can add more content here!")
     subscription_form()
-    st.title("Unsubscribe")
-    st.write("You can unsubscribe here.")
-    st.write("You can add more content here!")
     unsubscribe_form(sns_client)
 
 
@@ -167,7 +161,7 @@ def subscription_form():
             relevant_topics = list_relevant_topics(all_topics)
             subscribe_user(user_data, relevant_topics, sns_client)
             st.success(
-                f"Thank you! You've been successfully subscribed to the newsletter for {', '.join(selected_cities)}. Please check your email address to confirm the subscription.")
+                f"Thank you! You've been successfully subscribed to the newsletter for {', '.join(selected_cities)}. Please check your email inbox to confirm the subscription.")
 
     elif subscription_type == "Alerts":
         phone_number = st.text_input("Phone Number (+44)")

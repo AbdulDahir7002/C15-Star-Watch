@@ -2,10 +2,30 @@
 import unittest
 from unittest.mock import patch, MagicMock
 from datetime import date, datetime
+import os
 
 import pandas as pd
 
 from Page1 import get_weather_for_day, get_aurora_info, get_country, get_cities, get_days, get_emoji_for_weather, get_meteor_showers_for_day, get_stargazing_status_for_day, get_weather_for_week, get_lat_and_long, get_constellation_code, get_constellations, get_stargazing_status_for_week
+from Home import get_nasa_apod
+
+
+class TestGetNasaApod(unittest.TestCase):
+    @patch.dict(os.environ, {"NASA_APOD_KEY": "test_api_key"})
+    @patch('Home.requests.get')
+    def test_get_nasa_apod(self, mock_get):
+        mock_response = {
+            'explanation': 'This is a test explanation',
+            'title': 'Test APOD',
+            'url': 'https://example.com/image.jpg',
+            'date': '2025-02-18'
+        }
+        mock_get.return_value.json.return_value = mock_response
+
+        result = get_nasa_apod()
+
+        self.assertEqual(result, mock_response)
+        mock_get.assert_called_once()
 
 
 class TestGetWeatherForDay(unittest.TestCase):
