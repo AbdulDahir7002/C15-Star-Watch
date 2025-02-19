@@ -12,3 +12,4 @@ python-dotenv
 coverage
 boto3
 moto
+altair
