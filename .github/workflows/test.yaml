@@ -58,10 +58,10 @@ jobs:
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           SOURCE: "dashboard"
-      - name: start process
-        run: |
-          ssh -i dashboard/.pemkey ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} <<EOF
-          cd dashboard
-          nohup streamlit run main.py & 
-          EOF
+      # - name: start process
+      #   run: |
+      #     ssh -i dashboard/.pemkey ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} <<EOF
+      #     cd dashboard
+      #     nohup streamlit run main.py & 
+      #     EOF
 
