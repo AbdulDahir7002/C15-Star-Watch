@@ -3,9 +3,21 @@ import unittest
 from unittest.mock import patch, MagicMock
 from datetime import datetime
 
-from seeding import get_correct_location, get_locations, get_date_objects
+from seeding import get_correct_location, get_locations, get_date_objects, convert_peak_night_to_datetime
 
 CITIES = ["London"]
+
+
+class TestConvertPeakNightToDatetime(unittest.TestCase):
+    @patch('seeding.datetime')
+    def test_convert_peak_night_to_datetime(self, mock_datetime):
+        mock_datetime.today.return_value = datetime(2025, 2, 19)
+        # Makes datetime constructor work still so mock_datetime doesn't break it.
+        mock_datetime.side_effect = lambda *args, **kwargs: datetime(
+            *args, **kwargs)
+
+        self.assertEqual(
+            datetime(2025, 11, 16), convert_peak_night_to_datetime('Nov16-17'))
 
 
 class TestGetCorrectLocation(unittest.TestCase):
