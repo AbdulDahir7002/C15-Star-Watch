@@ -5,9 +5,32 @@ from datetime import date, datetime
 import os
 
 import pandas as pd
+from streamlit.testing.v1 import AppTest
+
 
 from Page1 import get_weather_for_day, get_aurora_info, get_country, get_cities, get_days, get_emoji_for_weather, get_meteor_showers_for_day, get_stargazing_status_for_day, get_weather_for_week, get_lat_and_long, get_constellation_code, get_constellations, get_stargazing_status_for_week, post_location_get_starchart
 from Home import get_nasa_apod
+
+
+class TestStreamlitPageOne(unittest.TestCase):
+    @patch('Page1.get_cities')
+    def test_location_name_in_page(self, mock_get_cities):
+        mock_get_cities.return_value = ['London', 'Aberdeen']
+        test_page = AppTest.from_file('Page1.py')
+        test_page.run()
+        test_page.sidebar.selectbox[0].select('London')
+        test_page.run()
+        self.assertEqual(test_page.title[0].value, 'London')
+        test_page.sidebar.selectbox[0].select('London')
+        test_page.run()
+
+    def test_week_option_changes_page(self):
+        test_page = AppTest.from_file('Page1.py')
+        test_page.run()
+        test_page.sidebar.selectbox[1].select('Week')
+        test_page.run()
+        self.assertEqual(
+            test_page.markdown[0].value, 'Data for the next 7 days.')
 
 
 class TestPostLocationGetStarChart(unittest.TestCase):
