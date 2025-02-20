@@ -78,7 +78,7 @@ def get_ending_meteors(conn):
     cur.execute(q)
     rows = cur.fetchall()
     ending_showers = [
-        {"shower_name": row["meteor_shower_name"].title(), "days": f"will end in {row["days"]} days."} for row in rows]
+        {"shower_name": row["meteor_shower_name"].title(), "days": f"will end in {row['days']} days."} for row in rows]
     return ending_showers
 
 
