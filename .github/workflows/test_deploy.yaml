@@ -49,6 +49,7 @@ jobs:
       
       - name: Deploy to hourly ECR
         run: |
+          ls
           bash hourly_pipeline/hourly_etl_scripts/push_image.sh
           bash daily_pipeline/push_image.sh
           bash weekly_report/push_image.sh
