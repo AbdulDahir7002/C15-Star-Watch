@@ -6,7 +6,7 @@ from datetime import date
 from dotenv import load_dotenv
 import streamlit as st
 
-from Page1 import get_constellations, get_constellation_code, get_lat_and_long, post_location_get_starchart, create_scroll_image
+from Page1 import get_constellations, get_constellation_code, get_lat_and_long, post_location_get_starchart, create_scroll_image, get_connection
 
 
 @st.cache_data
@@ -30,18 +30,24 @@ def display_apod(apod: dict) -> None:
         st.write(apod['explanation'])
 
 
+def get_constellation_url(constellation: str) -> str:
+    """Fetches url for corresponding constellation from the database."""
+    connection = get_connection()
+    query = f"""SELECT constellation_url
+                FROM constellation
+                WHERE constellation_name = '{constellation}';"""
+    with connection.cursor() as curs:
+        curs.execute(query)
+        result = curs.fetchone()
+    return result[0]
+
+
 def display_constellation() -> None:
     """Displays the constellation starchart section."""
     HEADER = f'Basic {ENV["ASTRONOMY_BASIC_AUTH_KEY"]}'
     st.markdown("<h3>Constellation Starchart</h3>", unsafe_allow_html=True)
     constellation = st.selectbox('Select constellation:', get_constellations())
-    code = get_constellation_code(constellation)
-    city = 'Aberdeen'
-    lat, long = get_lat_and_long(city)
-    day = date.today()
-    url = post_location_get_starchart(
-        HEADER, lat, long, day, code)
-    create_scroll_image(url, 617)
+    create_scroll_image(get_constellation_url(constellation), 617)
 
 
 def app():

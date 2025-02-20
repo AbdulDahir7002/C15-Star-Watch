@@ -4,18 +4,11 @@ This directory contains the files needed to setup the daily pipeline. It extract
 
 ## Requirements
 
+The requirements for this directory are listed in ```requirements.txt```
+
 ## Setup Instructions
 
-This pipeline requires that the postgreSQL database be up and running, see ```/database``` for setup instructions.
-
-You will need a ```.env``` file containing the following information regarding your postgreSQL database:
-```
-DB_HOST=[Your database host name]
-DB_PORT=[Your database port]
-DB_PASSWORD=[Your database password]
-DB_USER=[Your database username]
-DB_NAME=[Name of your db]
-```
+Before running or deploying the pipelines, make sure your ```database``` has been set up. Ensure you have followed the initial steps in the root ```README.md```. You should have a python environment with requirements installed and a ```.env``` files containing variables. This directory requires an [Astronomy API](https://docs.astronomyapi.com/) auth key.
 
 Use ```pip install -r requirements.txt```
 
@@ -27,6 +20,13 @@ REGION = "[Your desired aws region]"
 AWS_SECRET_ACCESS_KEY = "[Your aws secret key]"
 AWS_ACCESS_KEY = "[your aws access key]"
 ```
-Then, use terraform init and terraform apply to create an AWS ECR and lambda function. Then, you can build and upload a docker image to the ECR. When building, use ```--provenance=false``` and the appropriate ```-platform``` argument. An AWS step function should be used to schedule the lambda function to occur once a day.
+
+Use ```first_week.py``` first to get the next seven days of data.
+Then, use terraform init and terraform apply to create an AWS ECR and lambda function. Then, you can build and upload a docker image to the ECR.
+Inside ```hourly_etl_scripts```, use the commands that AWS gives you to push to the registry.
+When building, use ```--provenance=false``` and the appropriate ```-platform``` argument.
+An AWS step function should be used to schedule the lambda function to occur once a day.
 
 ## Additional Information
+
+```first_week.py``` gets the next seven days of data. ```daily_etl.py``` gets the data for the next day 8 days from the current date. This is the one that is used for the pipeline.
