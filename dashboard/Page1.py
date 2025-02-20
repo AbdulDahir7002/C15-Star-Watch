@@ -391,8 +391,9 @@ def app():
         weather = get_weather_for_week(city)
         star_status = get_stargazing_status_for_week(city)
     aurora = get_aurora_info(country_id)
-
-    st.title(city)
+    st.title("Forecast")
+    st.write("Please choose the city you would like the forecast for on the right, future dates up to a week are also available")
+    st.markdown(f"## {city}")
 
     if day != 'Week':
         col1, col2 = st.columns(2)

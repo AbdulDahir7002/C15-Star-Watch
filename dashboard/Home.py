@@ -16,6 +16,7 @@ def get_nasa_apod() -> dict:
     url = f"https://api.nasa.gov/planetary/apod?api_key={API_KEY}"
     response = requests.get(url)
     data = response.json()
+    print(data)
     return data
 
 
@@ -46,6 +47,8 @@ def display_constellation() -> None:
     """Displays the constellation starchart section."""
     HEADER = f'Basic {ENV["ASTRONOMY_BASIC_AUTH_KEY"]}'
     st.markdown("<h3>Constellation Starchart</h3>", unsafe_allow_html=True)
+    st.markdown("""Here, you can select any constellation you are curious about. 
+                    Keep in mind, this is the chart from London's perspective.""")
     constellation = st.selectbox('Select constellation:', get_constellations())
     create_scroll_image(get_constellation_url(constellation), 617)
 
@@ -55,7 +58,11 @@ def app():
     load_dotenv()
 
     st.title("Starwatch")
-    st.write("Welcome to Starwatch!")
+    st.markdown("### Welcome to Starwatch!")
+    st.markdown("""We are dedicated to bringing you the information you need to know
+                to have a _**great night stargazing**_! We hope you enjoy, make sure to let us know if you were like to see more. 
+                There is also a subscribe page that you can use to automatically get a summary for the week. 
+                Please feel free to look at the interest sections on this page.""")
     st.write("Select a page from the sidebar to explore forecasts and trends, or stay here for more general information.")
 
     with st.container(border=True):
