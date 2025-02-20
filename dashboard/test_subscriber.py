@@ -99,3 +99,25 @@ def test_invalid_uk_mobile_number():
     ]
     for number, expected_message in invalid_numbers:
         assert validate_uk_mobile_number(number) == expected_message
+    # @mock_aws
+    # def test_subscribe_user(user_data, subscribed_topics, sns):
+    #     topic_list = subscribed_topics
+
+    #     user = user_data
+
+    #     assert subscribe_user(user, topic_list, sns) == "Subscribed!"
+
+    # @mock_aws
+    # @patch("subscribe.list_subscribed_topics")
+    # def test_unsubscribe_user(fake_list_subscribed_topics, sns, subscribed_topics, user_data):
+    #     fake_list_subscribed_topics.return_value = subscribed_topics
+    #     subscribe_user(user_data, subscribed_topics, sns)
+    #     assert unsubscribe_user("fakeemail@gmail.com", sns) == "Unsubscribed!"
+
+    # @mock_aws
+    # @patch("subscribe.list_subscribed_topics")
+    # def test_unsubscribe_user_no_subscriptions(fake_list_subscribed_topics, sns, subscribed_topics, user_data):
+    #     fake_list_subscribed_topics.return_value = []
+    #     subscribe_user(user_data, subscribed_topics, sns)
+    #     assert unsubscribe_user("fakeemail@gmail.com",
+    #                             sns) == "Email is not subscribed to any topics!"
