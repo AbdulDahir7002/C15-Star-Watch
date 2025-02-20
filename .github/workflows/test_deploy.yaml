@@ -45,3 +45,28 @@ jobs:
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           SOURCE: "dashboard"
+      
+      - name: Deploy to hourly ECR
+        run: |
+          bash hourly_pipeline/hourly_etl_scripts/push_image.sh
+          bash daily_pipeline/push_image.sh
+          bash weekly_report/push_image.sh
+
+      - name: Create pemkey
+        env:
+          PEMKEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          echo "$PEMKEY" >> keyfile
+          chmod 400 keyfile
+      - name: Stop previous
+        run: |
+          ssh -tt -i keyfile ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} <<EOF
+          pkill python3
+          exit
+          EOF
+      - name: Start new
+        run: |
+          ssh -i keyfile ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} <<EOF
+          nohup streamlit main.py &
+          exit
+          EOF
