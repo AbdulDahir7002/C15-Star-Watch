@@ -175,8 +175,8 @@ def sunrise_sunset_line(sunrise_sunset_dataframe: pd.DataFrame):
         alt.X("monthdate(status_date):T"),
         alt.Y("hoursminutes(sunrise):T"))
     sunset_line = alt.Chart(sunrise_sunset_dataframe).mark_line().encode(
-        alt.X("monthdate(status_date):T"),
-        alt.Y("hoursminutes(sunset):T"))
+        alt.X("monthdate(status_date):T", title="Date"),
+        alt.Y("hoursminutes(sunset):T", title="Sunset"))
 
     col1, col2 = st.columns(2)
 
@@ -208,7 +208,7 @@ def aurora_status_bar_charts(aurora_df: pd.DataFrame):
     aurora_bar = alt.Chart(aurora_cam_vis).mark_bar().encode(
         alt.X("naked_eye_visibility").title("Visibility"),
         alt.Y("count").title("Count"),
-        color="country_name")
+        alt.Color("country_name", title="Country"))
     st.altair_chart(aurora_bar)
 
 
