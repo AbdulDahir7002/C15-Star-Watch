@@ -163,8 +163,8 @@ def meteor_timeline(meteor_df: pd.DataFrame):
     else:
         st.markdown(f"*{timeline['content'].capitalize()}*")
         st.write(
-            f"From :orange[*{timeline["start"]}*] to :orange[*{timeline["end"]}*]")
-        st.write(f"Peaks on :orange[*{timeline["peak"]}*]")
+            f"From :orange[*{timeline['start']}*] to :orange[*{timeline['end']}*]")
+        st.write(f"Peaks on :orange[*{timeline['peak']}*]")
 
         # TODO: return more details
 
@@ -218,14 +218,12 @@ def app():
 
     st.title("Weekly trends")
 
-
     with st.container(border=True):
         st.markdown("### Sunrise and Sunset average over time &#9728; ")
         avg_sunrise_sunset_df = get_avg_sunrise_sunset_df()
         sunrise_sunset_line(avg_sunrise_sunset_df)
 
     weather_status_df = get_weather_status_week_df()
-
 
     with st.container(border=True):
         st.markdown("### Meteor shower timeline &#x2604;")
@@ -237,7 +235,6 @@ def app():
     with st.container(border=True):
         st.markdown("### Aurora Occurrences &#10024;")
         aurora_status_timeline(aurora_dataframe)
-
 
     with st.container(border=True):
         st.markdown("### Aurora Sighting Proportions &#10024;")
