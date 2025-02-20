@@ -2,10 +2,40 @@
 import unittest
 from unittest.mock import patch, MagicMock
 from datetime import date, datetime
+import os
 
 import pandas as pd
 
-from Page1 import get_weather_for_day, get_aurora_info, get_country, get_cities, get_days, get_emoji_for_weather, get_meteor_showers_for_day, get_stargazing_status_for_day, get_weather_for_week, get_lat_and_long, get_constellation_code, get_constellations, get_stargazing_status_for_week
+from Page1 import get_weather_for_day, get_aurora_info, get_country, get_cities, get_days, get_emoji_for_weather, get_meteor_showers_for_day, get_stargazing_status_for_day, get_weather_for_week, get_lat_and_long, get_constellation_code, get_constellations, get_stargazing_status_for_week, post_location_get_starchart
+from Home import get_nasa_apod
+
+
+class TestPostLocationGetStarChart(unittest.TestCase):
+    @patch('Page1.requests')
+    def test_post_location_get_starchart(self, mock_requests):
+        mock_response = MagicMock()
+        mock_response.json.return_value = {'data': {'imageUrl': 'Test'}}
+        mock_requests.post.return_value = mock_response
+        self.assertEqual(
+            'Test', post_location_get_starchart('', '', '', '', ''))
+
+
+class TestGetNasaApod(unittest.TestCase):
+    @patch.dict(os.environ, {"NASA_APOD_KEY": "test_api_key"})
+    @patch('Home.requests.get')
+    def test_get_nasa_apod(self, mock_get):
+        mock_response = {
+            'explanation': 'This is a test explanation',
+            'title': 'Test APOD',
+            'url': 'https://example.com/image.jpg',
+            'date': '2025-02-18'
+        }
+        mock_get.return_value.json.return_value = mock_response
+
+        result = get_nasa_apod()
+
+        self.assertEqual(result, mock_response)
+        mock_get.assert_called_once()
 
 
 class TestGetWeatherForDay(unittest.TestCase):
@@ -176,6 +206,38 @@ class TestGetDays(unittest.TestCase):
             date(2025, 2, 18),
             date(2025, 2, 19),
             date(2025, 2, 20),
+            'Week'
+        ]
+        self.assertEqual(expected_result, result)
+
+    @patch('Page1.date')
+    def test_get_days_eom(self, mock_date):
+        mock_date.today.return_value = date(2025, 2, 26)
+        result = get_days()
+        expected_result = [
+            date(2025, 2, 26),
+            date(2025, 2, 27),
+            date(2025, 2, 28),
+            date(2025, 3, 1),
+            date(2025, 3, 2),
+            date(2025, 3, 3),
+            date(2025, 3, 4),
+            'Week'
+        ]
+        self.assertEqual(expected_result, result)
+
+    @patch('Page1.date')
+    def test_get_days_eoy(self, mock_date):
+        mock_date.today.return_value = date(2025, 12, 27)
+        result = get_days()
+        expected_result = [
+            date(2025, 12, 27),
+            date(2025, 12, 28),
+            date(2025, 12, 29),
+            date(2025, 12, 30),
+            date(2025, 12, 31),
+            date(2026, 1, 1),
+            date(2026, 1, 2),
             'Week'
         ]
         self.assertEqual(expected_result, result)

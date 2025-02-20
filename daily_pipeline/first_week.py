@@ -20,7 +20,7 @@ def configure_logs():
         style="{",
         datefmt="%Y-%m-%d %H:%M",
         handlers=[
-            logging.FileHandler("logs/pipeline.log", mode="a",
+            logging.FileHandler("log_files/pipeline.log", mode="a",
                                 encoding="utf-8"),
             logging.StreamHandler(sys.stdout)
         ]
