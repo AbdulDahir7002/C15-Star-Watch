@@ -1,0 +1,8 @@
+boto3
+python-dotenv
+altair
+jinja2
+psycopg2-binary
+pandas
+xhtml2pdf
+vl-convert-python

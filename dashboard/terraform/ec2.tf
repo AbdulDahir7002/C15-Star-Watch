@@ -69,16 +69,16 @@ resource "aws_vpc_security_group_egress_rule" "send_https" {
 
 resource "aws_vpc_security_group_ingress_rule" "receive_streamlit" {
   security_group_id = aws_security_group.ec2_security_group.id
-  from_port = 8502 
-  to_port = 8502 
+  from_port = 8501 
+  to_port = 8501 
   ip_protocol = "tcp"
   cidr_ipv4 = "0.0.0.0/0"
 }
 
 resource "aws_vpc_security_group_egress_rule" "send_streamlit" {
   security_group_id = aws_security_group.ec2_security_group.id
-  from_port = 8502 
-  to_port = 8502 
+  from_port = 8501 
+  to_port = 8501 
   ip_protocol = "tcp"
   cidr_ipv4 = "0.0.0.0/0"
 }

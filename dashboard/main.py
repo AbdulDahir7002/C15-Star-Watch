@@ -11,7 +11,7 @@ def define_logger():
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s - %(levelname)s - %(message)s",
                         handlers=[logging.StreamHandler(),
-                                  logging.FileHandler("dashboard.log")])
+                                  logging.FileHandler("logs/dashboard.log")])
     return logging.getLogger()
 
 
@@ -27,8 +27,8 @@ if "page" not in st.session_state:
 
 PAGES = {
     "Home": Home,
-    "Page 1": Page1,
-    "Page 2": Page2,
+    "Forecast": Page1,
+    "Trends": Page2,
     "Subscribe": Subscriber
 }
 
