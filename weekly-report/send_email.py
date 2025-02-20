@@ -60,20 +60,20 @@ def send_email(ses: client, emails: list, html: str):
     msg['To'] = ', '.join(emails)
     msg['Subject'] = "Starwatch Weekly Report"
 
-    with open("average_coverage_graph.png", 'rb') as img:
+    with open("/tmp/average_coverage_graph.png", 'rb') as img:
         img_data = img.read()
         image = MIMEImage(img_data)
         image.add_header("Content-ID", '<image1>')
         image.add_header("Content-Disposition", 'inline',
-                         filename="average_coverage_graph.png")
+                         filename="/tmp/average_coverage_graph.png")
         msg.attach(image)
 
-    with open("average_visibility_graph.png", 'rb') as img:
+    with open("/tmp/average_visibility_graph.png", 'rb') as img:
         img_data = img.read()
         image = MIMEImage(img_data)
         image.add_header("Content-ID", '<image2>')
         image.add_header("Content-Disposition", 'inline',
-                         filename="average_visibility_graph.png")
+                         filename="/tmp/average_visibility_graph.png")
         msg.attach(image)
 
     response = ses.send_raw_email(
@@ -120,10 +120,8 @@ def send_all_cities(city_list: list, sns: client, ses: client):
 def handler(event, context):
     """Lambda handler"""
     load_dotenv()
-    sns = client('sns', aws_access_key_id=environ["AWS_ACCESS_KEY"],
-                 aws_secret_access_key=environ["AWS_SECRET_ACCESS_KEY"], region_name=environ["REGION"])
-    ses = client('ses', aws_access_key_id=environ["AWS_ACCESS_KEY"],
-                 aws_secret_access_key=environ["AWS_SECRET_ACCESS_KEY"], region_name=environ["REGION"])
+    sns = client('sns', region_name=environ["REGION"])
+    ses = client('ses', region_name=environ["REGION"])
     conn = get_connection()
     city_list = get_all_cities(conn)
     send_all_cities(city_list, sns, ses)
