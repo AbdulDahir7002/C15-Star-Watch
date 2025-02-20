@@ -47,7 +47,7 @@ def get_meteor_peak(conn):
     for row in rows:
         shower_info.append({
             "shower_name": row["meteor_shower_name"].title(),
-            "days": f"will reach it's peak in {row["days"]} days."
+            "days": f"will reach it's peak in {row['days']} days."
         })
     return shower_info
 
