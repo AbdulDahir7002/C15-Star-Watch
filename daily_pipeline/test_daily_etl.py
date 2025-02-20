@@ -35,6 +35,7 @@ def test_city_format(mock_conn):
     mock_connect = MagicMock()
 
 
+@patch.dict(environ, {"DB_HOST": "HOST", "DB_USERNAME": "USERNAME", "DB_NAME": "NAME", "DB_PASSWORD": "PASSWORD", "DB_PORT": "PORT"})
 @patch("daily_etl.psycopg2.connect")
 def test_cursor_closes_locations(mock_connect):
     """Tests the cursor is closed"""
@@ -50,6 +51,7 @@ def test_cursor_closes_locations(mock_connect):
     mock_cursor.close.assert_called_once()
 
 
+@patch.dict(environ, {"DB_HOST": "HOST", "DB_USERNAME": "USERNAME", "DB_NAME": "NAME", "DB_PASSWORD": "PASSWORD", "DB_PORT": "PORT"})
 @patch("daily_etl.psycopg2.connect")
 def test_cursor_closes_constellations(mock_connect):
     """Tests the cursor is closed"""
@@ -65,6 +67,7 @@ def test_cursor_closes_constellations(mock_connect):
     mock_cursor.close.assert_called_once()
 
 
+@patch.dict(environ, {"DB_HOST": "HOST", "DB_USERNAME": "USERNAME", "DB_NAME": "NAME", "DB_PASSWORD": "PASSWORD", "DB_PORT": "PORT"})
 @patch("daily_etl.psycopg2.connect")
 def test_cursor_closes_daily_upload(mock_connect):
     """Tests the cursor is closed"""
@@ -80,6 +83,7 @@ def test_cursor_closes_daily_upload(mock_connect):
     mock_cursor.close.assert_called_once()
 
 
+@patch.dict(environ, {"DB_HOST": "HOST", "DB_USERNAME": "USERNAME", "DB_NAME": "NAME", "DB_PASSWORD": "PASSWORD", "DB_PORT": "PORT"})
 @patch("daily_etl.psycopg2.connect")
 def test_cursor_closes_constellation_upload(mock_connect, data_to_format):
     """Tests the cursor is closed"""
@@ -95,6 +99,7 @@ def test_cursor_closes_constellation_upload(mock_connect, data_to_format):
     mock_cursor.close.assert_called_once()
 
 
+@patch.dict(environ, {"DB_HOST": "HOST", "DB_USERNAME": "USERNAME", "DB_NAME": "NAME", "DB_PASSWORD": "PASSWORD", "DB_PORT": "PORT", "ASTRONOMY_BASIC_AUTH_KEY": "ASTRO_KEY"})
 @patch("daily_etl.psycopg2.connect")
 def test_conn_closes(mock_connect):
     """Tests the cursor is closed"""
