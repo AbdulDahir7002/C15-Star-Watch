@@ -10,8 +10,9 @@ beautifulsoup4
 psycopg2
 python-dotenv
 coverage
+boto3
+moto
+altair
 streamlit
 asyncio
 aiohttp
-moto
-boto3

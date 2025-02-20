@@ -137,9 +137,8 @@ def average_coverage_graph(conn, city):
     graph = alt.Chart(average_coverage_df).mark_line().encode(
         x=alt.X("day_number:O"),
         y="coverage:Q").properties(width=535, height=535)
-    print(graph)
     with open("/tmp/average_coverage_graph.png", "wb") as f:
-        graph.save(f, format="png", ppi=1000)
+        graph.save(f, format="png", ppi=100)
 
 
 def average_visibility_graph(conn, city):
@@ -164,8 +163,9 @@ def average_visibility_graph(conn, city):
     graph = alt.Chart(average_coverage_df).mark_line().encode(
         x=alt.X("day_number:O"),
         y="visibility:Q").properties(width=535, height=535)
+
     with open("/tmp/average_visibility_graph.png", "wb") as f:
-        graph.save(f, format="png", ppi=1000)
+        graph.save(f, format="png", ppi=100)
 
 
 def highest_coverage_day(conn, city):
@@ -281,9 +281,7 @@ def format_template(conn, city):
         "date": datetime.now().strftime('%d-%m-%Y'),
         "meteor_shower_info": meteor_info,
         "day_of_the_week": "Chewsday",
-        "table": sunrise_set_df(conn, city).to_html(index=True),
-        # "avg_coverage_graph": "average_coverage_graph.png",
-        # "avg_visibility_graph": "average_visibility_graph.png",
+        "table": sunrise_set_df(conn, city).to_html(index=True, border="1px", justify="center"),
         "coverage_day": highest_coverage_day(conn, city),
         "visibility_day": highest_visibility_day(conn, city),
         "day_of_week": best_stargazing_day_info["day"],

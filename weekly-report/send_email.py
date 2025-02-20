@@ -27,8 +27,7 @@ def list_all_topics(sns: client):
 
 def list_relevant_topics(all_topics: list) -> list:
     """Returns a list of starwatch topics on AWS."""
-    topics = all_topics
-    starwatch_topics = [name for name in topics if re.search(
+    starwatch_topics = [name for name in all_topics if re.search(
         "(c15-star-watch-)(.*)", name)]
     return starwatch_topics
 
@@ -56,7 +55,7 @@ def send_email(ses: client, emails: list, html: str):
 
     msg = MIMEMultipart('related')
     msg.attach(MIMEText(html, 'html'))
-    msg['From'] = environ["EMAIL"]  # Your sender email
+    msg['From'] = environ["EMAIL"]
     msg['To'] = ', '.join(emails)
     msg['Subject'] = "Starwatch Weekly Report"
 
@@ -125,3 +124,7 @@ def handler(event, context):
     conn = get_connection()
     city_list = get_all_cities(conn)
     send_all_cities(city_list, sns, ses)
+
+
+if __name__ == "__main__":
+    handler("", "")
