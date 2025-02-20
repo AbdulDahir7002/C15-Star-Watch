@@ -79,3 +79,7 @@ def unsubscribe_form(sns_client):
                             "Please select at least one city to unsubscribe from.")
             else:
                 st.warning("You are not subscribed to any alerts.")
+
+
+if __name__ == "__main__":
+    app()

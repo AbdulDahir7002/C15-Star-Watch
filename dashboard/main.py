@@ -34,6 +34,8 @@ PAGES = {
 
 if st.session_state.show_unsubscribe:
     PAGES["Unsubscribe"] = Unsubscribe
+    st.session_state.page = Unsubscribe
+    st.switch_page("./Unsubscribe.py")
 
 st.sidebar.title("Navigation")
 selection = st.sidebar.radio("Go to", list(PAGES.keys()))

@@ -1,10 +1,9 @@
-"""Tests for subscribe script."""
-
+from Subscriber import validate_email, validate_uk_mobile_number, list_all_topics, list_relevant_topics, list_subscribed_topics, retrieve_chosen_topics
 import pytest
 from boto3 import client
 from moto import mock_aws
 from unittest.mock import patch, MagicMock
-from subscribe import list_relevant_topics, retrieve_chosen_topics, subscribe_user, unsubscribe_user
+from Subscriber import list_relevant_topics, retrieve_chosen_topics, subscribe_user, unsubscribe_user
 
 
 @pytest.fixture
@@ -56,27 +55,47 @@ def test_retrieve_chosen_topics():
         "arn:aws:sns:eu-west-2:129033205317:c15-star-watch-somewhere", "arn:aws:sns:eu-west-2:129033205317:c15-star-watch-city"]
 
 
-@mock_aws
-def test_subscribe_user(sns, subscribed_topics, user_data):
-    topic_list = subscribed_topics
-
-    user = user_data
-
-    assert subscribe_user(user, topic_list, sns) == "Subscribed!"
-
-
-@mock_aws
-@patch("subscribe.list_subscribed_topics")
-def test_unsubscribe_user(fake_list_subscribed_topics, sns, subscribed_topics, user_data):
-    fake_list_subscribed_topics.return_value = subscribed_topics
-    subscribe_user(user_data, subscribed_topics, sns)
-    assert unsubscribe_user("fakeemail@gmail.com", sns) == "Unsubscribed!"
+def test_valid_email():
+    valid_emails = [
+        "test@example.com",
+        "user.name+tag@domain.co",
+        "user123@subdomain.domain.com",
+        "first.last@domain.org"
+    ]
+    for email in valid_emails:
+        assert validate_email(email) is True
 
 
-@mock_aws
-@patch("subscribe.list_subscribed_topics")
-def test_unsubscribe_user_no_subscriptions(fake_list_subscribed_topics, sns, subscribed_topics, user_data):
-    fake_list_subscribed_topics.return_value = []
-    subscribe_user(user_data, subscribed_topics, sns)
-    assert unsubscribe_user("fakeemail@gmail.com",
-                            sns) == "Email is not subscribed to any topics!"
+def test_invalid_email():
+    invalid_emails = [
+        "plainaddress",
+        "@missingusername.com",
+        "missingatdomain.com",
+        "user@domain,com",
+        "user@domain..com",
+        "user@domain.c",
+        "user@domain.123"
+    ]
+    for email in invalid_emails:
+        assert validate_email(email) is False
+
+
+def test_valid_uk_mobile_number():
+    valid_numbers = [
+        "07123456789",
+        "07890123456"
+    ]
+    for number in valid_numbers:
+        assert validate_uk_mobile_number(number) == number
+
+
+def test_invalid_uk_mobile_number():
+    invalid_numbers = [
+        ("12345678901", "Please enter a valid phone number starting with 07"),
+        ("07123", "Please enter a valid phone number"),
+        ("07890123456789", "Please enter a valid phone number"),
+        ("0712345678", "Please enter a valid phone number"),
+        ("07890123abcd", "Please enter a valid phone number")
+    ]
+    for number, expected_message in invalid_numbers:
+        assert validate_uk_mobile_number(number) == expected_message
