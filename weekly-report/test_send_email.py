@@ -6,7 +6,7 @@ from email.mime.image import MIMEImage
 from boto3 import client
 from moto import mock_aws
 from unittest.mock import patch, MagicMock
-from send_email import list_relevant_topics, retrieve_chosen_topic, clean_city_list, send_email
+from send_email import list_relevant_topics, retrieve_chosen_topic, clean_city_list
 
 
 @pytest.fixture
