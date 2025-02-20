@@ -35,6 +35,7 @@ PAGES = {
 if st.session_state.show_unsubscribe:
     PAGES["Unsubscribe"] = Unsubscribe
 
+
 st.sidebar.title("Navigation")
 selection = st.sidebar.radio("Go to", list(PAGES.keys()))
 logger.info(f"The user has selected {selection}")
