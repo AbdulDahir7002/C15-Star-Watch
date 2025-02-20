@@ -48,22 +48,6 @@ def get_locations(connection):
     return rows
 
 
-def configure_logs():
-    """Configure the logs for the whole project to refer to"""
-
-    logging.basicConfig(
-        level=logging.INFO,
-        format="{asctime} - {levelname} - {message}",
-        style="{",
-        datefmt="%Y-%m-%d %H:%M",
-        handlers=[
-            logging.FileHandler("logs/pipeline.log", mode="a",
-                                encoding="utf-8"),
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
-
-
 def get_constellation_codes(connection):
     """Fetches constellation codes from the database"""
     cursor = connection.cursor()
@@ -170,7 +154,7 @@ def get_future_data(cities: list[dict], new_date: str, header: str):
 def upload_daily_data(conn, data: list[tuple]):
     """Upload the next day's data"""
     cursor = conn.cursor()
-    cursor.executemany(
+    cursor.execute_values(
         """INSERT INTO stargazing_status (city_id, sunrise, sunset, status_date, star_chart_url, moon_phase_url) 
         VALUES (%s, %s, %s, %s, %s, %s)""", data)
     conn.commit()
