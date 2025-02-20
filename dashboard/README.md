@@ -12,7 +12,12 @@ Before running or deploying the dashboard, make sure your ```database``` and bot
 
 Use ```pip install -r requirements.txt```
 
-The dashboard can now be ran locally by using ```streamlit run main.py```, but more steps are required to run it on the cloud.
+The dashboard can now be ran locally by using:
+    ```streamlit run main.py```, 
+As well as running the Docker image locally with: 
+    ```docker run --env-file .env image-name ```
+
+More steps are required to run it on the cloud.
 
 In ```/terraform```, create a file called ```terraform.tfvars```. It should contain the following variables:
 ```
