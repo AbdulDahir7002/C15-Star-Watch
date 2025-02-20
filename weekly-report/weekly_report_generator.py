@@ -63,7 +63,7 @@ def get_starting_meteors(conn):
     cur.execute(q)
     rows = cur.fetchall()
     starting_showers = [
-        {"shower_name": row["meteor_shower_name"].title(), "days": f"will start in {row["days"]} days."} for row in rows]
+        {"shower_name": row["meteor_shower_name"].title(), "days": f"will start in {row['days']} days."} for row in rows]
     return starting_showers
 
 
