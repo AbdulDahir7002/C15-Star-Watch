@@ -29,3 +29,4 @@ AWS_ACCESS_KEY = "[your aws access key]"
 ```
 Use terraform init, then terraform apply to create the EC2. 
 
+The dashboard scripts is automatically deployed to the EC2 instance after new changes are merged with the main repository branch

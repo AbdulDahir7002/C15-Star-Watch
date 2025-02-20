@@ -1,7 +1,7 @@
 # ECR
 
 data "aws_ecr_repository" "lambda-image-repo" {
-  name = "c15-star-watch-daily-lambda-repo"
+  name = "c15-star-watch-hourly-lambda-repo"
 }
 
 data "aws_ecr_image" "lambda-image-version" {
@@ -36,16 +36,47 @@ data "aws_iam_policy_document" "lambda-role-permissions-policy-doc" {
   }
 }
 
+data "aws_iam_policy_document" "lambda-role-permissions-sns-doc" {
+    statement {
+        effect = "Allow"
+        actions = [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+                "logs:PutMetricFilter",
+                "logs:PutRetentionPolicy"
+        ]
+        resources = [ "arn:aws:iam::aws:policy/service-role/AmazonSNSRole" ]
+    }
+}
+
+data "aws_iam_policy_document" "lambda-role-permissions-ses-doc" {
+    statement {
+        effect = "Allow"
+        actions = ["ses:*"]
+        resources = [ "arn:aws:iam::aws:policy/AmazonSESFullAccess" ]
+    }
+}
 # Role
 
 resource "aws_iam_role" "lambda-role" {
-  name ="c15-star-watch-daily-lambda-role"
+  name ="c15-star-watch-lambda-role"
   assume_role_policy = data.aws_iam_policy_document.lambda-role-trust-policy-doc.json
 }
 
 resource "aws_iam_policy" "lambda-role-permissions-policy" {
-  name = "c15-star-watch-daily-pipeline-policy"
+  name = "c15-star-watch-email-report-policy"
   policy = data.aws_iam_policy_document.lambda-role-permissions-policy-doc.json
+}
+
+resource "aws_iam_policy" "lambda-sns-policy"{
+    name = "c15-star-watch-sns"
+    policy = data.aws_iam_policy_document.lambda-role-permissions-sns-doc.json
+}
+
+resource "aws_iam_policy" "lambda-ses-policy"{
+    name = "c15-star-watch-ses"
+    policy = data.aws_iam_policy_document.lambda-role-permissions-ses-doc.json
 }
 
 resource "aws_iam_role_policy_attachment" "lambda-role-policy-attachment" {
@@ -56,19 +87,19 @@ resource "aws_iam_role_policy_attachment" "lambda-role-policy-attachment" {
 # Lambda
 
 resource "aws_lambda_function" "pipeline-lambda" {
-  function_name = "c15-star-watch-daily"
+  function_name = "c15-star-email-report"
   role = aws_iam_role.lambda-role.arn
   package_type = "Image"
   image_uri = data.aws_ecr_image.lambda-image-version.image_uri
-  timeout = 240
+  timeout = 600
   environment { 
     variables = {
         DB_HOST = var.DB_HOST
         DB_NAME = var.DB_NAME
-        DB_USERNAME = var.DB_USERNAME
+        DB_USER = var.DB_USER
         DB_PASSWORD = var.DB_PASSWORD
         DB_PORT = var.DB_PORT
-        ASTRONOMY_BASIC_AUTH_KEY = var.ASTRONOMY_BASIC_AUTH_KEY
+        EMAIL = var.EMAIL
         }
     }
 }
