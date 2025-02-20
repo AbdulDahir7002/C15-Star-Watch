@@ -81,21 +81,16 @@ def test_cursor_closes_daily_upload(mock_connect):
 
 
 @patch("daily_etl.psycopg2.connect")
-def test_cursor_closes_constellation_upload(mock_connect):
+def test_cursor_closes_constellation_upload(mock_connect, data_to_format):
     """Tests the cursor is closed"""
     mock_conn = MagicMock()
     mock_cursor = MagicMock()
 
     mock_conn.cursor.return_value = mock_cursor
-
+    data_to_format["new_url"] = "www.new_url.com"
     mock_connect.return_value = mock_conn
     upload_constellation_urls(
-        mock_conn, [{"code": "tes",
-                     "url":
-                     {"data":
-                      {"imageUrl":
-                       "www.test.com"
-                       }}, "new_url": "www.new_url.com"}])
+        mock_conn, [data_to_format])
 
     mock_cursor.close.assert_called_once()
 
