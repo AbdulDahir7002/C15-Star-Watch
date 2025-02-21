@@ -216,7 +216,7 @@ def get_city_from_arn(topic_arn):
 
 
 def get_city_topic_arn_mapping(sns_client):
-    """"""
+    """Creates a mapping of cities to its corresponding arn."""
     city_to_arn_mapping = {}
 
     response = sns_client.list_topics()
