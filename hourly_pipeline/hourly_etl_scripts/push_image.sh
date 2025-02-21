@@ -1,4 +1,3 @@
-ls
 cd hourly_pipeline/hourly_etl_script
 source .env
 echo $HOURLY_ECR_NAME
