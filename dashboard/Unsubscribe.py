@@ -1,3 +1,4 @@
+""""The code for the unsubscribe page of the dashboard"""
 import streamlit as st
 import boto3
 from Subscriber import get_city_topic_arn_mapping, list_subscribed_topics, get_city_from_arn, unsubscribe_user
