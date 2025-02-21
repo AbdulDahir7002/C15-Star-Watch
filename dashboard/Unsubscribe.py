@@ -7,6 +7,7 @@ user_data = {}
 
 
 def app():
+    """Runs the necessary code for this page."""
     if st.session_state.show_unsubscribe:
         unsubscribe_form(sns_client)
     else:
@@ -15,6 +16,7 @@ def app():
 
 
 def unsubscribe_form(sns_client):
+    """The function that allows a user to unsubscribe."""
     st.title("Unsubscribe Form")
     st.write("Please provide your subscription details below.")
 
