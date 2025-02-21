@@ -40,7 +40,7 @@ def get_connection():
 def get_locations(connection):
     """Retrieves the cities we need to extract data for"""
     cursor = connection.cursor()
-    cursor.execute("""SELECT * FROM city""")
+    cursor.execute("""SELECT city_id,latitude,longitude FROM city""")
     rows = cursor.fetchall()
     cursor.close()
     return rows
@@ -84,8 +84,15 @@ def post_location_get_starchart(header: str, lat: float, long: float, date_to_qu
         json=body,
         timeout=60
     )
-
-    return response.json()['data']['imageUrl']
+    try:
+        return response.json()['data']['imageUrl']
+    except KeyError:
+        response = requests.post(
+            "https://api.astronomyapi.com/api/v2/studio/star-chart",
+            headers={'Authorization': header},
+            json=body,
+            timeout=60)
+        return response.json()['data']['imageUrl']
 
 
 def post_location_get_moonphase(header: str, lat: float, long: float, date_to_query: str):
