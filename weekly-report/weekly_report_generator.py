@@ -71,7 +71,7 @@ def get_meteor_peak(conn):
     for row in rows:
         shower_info.append({
             "shower_name": row["meteor_shower_name"].title(),
-            "days": f"will reach it's peak in {row["days"]} days."
+            "days": f"will reach it's peak in {row['days']} days."
         })
     return shower_info
 
@@ -83,7 +83,7 @@ def get_starting_meteors(conn):
     cur.execute(q)
     rows = cur.fetchall()
     starting_showers = [
-        {"shower_name": row["meteor_shower_name"].title(), "days": f"will start in {row["days"]} days."} for row in rows]
+        {"shower_name": row["meteor_shower_name"].title(), "days": f"will start in {row['days']} days."} for row in rows]
     return starting_showers
 
 
@@ -94,7 +94,7 @@ def get_ending_meteors(conn):
     cur.execute(q)
     rows = cur.fetchall()
     ending_showers = [
-        {"shower_name": row["meteor_shower_name"].title(), "days": f"will end in {row["days"]} days."} for row in rows]
+        {"shower_name": row["meteor_shower_name"].title(), "days": f"will end in {row['days']} days."} for row in rows]
     return ending_showers
 
 
