@@ -1,3 +1,4 @@
+"""Main page running the streamlit app"""
 import streamlit as st
 import logging
 import Home
