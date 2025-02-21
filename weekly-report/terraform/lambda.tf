@@ -24,7 +24,7 @@ data "aws_iam_policy_document" "lambda-role-trust-policy-doc" {
   }
 }
 
-data "aws_iam_policy_document" "lambda-role-permissions-policy-doc" {
+data "aws_iam_policy_document" "lambda-role-permissions-logs-doc" {
   statement {
     effect = "Allow"
     actions = [ 
@@ -37,36 +37,39 @@ data "aws_iam_policy_document" "lambda-role-permissions-policy-doc" {
 }
 
 data "aws_iam_policy_document" "lambda-role-permissions-sns-doc" {
-    statement {
-        effect = "Allow"
-        actions = [
-                "logs:CreateLogGroup",
-                "logs:CreateLogStream",
-                "logs:PutLogEvents",
-                "logs:PutMetricFilter",
-                "logs:PutRetentionPolicy"
-        ]
-        resources = [ "arn:aws:iam::aws:policy/service-role/AmazonSNSRole" ]
-    }
+  statement {
+    effect = "Allow"
+    actions = [ 
+        "sns:Publish",
+        "sns:ListTopics",
+        "sns:Unsubscribe",
+        "sns:ListSubscriptionsByTopic"
+    ]
+    resources = [ "arn:aws:sns:eu-west-2:*" ]
+  }
 }
 
 data "aws_iam_policy_document" "lambda-role-permissions-ses-doc" {
-    statement {
-        effect = "Allow"
-        actions = ["ses:*"]
-        resources = [ "arn:aws:iam::aws:policy/AmazonSESFullAccess" ]
-    }
+  statement {
+    effect = "Allow"
+    actions = [
+      "ses:DeleteEmailIdentity",
+      "ses:SendRawEmail"
+    
+    ]
+    resources = [ "arn:aws:ses:eu-west-2:*" ]
+  }
 }
 # Role
 
 resource "aws_iam_role" "lambda-role" {
-  name ="c15-star-watch-lambda-role"
+  name ="c15-star-watch-email-lambda-role"
   assume_role_policy = data.aws_iam_policy_document.lambda-role-trust-policy-doc.json
 }
 
-resource "aws_iam_policy" "lambda-role-permissions-policy" {
-  name = "c15-star-watch-email-report-policy"
-  policy = data.aws_iam_policy_document.lambda-role-permissions-policy-doc.json
+resource "aws_iam_policy" "lambda-logs-policy" {
+  name = "c15-star-watch-log"
+  policy = data.aws_iam_policy_document.lambda-role-permissions-logs-doc.json
 }
 
 resource "aws_iam_policy" "lambda-sns-policy"{
@@ -79,24 +82,37 @@ resource "aws_iam_policy" "lambda-ses-policy"{
     policy = data.aws_iam_policy_document.lambda-role-permissions-ses-doc.json
 }
 
-resource "aws_iam_role_policy_attachment" "lambda-role-policy-attachment" {
+resource "aws_iam_role_policy_attachment" "lambda-role-logs-attachment" {
   role = aws_iam_role.lambda-role.name
-  policy_arn = aws_iam_policy.lambda-role-permissions-policy.arn
+  policy_arn = aws_iam_policy.lambda-logs-policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "lambda-role-sns-attachment" {
+  role = aws_iam_role.lambda-role.name
+  policy_arn = aws_iam_policy.lambda-sns-policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "lambda-role-ses-attachment" {
+  role = aws_iam_role.lambda-role.name
+  policy_arn = aws_iam_policy.lambda-ses-policy.arn
 }
 
 # Lambda
 
-resource "aws_lambda_function" "pipeline-lambda" {
+resource "aws_lambda_function" "email-lambda" {
   function_name = "c15-star-email-report"
   role = aws_iam_role.lambda-role.arn
   package_type = "Image"
   image_uri = data.aws_ecr_image.lambda-image-version.image_uri
+  memory_size = 516
   timeout = 600
+  architectures = [ "arm64" ]
   environment { 
     variables = {
+        REGION = var.AWS_REGION
         DB_HOST = var.DB_HOST
         DB_NAME = var.DB_NAME
-        DB_USER = var.DB_USER
+        DB_USERNAME = var.DB_USERNAME
         DB_PASSWORD = var.DB_PASSWORD
         DB_PORT = var.DB_PORT
         EMAIL = var.EMAIL
