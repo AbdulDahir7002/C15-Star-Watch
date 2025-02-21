@@ -51,10 +51,18 @@ jobs:
         run: |
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          $HOURLY_ECR_NAME=${{ secrets.HOURLY_ECR_NAME }}
+          $HOURLY_LAMBDA_NAME=${{ secrets.HOURLY_LAMBDA_NAME }}
+          $DAILY_ECR_NAME=${{ secrets.DAILY_ECR_NAME }}
+          $DAILY_LAMBDA_NAME=${{ secrets.DAILY_LAMBDA_NAME }}
+          $WEEKLY_ECR_NAME=${{ secrets.WEEKLY_ECR_NAME }}
+          $WEEKLY_LAMBDA_NAME=${{ secrets.WEEKLY_LAMBDA_NAME }}
           cd hourly_pipeline/hourly_etl_scripts
           bash push_image.sh
-          bash daily_pipeline/push_image.sh
-          bash weekly_report/push_image.sh
+          cd ../../daily_pipeline
+          bash push_image.sh
+          cd ../weekly-report
+          bash push_image.sh
 
       - name: Create pemkey
         env:
