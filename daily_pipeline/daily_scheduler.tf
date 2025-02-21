@@ -30,18 +30,19 @@ resource "aws_iam_role_policy" "scheduler_lambda_invoke" {
 }
 
 
-resource "aws_scheduler_schedule" "weekly_scheduler" {
-  name       = "c15-starwatch-weekly-schedule"
+resource "aws_scheduler_schedule" "daily_scheduler" {
+  name       = "c15-starwatch-daily-schedule"
   group_name = "default"
 
   flexible_time_window {
     mode = "OFF"
   }
 
-  schedule_expression = "cron(0 0 ? * 2 *)"
+  schedule_expression = "cron(0 0 * * ? *)"
 
   target {
-    arn      = aws_lambda_function.c15-star-email-report.arn
+    arn      = aws_lambda_function.pipeline-lambda.arn
     role_arn = aws_iam_role.scheduler_role.arn
   }
 }
+

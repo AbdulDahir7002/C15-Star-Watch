@@ -4,29 +4,13 @@ The hourly pipeline extracts weather data and aurora data from two APIs before u
 
 ## Requirements
 
-All requirements are listed in requirements.txt, but the requirements for this folder specifically are:
-
-- openmeteo-requests
-- requests-cache
-- pandas
-- psycopg2
-- retry-requests
-- python-dotenv
+Requirements for this directory are listed in ```/hourly_etl_scripts/requirements.txt```
 
 ## Setup Instructions
 
-Use ```pip install -r requirements.txt```
+Before running or deploying the pipelines, make sure your ```database``` has been set up. Ensure you have followed the initial steps in the root ```README.md```. You should have a python environment with requirements installed and a ```.env``` files containing variables.
 
-You will need a ```.env``` file containing the following information regarding your postgreSQL database:
-```
-DB_HOST=[Your database host name]
-DB_PORT=[Your database port]
-DB_PASSWORD=[Your database password]
-DB_USER=[Your database username]
-DB_NAME=[Name of your db]
-```
-
-You can now run the python files locally. To run on the cloud as an hourly pipeline, more steps are required.
+You can now run the python files locally. To deploy to the cloud as an hourly pipeline, more steps are required.
 
 In ```/terraform```, create a ```terraform.tfvars``` folder. It should contain the following variables:
 ```
@@ -34,7 +18,10 @@ REGION = "[Your desired aws region]"
 AWS_SECRET_ACCESS_KEY = "[Your aws secret key]"
 AWS_ACCESS_KEY = "[your aws access key]"
 ```
-Then, use terraform init and terraform apply to create an AWS ECR and lambda function. Then, you can build and upload a docker image to the ECR. When building, use ```--provenance=false``` and the appropriate ```-platform``` argument. An AWS step function should be used to schedule the lambda function to occur once an hour.
+Then, use terraform init and terraform apply to create an AWS ECR and lambda function. Then, you can build and upload a docker image to the ECR.
+Inside ```hourly_etl_scripts```, use the commands that AWS gives you to push to the registry.
+When building, use ```--provenance=false``` and the appropriate ```-platform``` argument.
+An AWS step function should be used to schedule the lambda function to occur once an hour.
 
 ## Additional Information
 

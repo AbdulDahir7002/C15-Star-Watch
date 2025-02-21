@@ -13,3 +13,7 @@ coverage
 boto3
 moto
 altair
+streamlit
+asyncio
+aiohttp
+requests_mock

@@ -179,7 +179,6 @@ def average_visibility_graph(conn, city):
     graph = alt.Chart(average_coverage_df).mark_line().encode(
         x=alt.X("day_number:O"),
         y="visibility:Q").properties(width=535, height=535)
-    graph.configure(background='#262636')
     with open("/tmp/average_visibility_graph.png", "wb") as f:
         graph.save(f, format="png", ppi=100)
 
@@ -288,3 +287,7 @@ def write_email(city):
     html = format_template(conn, city)
     conn.close()
     return html
+
+
+if __name__ == "__main__":
+    write_email("London")

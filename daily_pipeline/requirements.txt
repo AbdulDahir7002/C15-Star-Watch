@@ -1,6 +1,9 @@
 requests
 python-dotenv
-pandas
-psycopg2
+psycopg2-binary
 pylint
 pytest
+openmeteo-requests
+asyncio
+aiohttp
+requests_mock

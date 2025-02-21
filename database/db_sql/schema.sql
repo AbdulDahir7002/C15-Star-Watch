@@ -38,6 +38,12 @@ CREATE TABLE city (
     FOREIGN KEY (country_id) REFERENCES country(country_id)
 );
 
+CREATE TABLE constellation (
+    constellation_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    constellation_name VARCHAR(100) NOT NULL,
+    constellation_code UNIQUE VARCHAR(5) NOT NULL
+);
+
 CREATE TABLE weather_status (
     weather_status_id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     city_id SMALLINT NOT NULL,
@@ -49,12 +55,12 @@ CREATE TABLE weather_status (
     UNIQUE (city_id, status_at)
 );
 
-CREATE TABLE nasa_apod (
-    nasa_apod_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    nasa_apod_url VARCHAR(100),
-    nasa_apod_title VARCHAR(50),
-    nasa_apod_media_type VARCHAR(10)
-);
+-- CREATE TABLE nasa_apod (
+--     nasa_apod_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+--     nasa_apod_url VARCHAR(100),
+--     nasa_apod_title VARCHAR(50),
+--     nasa_apod_media_type VARCHAR(10)
+-- );
 
 CREATE TABLE stargazing_status (
     stargazing_status_id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -64,10 +70,8 @@ CREATE TABLE stargazing_status (
     status_date DATE NOT NULL,
     star_chart_url VARCHAR(100) NOT NULL,
     moon_phase_url VARCHAR(100) NOT NULL,
-    nasa_apod_id SMALLINT NOT NULL,
     FOREIGN KEY (city_id) REFERENCES city(city_id),
-    FOREIGN KEY (nasa_apod_id) REFERENCES nasa_apod(nasa_apod_id),
-    UNIQUE(city_id, sunrise, sunset, status_date, star_chart_url, moon_phase_url, nasa_apod_id)
+    UNIQUE(city_id, sunrise, sunset, status_date, star_chart_url, moon_phase_url)
 );
 
 CREATE TABLE meteor_shower_assignment (
@@ -76,4 +80,10 @@ CREATE TABLE meteor_shower_assignment (
     stargazing_status_id SMALLINT NOT NULL,
     FOREIGN KEY (meteor_shower_id) REFERENCES meteor_shower(meteor_shower_id),
     FOREIGN KEY (stargazing_status_id) REFERENCES stargazing_status(stargazing_status_id)
+);
+
+CREATE TABLE constellation (
+    constellation_id SMALLINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    constellation_name VARCHAR(50) NOT NULL,
+    constellation_code VARCHAR(3) NOT NULL
 );
