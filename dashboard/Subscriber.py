@@ -208,13 +208,6 @@ def subscription_form():
                 f"Thank you! You've been successfully subscribed to SMS alerts for {', '.join(selected_cities)}.")
 
 
-def update_unsub_selectbox():
-    """Updates the state of the """
-    service_type = st.session_state.unsub_type
-    global user_data
-    user_data = {}
-
-
 def get_city_from_arn(topic_arn):
     """Get the city associated with a specific arn"""
     arn_parts = topic_arn.split(":")
