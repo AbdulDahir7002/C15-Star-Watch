@@ -218,7 +218,10 @@ def upload_constellation_urls(conn, data: list[dict]):
     q = """UPDATE constellation SET constellation_url = %s WHERE constellation_code = %s"""
 
     for row in data:
-        cursor.execute(q, [row["new_url"], row["code"]])
+        row = {"constellation_url": row["new_url"],
+               "constellation_code": row["code"]}
+
+    cursor.execute_values(q, data)
     conn.commit()
     cursor.close()
 
