@@ -153,7 +153,8 @@ def average_coverage_graph(conn, city):
     graph = alt.Chart(average_coverage_df).mark_line().encode(
         x=alt.X("day_number:O"),
         y="coverage:Q").properties(width=535, height=535)
-    graph.save("average_coverage_graph.png", ppi=100)
+    with open("/tmp/average_coverage_graph.png", "wb") as f:
+        graph.save(f, format="png", ppi=100)
 
 
 def average_visibility_graph(conn, city):
@@ -179,7 +180,8 @@ def average_visibility_graph(conn, city):
         x=alt.X("day_number:O"),
         y="visibility:Q").properties(width=535, height=535)
     graph.configure(background='#262636')
-    graph.save("average_visibility_graph.png", ppi=100)
+    with open("/tmp/average_visibility_graph.png", "wb") as f:
+        graph.save(f, format="png", ppi=100)
 
 
 def highest_coverage_day(conn, city):

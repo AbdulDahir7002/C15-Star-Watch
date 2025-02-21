@@ -58,20 +58,20 @@ def send_email(ses: client, emails: list, html: str):
     msg['To'] = ', '.join(emails)
     msg['Subject'] = "Starwatch Weekly Report"
 
-    with open("average_coverage_graph.png", 'rb') as img:
+    with open("/tmp/average_coverage_graph.png", 'rb') as img:
         img_data = img.read()
         image = MIMEImage(img_data)
         image.add_header("Content-ID", '<image1>')
         image.add_header("Content-Disposition", 'inline',
-                         filename="average_coverage_graph.png")
+                         filename="/tmp/average_coverage_graph.png")
         msg.attach(image)
 
-    with open("average_visibility_graph.png", 'rb') as img:
+    with open("/tmp/average_visibility_graph.png", 'rb') as img:
         img_data = img.read()
         image = MIMEImage(img_data)
         image.add_header("Content-ID", '<image2>')
         image.add_header("Content-Disposition", 'inline',
-                         filename="average_visibility_graph.png")
+                         filename="/tmp/average_visibility_graph.png")
         msg.attach(image)
 
     ses.send_raw_email(
