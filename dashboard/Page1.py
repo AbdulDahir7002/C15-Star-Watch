@@ -64,13 +64,13 @@ def get_constellations() -> list:
 def get_constellation_code(constellation: str) -> str:
     """Gets the code that identifies the constellation."""
     connection = get_connection()
-    query = f"""
+    query = """
             SELECT constellation_code
             FROM constellation
-            WHERE constellation_name = '{constellation}';
+            WHERE constellation_name = %s;
             """
     with connection.cursor() as curs:
-        curs.execute(query)
+        curs.execute(query, [constellation])
         constellation = curs.fetchone()[0]
     return constellation
 
@@ -140,7 +140,7 @@ def get_weather_for_day(day: date, city: str) -> pd.DataFrame:
 def get_weather_for_week(city: str) -> pd.DataFrame:
     """Returns the weekly weather forecast of a city."""
     connection = get_connection()
-    query = f"""
+    query = """
             SELECT *
             FROM weather_status
             JOIN city ON (city.city_id = weather_status.city_id)
@@ -202,14 +202,14 @@ def get_meteor_showers_for_day(day) -> pd.DataFrame:
     """Gets meteor showers occurring during given day."""
     logging.info("Fetching requested meteor shower data...")
     connection = get_connection()
-    query = f"""
+    query = """
             SELECT *
             FROM meteor_shower
-            WHERE '{day}' >= shower_start
-            AND '{day}' <= shower_end;
+            WHERE %s >= shower_start
+            AND %s <= shower_end;
             """
     with connection.cursor() as curs:
-        curs.execute(query)
+        curs.execute(query, [day, day])
         results = curs.fetchall()
 
     df = pd.DataFrame(results)

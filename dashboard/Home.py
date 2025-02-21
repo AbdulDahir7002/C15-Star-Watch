@@ -22,7 +22,8 @@ def get_nasa_apod() -> dict:
 
 def display_apod(apod: dict) -> None:
     """Displays APOD on streamlit page."""
-    st.markdown("<h3>NASA Picture of the Day</h3>", unsafe_allow_html=True)
+    st.markdown("<h3>NASA Picture of the Day &#128248; </h3>",
+                unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     with col1:
         st.image(apod['url'])
@@ -34,11 +35,11 @@ def display_apod(apod: dict) -> None:
 def get_constellation_url(constellation: str) -> str:
     """Fetches url for corresponding constellation from the database."""
     connection = get_connection()
-    query = f"""SELECT constellation_url
+    query = """SELECT constellation_url
                 FROM constellation
-                WHERE constellation_name = '{constellation}';"""
+                WHERE constellation_name = %s;"""
     with connection.cursor() as curs:
-        curs.execute(query)
+        curs.execute(query, [constellation])
         result = curs.fetchone()
     return result[0]
 
@@ -46,7 +47,8 @@ def get_constellation_url(constellation: str) -> str:
 def display_constellation() -> None:
     """Displays the constellation starchart section."""
     HEADER = f'Basic {ENV["ASTRONOMY_BASIC_AUTH_KEY"]}'
-    st.markdown("<h3>Constellation Starchart</h3>", unsafe_allow_html=True)
+    st.markdown("<h3>Constellation Starchart &#10024;</h3>",
+                unsafe_allow_html=True)
     st.markdown("""Here, you can select any constellation you are curious about. 
                     Keep in mind, this is the chart from London's perspective.""")
     constellation = st.selectbox('Select constellation:', get_constellations())
@@ -60,9 +62,9 @@ def app():
     st.title("Starwatch")
     st.markdown("### Welcome to Starwatch!")
     st.markdown("""We are dedicated to bringing you the information you need to know
-                to have a _**great night stargazing**_! We hope you enjoy, make sure to let us know if you were like to see more. 
-                There is also a subscribe page that you can use to automatically get a summary for the week. 
-                Please feel free to look at the interest sections on this page.""")
+                to have a _**great night stargazing**_! We hope you enjoy, make sure to let us know if you would like to see more. 
+                There is also a subscribe page that you can use to automatically receive a summary for the week. 
+                Please feel free to look at the interesting sections on this page.""")
     st.write("Select a page from the sidebar to explore forecasts and trends, or stay here for more general information.")
 
     with st.container(border=True):

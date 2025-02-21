@@ -35,11 +35,24 @@ PAGES = {
 if st.session_state.show_unsubscribe:
     PAGES["Unsubscribe"] = Unsubscribe
 
-
+st.sidebar.markdown(
+    """
+    <style>
+    .sidebar .block-container .stImage{
+        display: flex;
+        justify-content: center;
+        padding_left: auto;
+        padding_right: auto;
+        width: 75%;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+st.sidebar.image('starwatch_logo.png')
 st.sidebar.title("Navigation")
 selection = st.sidebar.radio("Go to", list(PAGES.keys()))
 logger.info(f"The user has selected {selection}")
-
 st.session_state.page = selection
 
 page = PAGES[st.session_state.page]
