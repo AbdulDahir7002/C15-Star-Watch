@@ -236,6 +236,75 @@ def check_run_errors(batch, section, header, lat, long, current_date):
     return batch
 
 
+def run_batches(const_codes, daily_const, header, lat, long, date_to_query):
+    """Runs the batches to comply with API limits"""
+    daily_const = []
+    first_batch = asyncio.run(gather_tasks(
+        const_codes[:11], header, lat, long, date_to_query))
+
+    first_batch = check_run_errors(first_batch, const_codes[:11], HEADER,
+                                   lat, long, date_to_query)
+    logging.info("Batch 1 successful")
+    daily_const.extend(first_batch)
+
+    second_batch = asyncio.run(gather_tasks(
+        const_codes[11:22], header, lat, long, date_to_query))
+
+    second_batch = check_run_errors(second_batch, const_codes[11:22], HEADER,
+                                    lat, long, date_to_query)
+    logging.info("Batch 2 successful")
+    daily_const.extend(second_batch)
+
+    third_batch = asyncio.run(gather_tasks(
+        const_codes[22:33], header, lat, long, date_to_query))
+
+    third_batch = check_run_errors(
+        third_batch, const_codes[22:33], header, lat, long, date_to_query)
+    logging.info("Batch 3 successful")
+    daily_const.extend(third_batch)
+
+    fourth_batch = asyncio.run(gather_tasks(
+        const_codes[33:44], header, lat, long, date_to_query))
+
+    fourth_batch = check_run_errors(
+        fourth_batch, const_codes[33:44], header, lat, long, date_to_query)
+    logging.info("Batch 4 successful")
+    daily_const.extend(fourth_batch)
+
+    fifth_batch = asyncio.run(gather_tasks(
+        const_codes[44:55], header, lat, long, date_to_query))
+
+    fifth_batch = check_run_errors(
+        fifth_batch, const_codes[44:55], header, lat, long, date_to_query)
+    logging.info("Batch 5 successful")
+    daily_const.extend(fifth_batch)
+
+    sixth_batch = asyncio.run(gather_tasks(
+        const_codes[55:66], header, lat, long, date_to_query))
+
+    sixth_batch = check_run_errors(
+        sixth_batch, const_codes[55:66], header, lat, long, date_to_query)
+    logging.info("Batch 6 successful")
+    daily_const.extend(sixth_batch)
+
+    seventh_batch = asyncio.run(gather_tasks(
+        const_codes[66:77], header, lat, long, date_to_query))
+
+    seventh_batch = check_run_errors(
+        seventh_batch, const_codes[66:77], header, lat, long, date_to_query)
+    logging.info("Batch 7 successful")
+    daily_const.extend(seventh_batch)
+
+    eighth_batch = asyncio.run(gather_tasks(
+        const_codes[77:], header, lat, long, date_to_query))
+
+    eighth_batch = check_run_errors(
+        eighth_batch, const_codes[77:], header, lat, long, date_to_query)
+    logging.info("Batch 8 successful")
+    daily_const.extend(eighth_batch)
+    return daily_const
+
+
 def handler(event, context):
     """Lambda function handler"""
     load_dotenv()
@@ -255,76 +324,12 @@ def handler(event, context):
     forecast_data = get_future_data(cities, current_date, HEADER)
     logging.info("Star chart and Moon phase url's retrieved")
 
-    daily_const = []
-
     logging.info("Testing batches...")
 
-    first_batch = asyncio.run(gather_tasks(
-        const_codes[:11], HEADER, LONDON_LAT, LONDON_LONG, current_date))
-
-    first_batch = check_run_errors(first_batch, const_codes[:11], HEADER,
-                                   LONDON_LAT, LONDON_LONG, current_date)
-    logging.info("Batch 1 successful")
-    daily_const.extend(first_batch)
-
-    second_batch = asyncio.run(gather_tasks(
-        const_codes[11:22], HEADER, LONDON_LAT, LONDON_LONG, current_date))
-
-    second_batch = check_run_errors(second_batch, const_codes[11:22], HEADER,
-                                    LONDON_LAT, LONDON_LONG, current_date)
-    logging.info("Batch 2 successful")
-    daily_const.extend(second_batch)
-
-    third_batch = asyncio.run(gather_tasks(
-        const_codes[22:33], HEADER, LONDON_LAT, LONDON_LONG, current_date))
-
-    third_batch = check_run_errors(
-        third_batch, const_codes[22:33], HEADER, LONDON_LAT, LONDON_LONG, current_date)
-    logging.info("Batch 3 successful")
-    daily_const.extend(third_batch)
-
-    fourth_batch = asyncio.run(gather_tasks(
-        const_codes[33:44], HEADER, LONDON_LAT, LONDON_LONG, current_date))
-
-    fourth_batch = check_run_errors(
-        fourth_batch, const_codes[33:44], HEADER, LONDON_LAT, LONDON_LONG, current_date)
-    logging.info("Batch 4 successful")
-    daily_const.extend(fourth_batch)
-
-    fifth_batch = asyncio.run(gather_tasks(
-        const_codes[44:55], HEADER, LONDON_LAT, LONDON_LONG, current_date))
-
-    fifth_batch = check_run_errors(
-        fifth_batch, const_codes[44:55], HEADER, LONDON_LAT, LONDON_LONG, current_date)
-    logging.info("Batch 5 successful")
-    daily_const.extend(fifth_batch)
-
-    sixth_batch = asyncio.run(gather_tasks(
-        const_codes[55:66], HEADER, LONDON_LAT, LONDON_LONG, current_date))
-
-    sixth_batch = check_run_errors(
-        sixth_batch, const_codes[55:66], HEADER, LONDON_LAT, LONDON_LONG, current_date)
-    logging.info("Batch 6 successful")
-    daily_const.extend(sixth_batch)
-
-    seventh_batch = asyncio.run(gather_tasks(
-        const_codes[66:77], HEADER, LONDON_LAT, LONDON_LONG, current_date))
-
-    seventh_batch = check_run_errors(
-        seventh_batch, const_codes[66:77], HEADER, LONDON_LAT, LONDON_LONG, current_date)
-    logging.info("Batch 7 successful")
-    daily_const.extend(seventh_batch)
-
-    eighth_batch = asyncio.run(gather_tasks(
-        const_codes[77:], HEADER, LONDON_LAT, LONDON_LONG, current_date))
-
-    eighth_batch = check_run_errors(
-        eighth_batch, const_codes[77:], HEADER, LONDON_LAT, LONDON_LONG, current_date)
-    logging.info("Batch 8 successful")
-    daily_const.extend(eighth_batch)
-
-    formatted_const = format_for_db_update(daily_const)
+    daily_const = run_batches(const_codes, daily_const,
+                              HEADER, LONDON_LAT, LONDON_LONG, current_date)
     logging.info("Todays constellation url's retrieved")
+    formatted_const = format_for_db_update(daily_const)
 
     upload_constellation_urls(conn, formatted_const)
     logging.info("Uploaded todays constellations")
