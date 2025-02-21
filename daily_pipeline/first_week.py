@@ -2,29 +2,11 @@
 from os import environ as ENV
 from datetime import datetime, date, timedelta
 import logging
-import sys
 
 import asyncio
 import aiohttp
-import psycopg2
-from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
-
-
-def configure_logs():
-    """Configure the logs for the whole project to refer to"""
-
-    logging.basicConfig(
-        level=logging.INFO,
-        format="{asctime} - {levelname} - {message}",
-        style="{",
-        datefmt="%Y-%m-%d %H:%M",
-        handlers=[
-            logging.FileHandler("log_files/pipeline.log", mode="a",
-                                encoding="utf-8"),
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
+from daily_etl import configure_logs, get_connection, get_locations
 
 
 async def get_sunrise_and_set_times(session, lat: float, long: float, date_to_query: str):
@@ -34,26 +16,6 @@ async def get_sunrise_and_set_times(session, lat: float, long: float, date_to_qu
     data = await response.json()
 
     return data
-
-
-def get_connection():
-    """Gets a connection to the database"""
-    connection = psycopg2.connect(host=ENV["DB_HOST"],
-                                  user=ENV["DB_USERNAME"],
-                                  dbname=ENV["DB_NAME"],
-                                  password=ENV["DB_PASSWORD"],
-                                  port=ENV["DB_PORT"],
-                                  cursor_factory=RealDictCursor)
-    return connection
-
-
-def get_locations(connection):
-    """Retrieves the cities we need to extract data for"""
-    cursor = connection.cursor()
-    cursor.execute("""SELECT * FROM city""")
-    rows = cursor.fetchall()
-    cursor.close()
-    return rows
 
 
 def get_constellations(connection):

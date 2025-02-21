@@ -16,3 +16,4 @@ altair
 streamlit
 asyncio
 aiohttp
+requests_mock
