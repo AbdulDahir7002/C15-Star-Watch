@@ -1,5 +1,5 @@
 resource "aws_iam_role" "scheduler_role" {
-    name = "EventBridgeDailySchedulerRole"
+    name = "EventBridgeWeeklySchedulerRole"
     assume_role_policy = jsonencode({
         Version = "2012-10-17"
         Statement = [
@@ -23,7 +23,7 @@ resource "aws_iam_role_policy" "scheduler_lambda_invoke" {
             {
             Effect = "Allow"
             Action = "lambda:InvokeFunction"
-            Resource = aws_lambda_function.pipeline-lambda.arn
+            Resource = aws_lambda_function.email-lambda.arn
         }
         ]
     })
@@ -41,7 +41,7 @@ resource "aws_scheduler_schedule" "weekly_scheduler" {
   schedule_expression = "cron(0 0 ? * 2 *)"
 
   target {
-    arn      = aws_lambda_function.c15-star-email-report.arn
+    arn      = aws_lambda_function.email-lambda.arn
     role_arn = aws_iam_role.scheduler_role.arn
   }
 }
