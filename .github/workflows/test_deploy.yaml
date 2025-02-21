@@ -74,12 +74,13 @@ jobs:
       - name: Stop previous
         run: |
           ssh -tt -i keyfile ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} <<EOF
+          if [ ! -z pgrep -f "streamlit run"]; then
           pkill -f "streamlit run" 
           exit
           EOF
       - name: Start new
         run: |
           ssh -i keyfile ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} <<EOF
-          nohup streamlit main.py &
+          nohup streamlit run dashboard/main.py &
           exit
           EOF
