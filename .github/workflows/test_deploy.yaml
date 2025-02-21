@@ -51,6 +51,7 @@ jobs:
         run: |
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          cd hourly_pipeline
           ls
           bash hourly_pipeline/hourly_etl_scripts/push_image.sh
           bash daily_pipeline/push_image.sh
