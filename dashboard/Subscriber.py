@@ -29,7 +29,8 @@ def app():
         st.rerun()
 
 
-def validate_uk_mobile_number(phone_number):
+def validate_uk_mobile_number(phone_number: str) -> str:
+    """Returns phone number if it's valid, or a message if it isn't."""
     if phone_number[0:2] != "07":
         return "Please enter a valid phone number starting with 07"
     if len(phone_number) < 11 or len(phone_number) > 11:
@@ -37,7 +38,8 @@ def validate_uk_mobile_number(phone_number):
     return phone_number
 
 
-def validate_email(email):
+def validate_email(email: str) -> bool:
+    """Returns True if the email is valid, false otherwise."""
     email_pattern = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
 
     if re.match(email_pattern, email):
@@ -54,7 +56,7 @@ def validate_email(email):
     return False
 
 
-def list_all_topics(sns):
+def list_all_topics(sns) -> list:
     """Returns a list of all topics on AWS."""
     response = sns.list_topics()
     topics = []
@@ -72,7 +74,7 @@ def list_relevant_topics(all_topics: list) -> list:
     return [topic for topic in all_topics if "c15-star-watch-" in topic]
 
 
-def retrieve_chosen_topics(topic_list, city_list):
+def retrieve_chosen_topics(topic_list: list, city_list: list) -> list:
     """Returns a list of topics the user has chosen to subscribe to."""
     chosen_topics = [topic for topic in topic_list for city in city_list if bool(
         re.search(f".*({city})$", topic))]
@@ -80,7 +82,7 @@ def retrieve_chosen_topics(topic_list, city_list):
     return chosen_topics
 
 
-def subscribe_user(user_data, topic_list, sns):
+def subscribe_user(user_data: dict, topic_list: list, sns) -> str:
     """Subscribes a user to chosen topic(s)."""
     if "email" in user_data.keys():
         email_topics = retrieve_chosen_topics(
@@ -111,7 +113,7 @@ def subscribe_user(user_data, topic_list, sns):
     return "Subscribed!"
 
 
-def list_subscribed_topics(email, sns):
+def list_subscribed_topics(email: str, sns):
     """Returns a list of subscribed topics."""
     response = sns.list_subscriptions()
     subscriptions = []
