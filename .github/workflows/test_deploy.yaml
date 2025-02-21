@@ -51,7 +51,7 @@ jobs:
         run: |
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws configure set aws_region eu-west-2
+          aws configure set region eu-west-2
           export HOURLY_ECR_NAME=${{ secrets.HOURLY_ECR_NAME }}
           export HOURLY_LAMBDA_NAME=${{ secrets.HOURLY_LAMBDA_NAME }}
           export DAILY_ECR_NAME=${{ secrets.DAILY_ECR_NAME }}
