@@ -21,8 +21,6 @@ def configure_logs():
         style="{",
         datefmt="%Y-%m-%d %H:%M",
         handlers=[
-            logging.FileHandler("log_files/pipeline.log", mode="a",
-                                encoding="utf-8"),
             logging.StreamHandler(sys.stdout)
         ]
     )
@@ -257,12 +255,14 @@ def handler(event, context):
 
     daily_const = []
 
+    logging.info("Testing batches...")
+
     first_batch = asyncio.run(gather_tasks(
         const_codes[:11], HEADER, LONDON_LAT, LONDON_LONG, current_date))
 
     first_batch = check_run_errors(first_batch, const_codes[:11], HEADER,
                                    LONDON_LAT, LONDON_LONG, current_date)
-
+    logging.info("Batch 1 successful")
     daily_const.extend(first_batch)
 
     second_batch = asyncio.run(gather_tasks(
@@ -270,7 +270,7 @@ def handler(event, context):
 
     second_batch = check_run_errors(second_batch, const_codes[11:22], HEADER,
                                     LONDON_LAT, LONDON_LONG, current_date)
-
+    logging.info("Batch 2 successful")
     daily_const.extend(second_batch)
 
     third_batch = asyncio.run(gather_tasks(
@@ -278,7 +278,7 @@ def handler(event, context):
 
     third_batch = check_run_errors(
         third_batch, const_codes[22:33], HEADER, LONDON_LAT, LONDON_LONG, current_date)
-
+    logging.info("Batch 3 successful")
     daily_const.extend(third_batch)
 
     fourth_batch = asyncio.run(gather_tasks(
@@ -286,7 +286,7 @@ def handler(event, context):
 
     fourth_batch = check_run_errors(
         fourth_batch, const_codes[33:44], HEADER, LONDON_LAT, LONDON_LONG, current_date)
-
+    logging.info("Batch 4 successful")
     daily_const.extend(fourth_batch)
 
     fifth_batch = asyncio.run(gather_tasks(
@@ -294,7 +294,7 @@ def handler(event, context):
 
     fifth_batch = check_run_errors(
         fifth_batch, const_codes[44:55], HEADER, LONDON_LAT, LONDON_LONG, current_date)
-
+    logging.info("Batch 5 successful")
     daily_const.extend(fifth_batch)
 
     sixth_batch = asyncio.run(gather_tasks(
@@ -302,7 +302,7 @@ def handler(event, context):
 
     sixth_batch = check_run_errors(
         sixth_batch, const_codes[55:66], HEADER, LONDON_LAT, LONDON_LONG, current_date)
-
+    logging.info("Batch 6 successful")
     daily_const.extend(sixth_batch)
 
     seventh_batch = asyncio.run(gather_tasks(
@@ -310,7 +310,7 @@ def handler(event, context):
 
     seventh_batch = check_run_errors(
         seventh_batch, const_codes[66:77], HEADER, LONDON_LAT, LONDON_LONG, current_date)
-
+    logging.info("Batch 7 successful")
     daily_const.extend(seventh_batch)
 
     eighth_batch = asyncio.run(gather_tasks(
@@ -318,7 +318,7 @@ def handler(event, context):
 
     eighth_batch = check_run_errors(
         eighth_batch, const_codes[77:], HEADER, LONDON_LAT, LONDON_LONG, current_date)
-
+    logging.info("Batch 8 successful")
     daily_const.extend(eighth_batch)
 
     formatted_const = format_for_db_update(daily_const)
