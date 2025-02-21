@@ -121,7 +121,7 @@ async def collate_data(header: str, city_list: list, dates: list) -> dict:
                 tasks.append(format_tasks(
                     city, day, header, lat, long, session))
 
-            logging.info(f"Queued for all dates in city {city["city_id"]}")
+            logging.info(f"Queued for all dates in city {city['city_id']}")
 
             results = await asyncio.gather(*tasks)
             city_data.extend(results)

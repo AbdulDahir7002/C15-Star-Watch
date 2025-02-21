@@ -101,4 +101,3 @@ terraform.*
 
 *.log
 .csv
-logs/
