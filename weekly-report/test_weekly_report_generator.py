@@ -5,7 +5,7 @@ import pytest
 from pandas.testing import assert_frame_equal
 import pandas as pd
 from unittest.mock import patch, MagicMock
-from weekly_report_generator import get_connection, get_all_cities, get_meteor_peak, get_starting_meteors, get_ending_meteors, combine_meteor_info, average_coverage_graph, average_visibility_graph, sunrise_set_df, highest_coverage_day, best_stargazing_day
+from weekly_report_generator import get_connection, get_all_cities, get_meteor_peak, get_starting_meteors, get_ending_meteors, combine_meteor_info, average_coverage_graph, average_visibility_graph, sunrise_set_df, highest_coverage_day, best_stargazing_day, format_meteor_query, format_weather_query
 
 
 @patch.dict(os.environ, {"DB_HOST": "host", "DB_USERNAME": "user", "DB_PASSWORD": "password", "DB_NAME": "name", "DB_PORT": "390"})
@@ -94,3 +94,27 @@ def test_best_stargazing_day(inp, out):
     cur = conn.cursor()
     cur.fetchone.return_value = inp
     assert best_stargazing_day(conn, "city") == out
+
+
+def test_format_weather_query():
+    assert format_weather_query("visibility", "London") == """
+        SELECT ROUND(avg(visibility)) AS visibility, TO_CHAR(w.status_at, 'Day') AS date
+        FROM stargazing_status ss
+        JOIN weather_status AS w 
+        ON w.city_id = ss.city_id
+        JOIN city AS c
+        ON w.city_id = c.city_id
+        WHERE c.city_name = 'London'
+        AND w.status_at > sunset
+        GROUP BY TO_CHAR(w.status_at, 'Day')
+        ORDER BY visibility ASC 
+        LIMIT 1
+    """
+
+
+def test_format_meteor_query():
+    assert format_meteor_query("peak") == """
+        SELECT meteor_shower_name, peak - current_date AS days
+        FROM meteor_shower
+        WHERE current_date >= peak - INTERVAL '7 days';
+    """
