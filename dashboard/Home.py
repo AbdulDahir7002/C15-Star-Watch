@@ -60,9 +60,9 @@ def app():
     st.title("Starwatch")
     st.markdown("### Welcome to Starwatch!")
     st.markdown("""We are dedicated to bringing you the information you need to know
-                to have a _**great night stargazing**_! We hope you enjoy, make sure to let us know if you were like to see more. 
-                There is also a subscribe page that you can use to automatically get a summary for the week. 
-                Please feel free to look at the interest sections on this page.""")
+                to have a _**great night stargazing**_! We hope you enjoy, make sure to let us know if you would like to see more. 
+                There is also a subscribe page that you can use to automatically receive a summary for the week. 
+                Please feel free to look at the interesting sections on this page.""")
     st.write("Select a page from the sidebar to explore forecasts and trends, or stay here for more general information.")
 
     with st.container(border=True):
