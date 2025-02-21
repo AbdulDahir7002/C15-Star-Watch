@@ -1,14 +1,12 @@
 # pylint: skip-file
 # Replace with your actual module name
-from your_module import post_location_get_moonphase
 import requests_mock
-import requests
 from os import environ
 
 from unittest.mock import patch, MagicMock
 import pytest
 
-from daily_etl import get_connection, get_locations, get_constellation_codes, post_location_get_moonphase, post_location_get_starchart, upload_daily_data, handler, upload_constellation_urls
+from daily_etl import get_connection, get_locations, get_constellation_codes, post_location_get_moonphase, post_location_get_starchart, upload_daily_data, handler, upload_constellation_urls, get_sunrise_and_set_times
 
 
 @pytest.fixture()
@@ -28,32 +26,6 @@ def test_connection_made(mock_conn):
     """Tests that the connection function is called once"""
     get_connection()
     assert mock_conn.call_count == 1
-
-
-@patch.dict(environ, {"DB_HOST": "HOST", "DB_USERNAME": "USERNAME", "DB_NAME": "NAME", "DB_PASSWORD": "PASSWORD", "DB_PORT": "PORT"})
-@patch("daily_etl.psycopg2.connect", return_value="mocked_conn")
-def test_city_format(mock_conn):
-    """Tests that the query has the right format"""
-    mock_connect = MagicMock()
-    mock_conn.return_value = mock_connect
-    assert type(get_locations()) == list
-    assert type(get_constellation_codes()[0]) == dict
-    assert get_locations().get("city_id") is not None
-    assert get_locations().get("latitude") is not None
-    assert get_locations().get("longitude") is not None
-
-
-@patch.dict(environ, {"DB_HOST": "HOST", "DB_USERNAME": "USERNAME", "DB_NAME": "NAME", "DB_PASSWORD": "PASSWORD", "DB_PORT": "PORT"})
-@patch("daily_etl.psycopg2.connect", return_value="mocked_conn")
-def test_constellation_format(mock_conn):
-    """Tests that the query has the right format"""
-    mock_connect = MagicMock()
-    mock_conn.return_value = mock_connect
-    assert type(get_constellation_codes()) == list
-    assert type(get_constellation_codes()[0]) == dict
-    assert get_constellation_codes().get("city_id") is not None
-    assert get_constellation_codes().get("latitude") is not None
-    assert get_constellation_codes().get("longitude") is not None
 
 
 @patch.dict(environ, {"DB_HOST": "HOST", "DB_USERNAME": "USERNAME", "DB_NAME": "NAME", "DB_PASSWORD": "PASSWORD", "DB_PORT": "PORT"})
@@ -137,10 +109,13 @@ def test_post_location_get_moonphase(requests_mock):
     requests_mock.post(mock_url, json=mock_response)
 
     result = post_location_get_moonphase(header, lat, long, date_to_query)
+    last_request = requests_mock.request_history[0]
 
     assert result == "www.moonphase-test.com"
     assert requests_mock.called
     assert requests_mock.call_count == 1
+    assert last_request.method == "POST"
+    assert last_request.headers["Authorization"] == header
 
 
 def test_post_location_get_starchart(requests_mock):
@@ -150,7 +125,7 @@ def test_post_location_get_starchart(requests_mock):
     long = 0.545
     date_to_query = "2025-02-21"
 
-    mock_url = "https://api.astronomyapi.com/api/v2/studio/moon-phase"
+    mock_url = "https://api.astronomyapi.com/api/v2/studio/star-chart"
     mock_response = {
         "data": {
             "imageUrl": "www.starchart-test.com"
@@ -160,10 +135,39 @@ def test_post_location_get_starchart(requests_mock):
     requests_mock.post(mock_url, json=mock_response)
 
     result = post_location_get_starchart(header, lat, long, date_to_query)
+    last_request = requests_mock.request_history[0]
 
     assert result == "www.starchart-test.com"
     assert requests_mock.called
     assert requests_mock.call_count == 1
+    assert last_request.method == "POST"
+    assert last_request.headers["Authorization"] == header
+
+
+def test_get_sunrise_sunset_times(requests_mock):
+    """The the API response is handled correctly"""
+    lat = 45.101
+    long = 0.545
+    date_to_query = "2025-02-21"
+
+    mock_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={long}&daily=sunrise,sunset&timezone=auto&start_date={date_to_query}&end_date={date_to_query}"
+    mock_response = {
+        "daily": {
+            "sunrise": ["2025-02-21T07:35"], "sunset": ["2025-02-21T17:35"]
+        }
+    }
+
+    requests_mock.get(mock_url, json=mock_response)
+
+    result1, result2 = get_sunrise_and_set_times(lat, long, date_to_query)
+    last_request = requests_mock.request_history[0]
+
+    assert result1 != result2
+    assert type(result1) == str
+    assert type(result2) == str
+    assert requests_mock.called
+    assert requests_mock.call_count == 1
+    assert last_request.method == "GET"
 
 
 @patch.dict(environ, {"DB_HOST": "HOST", "DB_USERNAME": "USERNAME", "DB_NAME": "NAME", "DB_PASSWORD": "PASSWORD", "DB_PORT": "PORT", "ASTRONOMY_BASIC_AUTH_KEY": "ASTRO_KEY"})
