@@ -22,7 +22,8 @@ def get_nasa_apod() -> dict:
 
 def display_apod(apod: dict) -> None:
     """Displays APOD on streamlit page."""
-    st.markdown("<h3>NASA Picture of the Day</h3>", unsafe_allow_html=True)
+    st.markdown("<h3>NASA Picture of the Day &#128248; </h3>",
+                unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     with col1:
         st.image(apod['url'])
@@ -46,7 +47,8 @@ def get_constellation_url(constellation: str) -> str:
 def display_constellation() -> None:
     """Displays the constellation starchart section."""
     HEADER = f'Basic {ENV["ASTRONOMY_BASIC_AUTH_KEY"]}'
-    st.markdown("<h3>Constellation Starchart</h3>", unsafe_allow_html=True)
+    st.markdown("<h3>Constellation Starchart &#10024;</h3>",
+                unsafe_allow_html=True)
     st.markdown("""Here, you can select any constellation you are curious about. 
                     Keep in mind, this is the chart from London's perspective.""")
     constellation = st.selectbox('Select constellation:', get_constellations())
