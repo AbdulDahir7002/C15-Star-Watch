@@ -34,11 +34,11 @@ def display_apod(apod: dict) -> None:
 def get_constellation_url(constellation: str) -> str:
     """Fetches url for corresponding constellation from the database."""
     connection = get_connection()
-    query = f"""SELECT constellation_url
+    query = """SELECT constellation_url
                 FROM constellation
-                WHERE constellation_name = '{constellation}';"""
+                WHERE constellation_name = %s;"""
     with connection.cursor() as curs:
-        curs.execute(query)
+        curs.execute(query, [constellation])
         result = curs.fetchone()
     return result[0]
 
