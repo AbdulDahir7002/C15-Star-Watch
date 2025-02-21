@@ -74,8 +74,11 @@ jobs:
       - name: Stop previous
         run: |
           ssh -tt -i keyfile ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} <<EOF
-          if [ ! -z pgrep -f "streamlit run"]; then
-          pkill -f "streamlit run" 
+          if [ ! -z $(pgrep -f "streamlit run")]; then
+            pkill -f "streamlit run" 
+          else
+            echo "No process"
+          fi
           exit
           EOF
       - name: Start new
