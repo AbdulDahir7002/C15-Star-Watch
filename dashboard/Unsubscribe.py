@@ -1,3 +1,4 @@
+""""The code for the unsubscribe page of the dashboard"""
 import streamlit as st
 import boto3
 from Subscriber import get_city_topic_arn_mapping, list_subscribed_topics, get_city_from_arn, unsubscribe_user
@@ -7,6 +8,7 @@ user_data = {}
 
 
 def app():
+    """Runs the necessary code for this page."""
     if st.session_state.show_unsubscribe:
         unsubscribe_form(sns_client)
     else:
@@ -15,6 +17,7 @@ def app():
 
 
 def unsubscribe_form(sns_client):
+    """The function that allows a user to unsubscribe."""
     st.title("Unsubscribe Form")
     st.write("Please provide your subscription details below.")
 

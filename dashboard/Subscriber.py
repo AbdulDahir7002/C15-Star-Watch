@@ -1,3 +1,4 @@
+"""Sets up the subscriber page."""
 import streamlit as st
 import boto3
 import re
@@ -23,6 +24,7 @@ city_options = [
 
 
 def app():
+    """Runs the necessary functions for this page."""
     subscription_form()
     if st.button("Go to Unsubscribe Page"):
         st.session_state.show_unsubscribe = True
@@ -30,6 +32,7 @@ def app():
 
 
 def validate_uk_mobile_number(phone_number):
+    """Validates a phone number to ensure it fits UK numbers."""
     if phone_number[0:2] != "07":
         return "Please enter a valid phone number starting with 07"
     if len(phone_number) < 11 or len(phone_number) > 11:
@@ -38,6 +41,7 @@ def validate_uk_mobile_number(phone_number):
 
 
 def validate_email(email):
+    """Validates the format of an email."""
     email_pattern = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
 
     if re.match(email_pattern, email):
@@ -58,12 +62,11 @@ def list_all_topics(sns):
     """Returns a list of all topics on AWS."""
     response = sns.list_topics()
     topics = []
-    while True:
+
+    while "NextToken" in response:
         topics.extend(response["Topics"])
-        if "NextToken" in response:
-            response = sns.list_topics(NextToken=response["NextToken"])
-        else:
-            break
+        response = sns.list_topics(NextToken=response["NextToken"])
+    topics.extend(response["Topics"])
     return [topic["TopicArn"] for topic in topics]
 
 
@@ -153,12 +156,14 @@ def unsubscribe_user(cities_to_unsubscribe, sns_client, endpoint):
 
 
 def update_selectbox():
+    """Updates the state of the subscription_type selectbox."""
     subscription_type = st.session_state.sub_type
     global user_data
     user_data = {}
 
 
 def subscription_form():
+    """The code for the subscribe functionality."""
     global user_data
     st.title("Subscription Form")
     st.write("Please provide your subscription details below.")
@@ -203,19 +208,15 @@ def subscription_form():
                 f"Thank you! You've been successfully subscribed to SMS alerts for {', '.join(selected_cities)}.")
 
 
-def update_unsub_selectbox():
-    service_type = st.session_state.unsub_type
-    global user_data
-    user_data = {}
-
-
 def get_city_from_arn(topic_arn):
+    """Get the city associated with a specific arn"""
     arn_parts = topic_arn.split(":")
     city_name = arn_parts[5].replace("c15-star-watch-", "")
     return city_name
 
 
 def get_city_topic_arn_mapping(sns_client):
+    """Creates a mapping of cities to its corresponding arn."""
     city_to_arn_mapping = {}
 
     response = sns_client.list_topics()

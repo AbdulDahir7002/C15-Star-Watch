@@ -2,11 +2,10 @@
 from os import environ as ENV
 import requests
 
-from datetime import date
 from dotenv import load_dotenv
 import streamlit as st
 
-from Page1 import get_constellations, get_constellation_code, get_lat_and_long, post_location_get_starchart, create_scroll_image, get_connection
+from Page1 import get_constellations, create_scroll_image, get_connection
 
 
 @st.cache_data

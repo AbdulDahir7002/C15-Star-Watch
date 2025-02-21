@@ -1,4 +1,4 @@
-"""Page 1 of the Dashboard"""
+"""Page 2 of the Dashboard."""
 from os import environ as ENV
 import logging
 

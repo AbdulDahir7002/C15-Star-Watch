@@ -1,4 +1,4 @@
-"""Page1 of the dashboard."""
+"""Page 1 of the dashboard."""
 from os import environ as ENV
 from datetime import date, timedelta
 import logging
@@ -270,6 +270,7 @@ def column_two(star_status: list) -> None:
 
 
 def column_three(star_status: list) -> None:
+    """Defines the code in column three."""
     st.markdown("<h3>Moonphase &#127765; </h3>", unsafe_allow_html=True)
 
     if star_status is None:
@@ -279,6 +280,7 @@ def column_three(star_status: list) -> None:
 
 
 def column_four(showers: pd.DataFrame) -> None:
+    """Defines the code in column four."""
     st.markdown("<h3>Meteor showers &#9732; </h3>", unsafe_allow_html=True)
 
     if showers is None:
@@ -307,7 +309,7 @@ def post_location_get_starchart(header: str,
                                 long: float,
                                 date_to_query: str,
                                 code: str) -> str:
-    """returns the url of a star chart for specific coordinates"""
+    """Returns the url of a star chart for specific coordinates."""
     body = {
         "style": "default",
         "observer": {

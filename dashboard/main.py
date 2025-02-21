@@ -1,3 +1,4 @@
+"""Main page running the streamlit app"""
 import streamlit as st
 import logging
 import Home
@@ -8,6 +9,7 @@ import Unsubscribe
 
 
 def define_logger():
+    """Configures the logger"""
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s - %(levelname)s - %(message)s",
                         handlers=[logging.StreamHandler(),
