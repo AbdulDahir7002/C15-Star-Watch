@@ -33,13 +33,37 @@ def get_all_cities(conn):
     return [city["city_name"] for city in cities]
 
 
+def format_meteor_query(meteor_info: str):
+    """Formats meteor query."""
+    q = """
+        SELECT meteor_shower_name, %s - current_date AS days
+        FROM meteor_shower
+        WHERE current_date >= %s - INTERVAL '7 days';
+    """ % (meteor_info, meteor_info)
+    return q
+
+
+def format_weather_query(metric: str, city: str):
+    """Formats weather query."""
+    q = """
+        SELECT ROUND(avg(%s)) AS %s, TO_CHAR(w.status_at, 'Day') AS date
+        FROM stargazing_status ss
+        JOIN weather_status AS w 
+        ON w.city_id = ss.city_id
+        JOIN city AS c
+        ON w.city_id = c.city_id
+        WHERE c.city_name = '%s'
+        AND w.status_at > sunset
+        GROUP BY TO_CHAR(w.status_at, 'Day')
+        ORDER BY %s ASC 
+        LIMIT 1
+    """ % (metric, metric, city, metric)
+    return q
+
+
 def get_meteor_peak(conn):
     """Returns dictionary of meteors that are peaking this week."""
-    q = """
-        SELECT meteor_shower_name, shower_peak - current_date AS days
-        FROM meteor_shower
-        WHERE current_date >= shower_peak - INTERVAL '7 days';
-    """
+    q = format_meteor_query("shower_peak")
     shower_info = []
     cur = conn.cursor()
     cur.execute(q)
@@ -54,11 +78,7 @@ def get_meteor_peak(conn):
 
 def get_starting_meteors(conn):
     """Returns a dictionary of information on meteors starting in the next week."""
-    q = """
-        SELECT meteor_shower_name, shower_start - current_date AS days
-        FROM meteor_shower
-        WHERE current_date >= shower_start - INTERVAL '7 days';
-    """
+    q = format_meteor_query("shower_start")
     cur = conn.cursor()
     cur.execute(q)
     rows = cur.fetchall()
@@ -69,11 +89,7 @@ def get_starting_meteors(conn):
 
 def get_ending_meteors(conn):
     """Returns a dictionary of meteors ending this week."""
-    q = """
-        SELECT meteor_shower_name, shower_end - current_date AS days
-        FROM meteor_shower
-        WHERE current_date >= shower_end - INTERVAL '7 days';
-    """
+    q = format_meteor_query("shower_end")
     cur = conn.cursor()
     cur.execute(q)
     rows = cur.fetchall()
@@ -168,20 +184,7 @@ def average_visibility_graph(conn, city):
 
 def highest_coverage_day(conn, city):
     """Returns day with highest coverage."""
-    q = """
-        SELECT ROUND(avg(coverage)) AS coverage, TO_CHAR(w.status_at, 'Day') AS date
-        FROM stargazing_status ss
-        JOIN weather_status AS w 
-        ON w.city_id = ss.city_id
-        JOIN city AS c
-        ON w.city_id = c.city_id
-        WHERE c.city_name = '%s'
-        AND w.status_at > sunset
-        GROUP BY TO_CHAR(w.status_at, 'Day')
-        ORDER BY coverage ASC 
-        LIMIT 1
-        ;
-    """ % (city)
+    q = format_weather_query("coverage", city)
 
     cur = conn.cursor()
     cur.execute(q)
@@ -193,20 +196,7 @@ def highest_coverage_day(conn, city):
 
 def highest_visibility_day(conn, city):
     """Returns day with highest coverage."""
-    q = """
-        SELECT ROUND(avg(visibility)) AS visibility, TO_CHAR(w.status_at, 'Day') AS date
-        FROM stargazing_status ss
-        JOIN weather_status AS w 
-        ON w.city_id = ss.city_id
-        JOIN city AS c
-        ON w.city_id = c.city_id
-        WHERE c.city_name = '%s'
-        AND w.status_at > sunset
-        GROUP BY TO_CHAR(w.status_at, 'Day')
-        ORDER BY visibility DESC 
-        LIMIT 1
-        ;
-    """ % (city)
+    q = format_weather_query("visibility", city)
 
     cur = conn.cursor()
     cur.execute(q)

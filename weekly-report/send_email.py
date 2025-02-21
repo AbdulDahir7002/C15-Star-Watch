@@ -4,8 +4,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 import re
-from dotenv import load_dotenv
 from os import environ
+from dotenv import load_dotenv
 from boto3 import client
 
 
@@ -16,12 +16,11 @@ def list_all_topics(sns: client):
     """Returns a list of all topics on AWS."""
     response = sns.list_topics()
     topics = []
-    while True:
+
+    while "NextToken" in response:
         topics.extend(response["Topics"])
-        if "NextToken" in response:
-            response = sns.list_topics(NextToken=response["NextToken"])
-        else:
-            break
+        response = sns.list_topics(NextToken=response["NextToken"])
+    topics.extend(response["Topics"])
     return [topic["TopicArn"] for topic in topics]
 
 
@@ -75,7 +74,7 @@ def send_email(ses: client, emails: list, html: str):
                          filename="average_visibility_graph.png")
         msg.attach(image)
 
-    response = ses.send_raw_email(
+    ses.send_raw_email(
         Source=environ["EMAIL"],
         Destinations=emails,
         RawMessage={
