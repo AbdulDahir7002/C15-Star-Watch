@@ -74,7 +74,7 @@ jobs:
       - name: Stop previous
         run: |
           ssh -tt -i keyfile ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} <<EOF
-          pkill python3 
+          pkill -f "streamlit run" 
           exit
           EOF
       - name: Start new
