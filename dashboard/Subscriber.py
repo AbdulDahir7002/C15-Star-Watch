@@ -173,8 +173,17 @@ def subscription_form():
 
     if subscription_type == "Newsletter":
         email = st.text_input("Email Address")
+        subscribed_topics = list_subscribed_topics(email, sns_client)
+        if subscribed_topics:
+            subscribed_cities = [get_city_from_arn(
+                topic_arn) for topic_arn in subscribed_topics]
+            cities = [
+                city for city in city_options if city not in subscribed_cities]
+        else:
+            cities = city_options
+
         selected_cities = st.multiselect(
-            "Select cities to subscribe to:", city_options)
+            "Select cities to subscribe to:", cities)
         submit_button = st.button(label="Subscribe")
         if submit_button:
             if not validate_email(email):
