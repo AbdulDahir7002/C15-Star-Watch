@@ -8,7 +8,7 @@ import requests
 
 def get_picture_of_day() -> str:
     """Returns NASA astronomy picture of the day."""
-    url = f"https://api.nasa.gov/planetary/apod?api_key={environ["NASA_API_KEY"]}"
+    url = f"https://api.nasa.gov/planetary/apod?api_key={environ['NASA_API_KEY']}"
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()

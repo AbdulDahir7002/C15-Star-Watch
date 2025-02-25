@@ -163,8 +163,8 @@ def meteor_timeline(meteor_df: pd.DataFrame):
     else:
         st.markdown(f"*{timeline['content'].capitalize()}*")
         st.write(
-            f"From :orange[*{timeline["start"]}*] to :orange[*{timeline["end"]}*]")
-        st.write(f"Peaks on :orange[*{timeline["peak"]}*]")
+            f"From :orange[*{timeline['start']}*] to :orange[*{timeline['end']}*]")
+        st.write(f"Peaks on :orange[*{timeline['peak']}*]")
 
         # TODO: return more details
 
