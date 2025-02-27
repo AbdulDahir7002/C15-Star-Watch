@@ -51,7 +51,7 @@ def get_constellation_codes(connection):
     cursor = connection.cursor()
     q = """SELECT constellation_code FROM constellation"""
     cursor.execute(q)
-    codes = cursor
+    codes = cursor.fetchall()
     cursor.close()
     return codes
 

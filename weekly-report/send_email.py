@@ -118,8 +118,14 @@ def send_all_cities(city_list: list, sns: client, ses: client):
 def handler(event, context):
     """Lambda handler"""
     load_dotenv()
-    sns = client('sns', region_name=environ["REGION"])
-    ses = client('ses', region_name=environ["REGION"])
+    sns = client('sns',
+                 aws_access_key_id=environ["AWS_ACCESS_KEY"],
+                 aws_secret_access_key=environ["AWS_SECRET_ACCESS_KEY"],
+                 region_name=environ["REGION"])
+    ses = client('ses',
+                 aws_access_key_id=environ["AWS_ACCESS_KEY"],
+                 aws_secret_access_key=environ["AWS_SECRET_ACCESS_KEY"],
+                 region_name=environ["REGION"])
     conn = get_connection()
     city_list = get_all_cities(conn)
     send_all_cities(city_list, sns, ses)

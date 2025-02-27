@@ -4,6 +4,5 @@ psycopg2-binary
 pylint
 pytest
 openmeteo-requests
-asyncio
 aiohttp
 requests_mock
