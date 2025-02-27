@@ -106,7 +106,7 @@ resource "aws_lambda_function" "email-lambda" {
   image_uri = data.aws_ecr_image.lambda-image-version.image_uri
   memory_size = 516
   timeout = 600
-  architectures = [ "arm64" ]
+  architectures = [ "x86_64" ]
   environment { 
     variables = {
         REGION = var.AWS_REGION
